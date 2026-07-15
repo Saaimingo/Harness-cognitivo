@@ -30,11 +30,24 @@ from harness.contracts.events import (
     ExecutionCompleted,
 )
 
+from harness.contracts.context import (
+    Purpose,
+    ObjectType,
+    TrustLevel,
+    ChecksumAlgorithm,
+    EvidenceReference,
+    ContextRequest,
+    ContextItem,
+    ContextCapsule,
+    CognitiveObject,
+)
+
 __all__ = [
     "__version__",
     "__author__",
     "__status__",
     "__phase__",
+    # Eventos
     "Event",
     "EventType",
     "TaskCreated",
@@ -48,6 +61,16 @@ __all__ = [
     "ErrorRecorded",
     "ResultRecorded",
     "ExecutionCompleted",
+    # Contratos de contexto (FI-1)
+    "Purpose",
+    "ObjectType",
+    "TrustLevel",
+    "ChecksumAlgorithm",
+    "EvidenceReference",
+    "ContextRequest",
+    "ContextItem",
+    "ContextCapsule",
+    "CognitiveObject",
 ]
 
 
