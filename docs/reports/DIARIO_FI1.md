@@ -35,9 +35,11 @@ data: 2026-07-15
 - `docs/sources/DECLARATIVA_ORIGINAL.md` — Registro da Declarativa
 - `docs/reports/DIARIO_FI1.md` — Este diário
 
-**Métricas:**
-- 58 testes passando (29 da FI-0 + 29 novos)
-- Zero warnings
+**Métricas (categorização correta):**
+- 97 testes passando, zero warnings
+  - FI-0 (eventos + logging): 29 testes
+  - FI-1 (contratos de contexto): 29 testes
+  - FI-1 (validação documental): 39 testes
 - 5 Enums definidos
 - 4 schemas Pydantic criados
 - Função de validação de IDs

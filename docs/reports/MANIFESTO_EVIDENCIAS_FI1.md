@@ -31,7 +31,8 @@ executor: "Freebuff"
 - `src/harness/contracts/context.py` — Contratos de contexto (5 Enums, 4 schemas Pydantic, 2 funções utilitárias)
 
 ### 2.2 Testes
-- `tests/unit/test_context.py` — 29 novos testes
+- `tests/unit/test_context.py` — 29 testes de contratos de contexto
+- `tests/unit/test_documents.py` — 39 testes de validação documental
 
 ### 2.3 Documentação
 - `docs/GLOSSARY.md` — Glossário unificado
@@ -57,13 +58,24 @@ executor: "Freebuff"
 
 ## 4. Testes
 
+### Categorização
+
+| Categoria | Arquivo | Testes | Fase |
+|-----------|---------|--------|------|
+| Eventos e Logging | test_events.py + test_logging.py | 29 | FI-0 |
+| Contratos de Contexto | test_context.py | 29 | FI-1 |
+| Validação Documental | test_documents.py | 39 | FI-1 |
+| **Total** | | **97** | |
+
+### Métricas
+
 | Métrica | Valor |
 |---------|-------|
-| Total de testes | 58 |
-| Testes passaram | 58 |
+| Total de testes | 97 |
+| Testes passaram | 97 |
 | Testes falharam | 0 |
 | Warnings | 0 |
-| Tempo de execução | ~0.43s |
+| Tempo de execução | ~0.47s |
 
 ---
 
