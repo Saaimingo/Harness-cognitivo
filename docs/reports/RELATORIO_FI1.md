@@ -84,9 +84,19 @@ harness-cognitivo/
 
 ```
 ============================= test session starts ==============================
-58 tests passed in 0.43s
-============================== 58 passed =======================================
+97 tests passed in 0.47s
+============================== 97 passed =======================================
 ```
+
+### Categorização Correta
+
+| Arquivo | Testes | Fase |
+|---------|--------|------|
+| test_events.py | 15 | FI-0 |
+| test_logging.py | 14 | FI-0 |
+| test_context.py | 29 | FI-1 |
+| test_documents.py | 39 | FI-1 |
+| **Total** | **97** | |
 
 ---
 
