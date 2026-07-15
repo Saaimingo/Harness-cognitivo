@@ -77,7 +77,7 @@ class GateDecisionType(str, Enum):
     BLOCKED = "blocked"
     REJECTED = "rejected"
     AWAITING_HUMAN = "awaiting_human"
-    DISPENSED = "dispensed"
+    WAIVED = "waived"
 
 
 class Severity(str, Enum):

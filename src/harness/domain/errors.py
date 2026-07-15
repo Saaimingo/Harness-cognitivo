@@ -48,17 +48,6 @@ class InvariantViolationError(DomainError):
         super().__init__(message, entity=entity)
 
 
-class IdempotentTransitionError(DomainError):
-    """Exceção para tentativa de transição idempotente (estado já atual)."""
-
-    def __init__(self, entity: str, current_state: str):
-        message = (
-            f"Transição idempotente em {entity}: "
-            f"já está no estado {current_state}"
-        )
-        super().__init__(message, entity=entity, state=current_state)
-
-
 class ReworkLimitExceededError(DomainError):
     """Exceção para limite de rework atingido."""
 
@@ -102,5 +91,17 @@ class TimezoneRequiredError(DomainError):
         message = (
             f"Campo temporal '{field}' em {entity} requer timezone. "
             f"Use datetime com tzinfo."
+        )
+        super().__init__(message, entity=entity)
+
+
+class DuplicateTransitionError(DomainError):
+    """Exceção para detecção de IDs duplicados em listas."""
+
+    def __init__(self, entity: str, duplicates: list[str]):
+        self.duplicates = duplicates
+        message = (
+            f"IDs duplicados detectados em {entity}: "
+            f"{', '.join(duplicates)}"
         )
         super().__init__(message, entity=entity)
