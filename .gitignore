@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.coverage.*
+coverage.xml
+
+# Type checking
+.mypy_cache/
+.pytype/
+
+# Ruff
+.ruff_cache/
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+var/data/*
+!var/data/.gitkeep
+var/logs/*
+!var/logs/.gitkeep
+var/backups/*
+!var/backups/.gitkeep
+var/tmp/*
+!var/tmp/.gitkeep
+
+# Evidence (large files)
+evidence/*
+!evidence/.gitkeep
+
+# Build artifacts
+*.whl
+*.tar.gz
