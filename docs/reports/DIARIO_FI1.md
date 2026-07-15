@@ -43,10 +43,15 @@ data: 2026-07-15
 - Função de validação de IDs
 - Função de detecção de duplicatas
 
-**Pendências para continuação:**
-- Atualizar __init__.py com novos exports
-- Criar manifesto de evidências FI-1
-- Gerar relatório final FI-1
+**Encerramento:**
+- Tag `fi-1-approved` criada no commit `dac3509`
+- Checkpoint `CHECKPOINT_FI1.md` criado
+- Índice mestre atualizado
+- 97 testes passando, zero warnings
+
+**Pendências transferidas para FI-2:**
+- Avaliar simplificação do EventLogger
+- Copiar Declarativa PDF para repositório
 
 ---
 

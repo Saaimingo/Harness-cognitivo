@@ -15,7 +15,7 @@ data: 2026-07-15
 | Fase | Nome | Status | Commit | Tag |
 |------|------|--------|--------|-----|
 | **FI-0** | Fundação Inicial | ✅ **APROVADA** | `b3700c1` | `fi-0-approved` |
-| **FI-1** | Protocolo Cognitivo no Obsidian | ⏳ Aguardando autorização | — | — |
+| **FI-1** | Protocolo Cognitivo no Obsidian | ✅ **APROVADA** | `dac3509` | `fi-1-approved` |
 | FI-2 | Domínio e Contratos Puros | 🔒 Bloqueada (depende de FI-1) | — | — |
 | FI-3 | Persistência e Recuperação | 🔒 Bloqueada | — | — |
 | FI-4 | Projeções, Busca e Orquestração | 🔒 Bloqueada | — | — |
