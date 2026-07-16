@@ -18,6 +18,10 @@ data: 2026-07-15
 | **Harness** | Camada operacional externa que transforma modelos de IA intercambiáveis em sistemas persistente, verificável, seguro e eficiente | Doc 0 (Declarativa) |
 | **MEC** | Memória Evolutiva Causal — infraestrutura cognitiva persistente do Harness | Doc 1 |
 | **Modelo de IA** | Motor cognitivo que produz interpretação, raciocínio e linguagem | Doc 0 |
+| **SG-0** | Eixo transversal de Segurança Operacional e Ações Destrutivas | ESQ-0 |
+| **ESQ** | Eixo transversal de Engenharia de Software e Qualidade Estrutural | ESQ-0 |
+| **GRN** | Eixo transversal de Governança de Regras de Negócio | GRN-0 |
+| **CTP** | Chat-to-Project — Promoção de Conversa para Projeto | CTP-0 |
 
 ---
 
