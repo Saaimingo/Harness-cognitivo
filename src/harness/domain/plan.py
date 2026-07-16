@@ -7,8 +7,8 @@ Versionamento com numero positivo e referencia a versao anterior.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
@@ -16,8 +16,9 @@ from pydantic import BaseModel, Field, field_validator
 from harness.domain.ids import validate_id_format
 
 
-class PlanStatus(str, Enum):
+class PlanStatus(StrEnum):
     """Estados de um Plan."""
+
     DRAFT = "draft"
     APPROVED = "approved"
     SUPERSEDED = "superseded"
@@ -33,11 +34,10 @@ class Plan(BaseModel):
     description: str = ""
     status: PlanStatus = PlanStatus.DRAFT
     previous_version_id: str | None = Field(
-        default=None,
-        description="ID da versao anterior quando houver substituicao"
+        default=None, description="ID da versao anterior quando houver substituicao"
     )
     tasks_planned: int = 0
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -60,17 +60,21 @@ class Plan(BaseModel):
 
     def approve(self) -> Plan:
         """Aprovar o plano - retorna nova instancia."""
-        return self.model_copy(update={
-            "status": PlanStatus.APPROVED,
-            "updated_at": datetime.now(timezone.utc),
-        })
+        return self.model_copy(
+            update={
+                "status": PlanStatus.APPROVED,
+                "updated_at": datetime.now(UTC),
+            }
+        )
 
     def supersede(self, new_version_id: str) -> Plan:
         """Substituir por nova versao - retorna nova instancia."""
-        return self.model_copy(update={
-            "status": PlanStatus.SUPERSEDED,
-            "updated_at": datetime.now(timezone.utc),
-        })
+        return self.model_copy(
+            update={
+                "status": PlanStatus.SUPERSEDED,
+                "updated_at": datetime.now(UTC),
+            }
+        )
 
     def create_next_version(self, new_plan_id: str) -> Plan:
         """Criar proxima versao do plano."""

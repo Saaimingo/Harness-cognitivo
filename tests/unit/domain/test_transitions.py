@@ -4,22 +4,32 @@ Cobre: completude das tabelas, coleta de todos os estados, transições entre v�
 """
 
 import pytest
-from itertools import product
 
 from harness.domain.enums import (
-    ProjectStatus, TaskStatus, WorkOrderStatus, GateStatus,
+    GateStatus,
+    ProjectStatus,
+    TaskStatus,
+    WorkOrderStatus,
 )
 from harness.domain.transitions import (
-    PROJECT_TRANSITIONS, PROJECT_INITIAL, PROJECT_TERMINAL,
-    TASK_TRANSITIONS, TASK_INITIAL, TASK_TERMINAL,
-    WORKORDER_TRANSITIONS, WORKORDER_INITIAL, WORKORDER_TERMINAL,
-    GATE_TRANSITIONS, GATE_INITIAL, GATE_TERMINAL,
+    GATE_INITIAL,
+    GATE_TERMINAL,
+    GATE_TRANSITIONS,
+    PROJECT_INITIAL,
+    PROJECT_TERMINAL,
+    PROJECT_TRANSITIONS,
+    TASK_INITIAL,
+    TASK_TERMINAL,
+    TASK_TRANSITIONS,
+    WORKORDER_INITIAL,
+    WORKORDER_TERMINAL,
+    WORKORDER_TRANSITIONS,
 )
-
 
 # =============================================================================
 # PROJETO
 # =============================================================================
+
 
 class TestProjectTransitions:
     def test_initial_state_is_captured(self):
@@ -49,6 +59,7 @@ class TestProjectTransitions:
 # TAREFA
 # =============================================================================
 
+
 class TestTaskTransitions:
     def test_initial_state_is_proposed(self):
         assert TASK_INITIAL == TaskStatus.PROPOSED
@@ -67,6 +78,7 @@ class TestTaskTransitions:
 # WORKORDER
 # =============================================================================
 
+
 class TestWorkOrderTransitions:
     def test_initial_state_is_draft(self):
         assert WORKORDER_INITIAL == WorkOrderStatus.DRAFT
@@ -84,6 +96,7 @@ class TestWorkOrderTransitions:
 # GATE
 # =============================================================================
 
+
 class TestGateTransitions:
     def test_initial_state_is_pending(self):
         assert GATE_INITIAL == GateStatus.PENDING
@@ -91,6 +104,14 @@ class TestGateTransitions:
     def test_terminal_states(self):
         assert GateStatus.DECIDED in GATE_TERMINAL
         assert GateStatus.CANCELLED in GATE_TERMINAL
+
+    def test_waived_not_in_gate_status(self):
+        """GateStatus.WAIVED foi removido — resultado ficou em GateDecisionType."""
+        from harness.domain.enums import GateDecisionType
+
+        with pytest.raises((ValueError, AttributeError)):
+            GateStatus("waived")
+        assert GateDecisionType.WAIVED == "waived"
 
     @pytest.mark.parametrize("state", list(GateStatus))
     def test_all_enum_values_in_table(self, state):

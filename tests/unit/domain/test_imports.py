@@ -13,18 +13,35 @@ from pathlib import Path
 
 import pytest
 
-
 DOMAIN_DIR = Path(__file__).parent.parent.parent.parent / "src" / "harness" / "domain"
 
 
 FORBIDDEN_IMPORTS = [
-    "sqlalchemy", "sqlite", "alembic", "peewee", "tortoise",
-    "orm", "django",
-    "requests", "httpx", "aiohttp", "urllib3",
-    "openai", "anthropic", "google.generativeai", "cohere",
-    "mcp", "fastapi", "uvicorn", "flask",
-    "os.path", "shutil",
-    "asyncio", "threading", "subprocess", "socket",
+    "sqlalchemy",
+    "sqlite",
+    "alembic",
+    "peewee",
+    "tortoise",
+    "orm",
+    "django",
+    "requests",
+    "httpx",
+    "aiohttp",
+    "urllib3",
+    "openai",
+    "anthropic",
+    "google.generativeai",
+    "cohere",
+    "mcp",
+    "fastapi",
+    "uvicorn",
+    "flask",
+    "os.path",
+    "shutil",
+    "asyncio",
+    "threading",
+    "subprocess",
+    "socket",
 ]
 
 
@@ -36,17 +53,13 @@ def get_imports_from_file(filepath: Path) -> list[str]:
         if isinstance(node, ast.Import):
             for alias in node.names:
                 imports.append(alias.name)
-        elif isinstance(node, ast.ImportFrom):
-            if node.module:
-                imports.append(node.module)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imports.append(node.module)
     return imports
 
 
 def is_forbidden(import_name: str) -> bool:
-    for forbidden in FORBIDDEN_IMPORTS:
-        if import_name.startswith(forbidden):
-            return True
-    return False
+    return any(import_name.startswith(forbidden) for forbidden in FORBIDDEN_IMPORTS)
 
 
 @pytest.mark.parametrize("domain_file", list(DOMAIN_DIR.glob("*.py")))
@@ -62,11 +75,17 @@ def test_no_forbidden_imports(domain_file: Path):
 def test_domain_modules_importable():
     """Todos os módulos de domínio devem ser importáveis."""
     modules = [
-        "harness.domain", "harness.domain.errors", "harness.domain.enums",
-        "harness.domain.ids", "harness.domain.transitions",
-        "harness.domain.policies", "harness.domain.project",
-        "harness.domain.requirement", "harness.domain.plan",
-        "harness.domain.task", "harness.domain.work_order",
+        "harness.domain",
+        "harness.domain.errors",
+        "harness.domain.enums",
+        "harness.domain.ids",
+        "harness.domain.transitions",
+        "harness.domain.policies",
+        "harness.domain.project",
+        "harness.domain.requirement",
+        "harness.domain.plan",
+        "harness.domain.task",
+        "harness.domain.work_order",
     ]
     for mod in modules:
         importlib.import_module(mod)
@@ -81,4 +100,5 @@ def test_domain_files_count():
 def test_pydantic_is_present():
     """Pydantic deve estar presente como dependência de modelagem."""
     import pydantic
+
     assert pydantic.VERSION is not None

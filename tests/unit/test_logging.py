@@ -2,9 +2,7 @@
 Testes unitários para o módulo de logging do Harness.
 """
 
-import pytest
-
-from harness.logging import get_logger, EventLogger, setup_logging
+from harness.logging import EventLogger, get_logger, setup_logging
 
 
 class TestSetupLogging:

@@ -8,14 +8,14 @@ Cada execução deve gerar eventos que permitam reconstruir o que aconteceu.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     """Tipos de eventos do sistema."""
 
     # Eventos de Tarefa
@@ -58,7 +58,7 @@ class Event(BaseModel):
 
     event_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     event_type: EventType
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     correlation_id: str | None = None
     causation_id: str | None = None
     project_id: str | None = None

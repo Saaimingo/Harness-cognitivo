@@ -7,19 +7,24 @@ Registra autoridade, momento da autorização e escopo autorizado.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
 from harness.domain.enums import WorkOrderStatus
-from harness.domain.transitions import WORKORDER_TRANSITIONS, WORKORDER_INITIAL, WORKORDER_TERMINAL
 from harness.domain.errors import InvalidTransitionError, MissingAuthorityError
 from harness.domain.ids import validate_id_format
+from harness.domain.transitions import (
+    WORKORDER_INITIAL,
+    WORKORDER_TERMINAL,
+    WORKORDER_TRANSITIONS,
+)
 
 
 class WorkOrderScope(BaseModel):
     """Escopo autorizado para uma WorkOrder."""
+
     included: list[str] = Field(default_factory=list)
     excluded: list[str] = Field(default_factory=list)
 
@@ -34,17 +39,15 @@ class WorkOrder(BaseModel):
     description: str = ""
     status: WorkOrderStatus = WORKORDER_INITIAL
     authority: str | None = Field(
-        default=None,
-        description="Autoridade que autorizou a execução"
+        default=None, description="Autoridade que autorizou a execução"
     )
     authorized_at: datetime | None = Field(
-        default=None,
-        description="Momento da autorização"
+        default=None, description="Momento da autorização"
     )
     scope: WorkOrderScope = Field(default_factory=WorkOrderScope)
     expires_at: datetime | None = None
     version: int = 1
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -96,7 +99,7 @@ class WorkOrder(BaseModel):
 
         updates: dict[str, Any] = {
             "status": target,
-            "updated_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(UTC),
             "version": self.version + 1,
         }
 
@@ -107,7 +110,7 @@ class WorkOrder(BaseModel):
                     operation="authorize",
                 )
             updates["authority"] = authority
-            updates["authorized_at"] = datetime.now(timezone.utc)
+            updates["authorized_at"] = datetime.now(UTC)
 
         return self.model_copy(update=updates)
 

@@ -3,8 +3,9 @@ Testes para a entidade Plan — FI-2A.
 Cobre: versionamento, aprovação, superseding, criação de próxima versão.
 """
 
+from datetime import datetime
+
 import pytest
-from datetime import datetime, timezone
 
 from harness.domain.plan import Plan, PlanStatus
 
@@ -27,7 +28,9 @@ class TestPlanCreation:
         assert plan.previous_version_id is None
 
     def test_plan_requires_positive_version(self):
-        with pytest.raises(Exception):
+        from pydantic import ValidationError
+
+        with pytest.raises(ValidationError):
             Plan(
                 plan_id="pln_test123",
                 project_id="prj_test123",

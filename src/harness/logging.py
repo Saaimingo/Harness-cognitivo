@@ -76,7 +76,8 @@ def get_logger(name: str | None = None) -> structlog.stdlib.BoundLogger:
     Returns:
         Logger configurado
     """
-    return structlog.get_logger(name)
+    # structlog stubs não declaram tipo de retorno BoundLogger; ignore aceito
+    return structlog.get_logger(name)  # type: ignore[no-any-return]
 
 
 class EventLogger:
@@ -131,9 +132,7 @@ class EventLogger:
             **kwargs,
         )
 
-    def log_task_failed(
-        self, task_id: str, error: str, **kwargs: Any
-    ) -> None:
+    def log_task_failed(self, task_id: str, error: str, **kwargs: Any) -> None:
         """Registrar falha de tarefa."""
         self.log_event(
             "task.failed",

@@ -9,7 +9,9 @@ Não usar ValueError genérico como único mecanismo de erro.
 class DomainError(Exception):
     """Exceção base para erros de domínio do Harness."""
 
-    def __init__(self, message: str, entity: str | None = None, state: str | None = None):
+    def __init__(
+        self, message: str, entity: str | None = None, state: str | None = None
+    ):
         self.entity = entity
         self.state = state
         super().__init__(message)
@@ -76,9 +78,7 @@ class MissingEvidenceError(DomainError):
     """Exceção para operação que exige evidência não fornecida."""
 
     def __init__(self, entity: str, operation: str, required: str = ""):
-        message = (
-            f"Evidência requerida para {operation} em {entity}"
-        )
+        message = f"Evidência requerida para {operation} em {entity}"
         if required:
             message += f": {required}"
         super().__init__(message, entity=entity)
@@ -91,17 +91,5 @@ class TimezoneRequiredError(DomainError):
         message = (
             f"Campo temporal '{field}' em {entity} requer timezone. "
             f"Use datetime com tzinfo."
-        )
-        super().__init__(message, entity=entity)
-
-
-class DuplicateTransitionError(DomainError):
-    """Exceção para detecção de IDs duplicados em listas."""
-
-    def __init__(self, entity: str, duplicates: list[str]):
-        self.duplicates = duplicates
-        message = (
-            f"IDs duplicados detectados em {entity}: "
-            f"{', '.join(duplicates)}"
         )
         super().__init__(message, entity=entity)

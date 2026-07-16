@@ -5,11 +5,12 @@ Vocabulario controlado para estados, severidades e classificacoes.
 Reutiliza enums da FI-1 quando semanticamente apropriado.
 """
 
-from enum import Enum
+from enum import StrEnum
 
 
-class ProjectStatus(str, Enum):
+class ProjectStatus(StrEnum):
     """Estados do ciclo de vida de um Projeto."""
+
     CAPTURED = "captured"
     TRIAGE = "triage"
     DISCOVERY = "discovery"
@@ -31,8 +32,9 @@ class ProjectStatus(str, Enum):
     ARCHIVED = "archived"
 
 
-class TaskStatus(str, Enum):
+class TaskStatus(StrEnum):
     """Estados do ciclo de vida de uma Tarefa."""
+
     PROPOSED = "proposed"
     PLANNED = "planned"
     BLOCKED = "blocked"
@@ -48,8 +50,9 @@ class TaskStatus(str, Enum):
     SUPERSEDED = "superseded"
 
 
-class WorkOrderStatus(str, Enum):
+class WorkOrderStatus(StrEnum):
     """Estados do ciclo de vida de uma WorkOrder."""
+
     DRAFT = "draft"
     VALIDATED = "validated"
     AUTHORIZED = "authorized"
@@ -61,17 +64,22 @@ class WorkOrderStatus(str, Enum):
     REVOKED = "revoked"
 
 
-class GateStatus(str, Enum):
-    """Estados do ciclo de vida do processo de Gate."""
+class GateStatus(StrEnum):
+    """Estados do ciclo de vida do processo de Gate.
+
+    Representa o ESTADO DO PROCESSO de avaliação do gate.
+    O resultado da decisão é capturado por GateDecisionType.
+    """
+
     PENDING = "pending"
     EVALUATING = "evaluating"
     DECIDED = "decided"
     CANCELLED = "cancelled"
-    WAIVED = "waived"
 
 
-class GateDecisionType(str, Enum):
+class GateDecisionType(StrEnum):
     """Resultado da decisao de Gate (separado do estado do processo)."""
+
     ADVANCE = "advance"
     REWORK = "rework"
     BLOCKED = "blocked"
@@ -80,8 +88,9 @@ class GateDecisionType(str, Enum):
     WAIVED = "waived"
 
 
-class Severity(str, Enum):
+class Severity(StrEnum):
     """Severidade de achados de revisao e incidentes."""
+
     BLOCKER = "blocker"
     MAJOR = "major"
     MINOR = "minor"
@@ -89,16 +98,18 @@ class Severity(str, Enum):
     QUESTION = "question"
 
 
-class MaintenanceType(str, Enum):
+class MaintenanceType(StrEnum):
     """Tipos de manutencao de incidentes."""
+
     CORRECTIVE = "corrective"
     PREVENTIVE = "preventive"
     ADAPTIVE = "adaptive"
     EVOLUTIONARY = "evolutionary"
 
 
-class ReleaseStatus(str, Enum):
+class ReleaseStatus(StrEnum):
     """Estados do ciclo de vida de uma Release."""
+
     DRAFT = "draft"
     CANDIDATE = "candidate"
     VALIDATING = "validating"
@@ -115,8 +126,9 @@ class ReleaseStatus(str, Enum):
     RETIRED = "retired"
 
 
-class IncidentStatus(str, Enum):
+class IncidentStatus(StrEnum):
     """Estados do ciclo de vida de um Incidente."""
+
     DETECTED = "detected"
     TRIAGED = "triaged"
     INVESTIGATING = "investigating"
@@ -131,8 +143,9 @@ class IncidentStatus(str, Enum):
     REOPENED = "reopened"
 
 
-class RiskLevel(str, Enum):
+class RiskLevel(StrEnum):
     """Nivel de risco de um projeto."""
+
     LOW = "low"
     MODERATE = "moderate"
     HIGH = "high"

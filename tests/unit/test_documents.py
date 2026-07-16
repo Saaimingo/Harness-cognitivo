@@ -10,7 +10,6 @@ from pathlib import Path
 
 import pytest
 
-
 # =============================================================================
 # CAMINHOS BASE
 # =============================================================================
@@ -25,6 +24,7 @@ SRC_DIR = REPO_ROOT / "src" / "harness"
 # =============================================================================
 # TESTES DE EXISTÊNCIA DE ARQUIVOS
 # =============================================================================
+
 
 class TestFileExistence:
     """Valida que arquivos obrigatórios existem."""
@@ -62,6 +62,7 @@ class TestFileExistence:
 # =============================================================================
 # TESTES DE METADADOS YAML
 # =============================================================================
+
 
 class TestYAMLMetadata:
     """Valida que arquivos Markdown possuem frontmatter YAML válido."""
@@ -115,6 +116,7 @@ class TestYAMLMetadata:
 # TESTES DE LINKS MARKDOWN
 # =============================================================================
 
+
 class TestMarkdownLinks:
     """Valida que links internos Markdown são consistentes."""
 
@@ -127,8 +129,9 @@ class TestMarkdownLinks:
         content = glossary_path.read_text(encoding="utf-8")
         # Deve conter tabelas Markdown
         assert "|" in content, "Glossário deve conter tabelas Markdown"
-        assert "---|---" in content or "---|---" in content.replace(" ", ""), \
+        assert "---|---" in content or "---|---" in content.replace(" ", ""), (
             "Glossário deve conter separadores de tabela"
+        )
 
     def test_protocol_references_consistent(self):
         """Protocolo deve referenciar Doc numbers consistentes."""
@@ -138,8 +141,9 @@ class TestMarkdownLinks:
 
         content = protocol_path.read_text(encoding="utf-8")
         # Deve referenciar Docs
-        assert "Doc" in content or "doc" in content.lower(), \
+        assert "Doc" in content or "doc" in content.lower(), (
             "Protocolo deve referenciar documentos normativos"
+        )
 
     def test_no_broken_wikilinks_in_reports(self):
         """Relatórios não devem ter wikilinks quebrados."""
@@ -156,6 +160,7 @@ class TestMarkdownLinks:
 # =============================================================================
 # TESTES DE REFERÊNCIAS
 # =============================================================================
+
 
 class TestReferences:
     """Valida que referências cruzadas são consistentes."""
@@ -179,8 +184,9 @@ class TestReferences:
             pytest.skip("GLOSSARY.md não existe")
 
         content = glossary_path.read_text(encoding="utf-8")
-        assert "Epistemologia" in content or "epistemologia" in content.lower(), \
+        assert "Epistemologia" in content or "epistemologia" in content.lower(), (
             "Glossário deve ter seção de Epistemologia"
+        )
 
     def test_protocol_has_source_of_truth(self):
         """Protocolo deve documentar regra de fonte da verdade."""
@@ -189,8 +195,9 @@ class TestReferences:
             pytest.skip("MEC_PROTOCOL.md não existe")
 
         content = protocol_path.read_text(encoding="utf-8")
-        assert "fonte" in content.lower() and "verdade" in content.lower(), \
+        assert "fonte" in content.lower() and "verdade" in content.lower(), (
             "Protocolo deve documentar regra de fonte da verdade"
+        )
 
     def test_init_exports_context_contracts(self):
         """__init__.py deve exportar contratos de contexto."""

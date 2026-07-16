@@ -3,13 +3,18 @@ Testes parametrizados para a entidade Task — FI-2A.
 Cobre: transições, rework limit, idempotência, imutabilidade, timezone.
 """
 
-import pytest
-from datetime import datetime, timezone
+from datetime import datetime
 
-from harness.domain.task import Task, DEFAULT_REWORK_LIMIT
+import pytest
+
 from harness.domain.enums import TaskStatus
-from harness.domain.transitions import TASK_TRANSITIONS, TASK_TERMINAL
-from harness.domain.errors import InvalidTransitionError, ReworkLimitExceededError, InvariantViolationError
+from harness.domain.errors import (
+    InvalidTransitionError,
+    InvariantViolationError,
+    ReworkLimitExceededError,
+)
+from harness.domain.task import Task
+from harness.domain.transitions import TASK_TERMINAL
 
 
 def make_task(status: TaskStatus = TaskStatus.PROPOSED, rework_limit: int = 5) -> Task:
@@ -28,19 +33,23 @@ def make_task(status: TaskStatus = TaskStatus.PROPOSED, rework_limit: int = 5) -
 # TRANSIÇÕES PERMITIDAS (não-terminais)
 # =============================================================================
 
-@pytest.mark.parametrize("current,target", [
-    (TaskStatus.PROPOSED, TaskStatus.PLANNED),
-    (TaskStatus.PLANNED, TaskStatus.ELIGIBLE),
-    (TaskStatus.ELIGIBLE, TaskStatus.ASSIGNED),
-    (TaskStatus.ASSIGNED, TaskStatus.RUNNING),
-    (TaskStatus.RUNNING, TaskStatus.SUBMITTED),
-    (TaskStatus.SUBMITTED, TaskStatus.IN_REVIEW),
-    (TaskStatus.IN_REVIEW, TaskStatus.IN_VALIDATION),
-    (TaskStatus.IN_VALIDATION, TaskStatus.REWORK),
-    (TaskStatus.REWORK, TaskStatus.RUNNING),
-    (TaskStatus.PLANNED, TaskStatus.BLOCKED),
-    (TaskStatus.BLOCKED, TaskStatus.ELIGIBLE),
-])
+
+@pytest.mark.parametrize(
+    "current,target",
+    [
+        (TaskStatus.PROPOSED, TaskStatus.PLANNED),
+        (TaskStatus.PLANNED, TaskStatus.ELIGIBLE),
+        (TaskStatus.ELIGIBLE, TaskStatus.ASSIGNED),
+        (TaskStatus.ASSIGNED, TaskStatus.RUNNING),
+        (TaskStatus.RUNNING, TaskStatus.SUBMITTED),
+        (TaskStatus.SUBMITTED, TaskStatus.IN_REVIEW),
+        (TaskStatus.IN_REVIEW, TaskStatus.IN_VALIDATION),
+        (TaskStatus.IN_VALIDATION, TaskStatus.REWORK),
+        (TaskStatus.REWORK, TaskStatus.RUNNING),
+        (TaskStatus.PLANNED, TaskStatus.BLOCKED),
+        (TaskStatus.BLOCKED, TaskStatus.ELIGIBLE),
+    ],
+)
 def test_task_valid_transitions(current: TaskStatus, target: TaskStatus):
     """Transições válidas não-terminais devem ser aceitas sem autoridade."""
     task = make_task(status=current)
@@ -51,6 +60,7 @@ def test_task_valid_transitions(current: TaskStatus, target: TaskStatus):
 # =============================================================================
 # TRANSIÇÃO PARA ESTADO TERMINAL (com autoridade)
 # =============================================================================
+
 
 def test_task_terminal_transition_with_authority():
     """Transição para ACCEPTED (terminal) requer autoridade."""
@@ -70,13 +80,17 @@ def test_task_terminal_transition_without_authority_rejected():
 # TRANSIÇÕES REJEITADAS
 # =============================================================================
 
-@pytest.mark.parametrize("current,target", [
-    (TaskStatus.PROPOSED, TaskStatus.RUNNING),
-    (TaskStatus.PROPOSED, TaskStatus.ACCEPTED),
-    (TaskStatus.RUNNING, TaskStatus.ACCEPTED),
-    (TaskStatus.ACCEPTED, TaskStatus.RUNNING),
-    (TaskStatus.CANCELLED, TaskStatus.RUNNING),
-])
+
+@pytest.mark.parametrize(
+    "current,target",
+    [
+        (TaskStatus.PROPOSED, TaskStatus.RUNNING),
+        (TaskStatus.PROPOSED, TaskStatus.ACCEPTED),
+        (TaskStatus.RUNNING, TaskStatus.ACCEPTED),
+        (TaskStatus.ACCEPTED, TaskStatus.RUNNING),
+        (TaskStatus.CANCELLED, TaskStatus.RUNNING),
+    ],
+)
 def test_task_invalid_transitions_rejected(current: TaskStatus, target: TaskStatus):
     """Transições inválidas devem ser rejeitadas."""
     task = make_task(status=current)
@@ -87,6 +101,7 @@ def test_task_invalid_transitions_rejected(current: TaskStatus, target: TaskStat
 # =============================================================================
 # REWORK LIMIT
 # =============================================================================
+
 
 def test_task_rework_increment():
     """Transição para REWORK incrementa rework_count."""
@@ -134,6 +149,7 @@ def test_task_rework_exhausted_property():
 # IDEMPOTÊNCIA
 # =============================================================================
 
+
 def test_task_idempotent_transition():
     """Transição para estado atual retorna a própria instância."""
     task = make_task(status=TaskStatus.PROPOSED)
@@ -144,6 +160,7 @@ def test_task_idempotent_transition():
 # =============================================================================
 # IMUTABILIDADE
 # =============================================================================
+
 
 def test_task_original_unchanged_after_transition():
     """Entidade original permanece inalterada após transição válida."""
@@ -156,6 +173,7 @@ def test_task_original_unchanged_after_transition():
 # =============================================================================
 # TIMEZONE
 # =============================================================================
+
 
 def test_task_rejects_naive_datetime():
     """Task rejeita datetime sem timezone."""
@@ -172,6 +190,7 @@ def test_task_rejects_naive_datetime():
 # =============================================================================
 # ESTADOS TERMINAIS
 # =============================================================================
+
 
 @pytest.mark.parametrize("terminal_status", list(TASK_TERMINAL))
 def test_task_terminal_states(terminal_status: TaskStatus):

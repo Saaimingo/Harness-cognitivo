@@ -3,13 +3,20 @@ Testes para a entidade Requirement — FI-2A.
 Cobre: criação, status, prioridade, timezone.
 """
 
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime, timezone
 
-from harness.domain.requirement import Requirement, RequirementStatus, RequirementPriority
+from harness.domain.requirement import (
+    Requirement,
+    RequirementPriority,
+    RequirementStatus,
+)
 
 
-def make_requirement(status: RequirementStatus = RequirementStatus.PROPOSED) -> Requirement:
+def make_requirement(
+    status: RequirementStatus = RequirementStatus.PROPOSED,
+) -> Requirement:
     return Requirement(
         requirement_id="req_test123",
         project_id="prj_test123",
@@ -39,7 +46,7 @@ class TestRequirementCreation:
             requirement_id="req_test123",
             project_id="prj_test123",
             description="Teste",
-            created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            created_at=datetime(2026, 1, 1, tzinfo=UTC),
         )
         assert req.created_at.tzinfo is not None
 

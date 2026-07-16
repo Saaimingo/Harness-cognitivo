@@ -11,27 +11,28 @@ Cobre:
 - EvidenceReference
 """
 
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime, timezone
 
 from harness.contracts.context import (
-    Purpose,
-    ObjectType,
-    TrustLevel,
     ChecksumAlgorithm,
-    EvidenceReference,
-    ContextRequest,
-    ContextItem,
-    ContextCapsule,
     CognitiveObject,
-    validate_id_format,
+    ContextCapsule,
+    ContextItem,
+    ContextRequest,
+    EvidenceReference,
+    ObjectType,
+    Purpose,
+    TrustLevel,
     check_duplicate_ids,
+    validate_id_format,
 )
-
 
 # =============================================================================
 # TESTES DE VOCABULÁRIO CONTROLADO (Enums)
 # =============================================================================
+
 
 class TestEnums:
     """Testes para os Enums de vocabulário controlado."""
@@ -84,6 +85,7 @@ class TestEnums:
 # TESTES DE VALIDAÇÃO DE IDs
 # =============================================================================
 
+
 class TestIDValidation:
     """Testes para validação de formato de IDs."""
 
@@ -103,14 +105,14 @@ class TestIDValidation:
     def test_invalid_ids_rejected(self):
         """IDs com formato inválido devem ser rejeitados."""
         invalid_ids = [
-            "abc123",          # sem underscore
-            "_abc123",         # começa com underscore
-            "123_abc",         # começa com número
-            "Prj_abc123",      # maiúscula no prefixo
-            "prj_",            # termina com underscore
-            "prj-abc123",      # hífen em vez de underscore
-            "",                # vazio
-            "prj abc123",      # espaço
+            "abc123",  # sem underscore
+            "_abc123",  # começa com underscore
+            "123_abc",  # começa com número
+            "Prj_abc123",  # maiúscula no prefixo
+            "prj_",  # termina com underscore
+            "prj-abc123",  # hífen em vez de underscore
+            "",  # vazio
+            "prj abc123",  # espaço
         ]
         for id_val in invalid_ids:
             with pytest.raises(ValueError, match="ID inválido"):
@@ -135,6 +137,7 @@ class TestIDValidation:
 # TESTES DE EVIDENCE_REFERENCE
 # =============================================================================
 
+
 class TestEvidenceReference:
     """Testes para o contrato EvidenceReference."""
 
@@ -158,7 +161,7 @@ class TestEvidenceReference:
             checksum="sha256hash",
             algorithm=ChecksumAlgorithm.SHA512,
             location="/evidence/test.json",
-            captured_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            captured_at=datetime(2026, 1, 1, tzinfo=UTC),
             size_bytes=1024,
         )
         assert ref.algorithm == ChecksumAlgorithm.SHA512
@@ -178,6 +181,7 @@ class TestEvidenceReference:
 # =============================================================================
 # TESTES DE CONTEXT_REQUEST
 # =============================================================================
+
 
 class TestContextRequest:
     """Testes para o contrato ContextRequest."""
@@ -255,6 +259,7 @@ class TestContextRequest:
 # TESTES DE CONTEXT_ITEM E CAPSULE
 # =============================================================================
 
+
 class TestContextItem:
     """Testes para o contrato ContextItem."""
 
@@ -324,6 +329,7 @@ class TestContextCapsule:
 # TESTES DE COGNITIVE_OBJECT
 # =============================================================================
 
+
 class TestCognitiveObject:
     """Testes para o contrato CognitiveObject."""
 
@@ -370,6 +376,7 @@ class TestCognitiveObject:
 # =============================================================================
 # TESTES DE SERIALIZAÇÃO
 # =============================================================================
+
 
 class TestSerialization:
     """Testes de serialização dos schemas."""

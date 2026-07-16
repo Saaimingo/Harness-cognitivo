@@ -4,28 +4,26 @@ Cobre: model_copy safety, reutilizacao de IDs, transicoes terminais, excecoes.
 """
 
 import pytest
-from datetime import datetime, timezone
 
-from harness.domain.project import Project
-from harness.domain.task import Task
+from harness.contracts.context import validate_id_format as fi1_validate_id
 from harness.domain.enums import ProjectStatus, TaskStatus
 from harness.domain.errors import (
     DomainError,
     InvalidTransitionError,
     InvariantViolationError,
-    ReworkLimitExceededError,
     MissingAuthorityError,
     MissingEvidenceError,
+    ReworkLimitExceededError,
     TimezoneRequiredError,
-    DuplicateTransitionError,
 )
-from harness.contracts.context import validate_id_format as fi1_validate_id
 from harness.domain.ids import validate_id_format as domain_validate_id
-
+from harness.domain.project import Project
+from harness.domain.task import Task
 
 # =============================================================================
 # EXCECOES — CONTAGEM
 # =============================================================================
+
 
 class TestExceptionCount:
     def test_domain_error_is_base(self):
@@ -35,27 +33,30 @@ class TestExceptionCount:
         assert issubclass(MissingAuthorityError, DomainError)
         assert issubclass(MissingEvidenceError, DomainError)
         assert issubclass(TimezoneRequiredError, DomainError)
-        assert issubclass(DuplicateTransitionError, DomainError)
 
-    def test_seven_specialized_exceptions(self):
-        """1 base + 7 especializadas = 8 classes no total."""
+    def test_six_specialized_exceptions(self):
+        """1 base + 6 especializadas = 7 classes no total."""
         specialized = [
-            InvalidTransitionError, InvariantViolationError,
-            ReworkLimitExceededError, MissingAuthorityError,
-            MissingEvidenceError, TimezoneRequiredError,
-            DuplicateTransitionError,
+            InvalidTransitionError,
+            InvariantViolationError,
+            ReworkLimitExceededError,
+            MissingAuthorityError,
+            MissingEvidenceError,
+            TimezoneRequiredError,
         ]
-        assert len(specialized) == 7
+        assert len(specialized) == 6
 
 
 # =============================================================================
 # MODEL_COPY SAFETY
 # =============================================================================
 
+
 class TestModelCopySafety:
     def test_invalid_status_rejected_at_construction(self):
         """Construtor rejeita status invalido."""
         from pydantic import ValidationError
+
         with pytest.raises(ValidationError):
             Project(
                 project_id="prj_test123",
@@ -67,6 +68,7 @@ class TestModelCopySafety:
 # =============================================================================
 # ID VALIDATION REUSE
 # =============================================================================
+
 
 class TestIDValidationReuse:
     def test_domain_ids_reuses_fi1(self):
@@ -84,6 +86,7 @@ class TestIDValidationReuse:
 # =============================================================================
 # TERMINAL TRANSITIONS — InvariantViolationError
 # =============================================================================
+
 
 class TestTerminalTransitions:
     def test_project_terminal_requires_authority(self):
@@ -121,11 +124,6 @@ class TestTerminalTransitions:
         accepted = task.transition_to(TaskStatus.ACCEPTED, authority="test")
         with pytest.raises(InvalidTransitionError):
             accepted.transition_to(TaskStatus.RUNNING)
-
-    def test_duplicate_transition_error_raised(self):
-        """DuplicateTransitionError pode ser disparada corretamente."""
-        with pytest.raises(DuplicateTransitionError):
-            raise DuplicateTransitionError("Test", ["id1", "id2"])
 
     def test_missing_evidence_error_raised(self):
         """MissingEvidenceError pode ser disparada corretamente."""

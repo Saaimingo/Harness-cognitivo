@@ -3,13 +3,14 @@ Testes parametrizados para a entidade Project — FI-2A.
 Cobre: transições permitidas, rejeitadas, idempotência, imutabilidade, timezone.
 """
 
-import pytest
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from harness.domain.project import Project
+import pytest
+
 from harness.domain.enums import ProjectStatus
-from harness.domain.transitions import PROJECT_TRANSITIONS, PROJECT_TERMINAL
 from harness.domain.errors import InvalidTransitionError, InvariantViolationError
+from harness.domain.project import Project
+from harness.domain.transitions import PROJECT_TERMINAL
 
 
 def make_project(status: ProjectStatus = ProjectStatus.CAPTURED) -> Project:
@@ -25,23 +26,27 @@ def make_project(status: ProjectStatus = ProjectStatus.CAPTURED) -> Project:
 # TRANSIÇÕES PERMITIDAS (não-terminais)
 # =============================================================================
 
-@pytest.mark.parametrize("current,target", [
-    (ProjectStatus.CAPTURED, ProjectStatus.TRIAGE),
-    (ProjectStatus.TRIAGE, ProjectStatus.DISCOVERY),
-    (ProjectStatus.DISCOVERY, ProjectStatus.SPECIFIED),
-    (ProjectStatus.SPECIFIED, ProjectStatus.ARCHITECTED),
-    (ProjectStatus.ARCHITECTED, ProjectStatus.PLANNED),
-    (ProjectStatus.PLANNED, ProjectStatus.READY),
-    (ProjectStatus.READY, ProjectStatus.EXECUTING),
-    (ProjectStatus.EXECUTING, ProjectStatus.REVIEWING),
-    (ProjectStatus.REVIEWING, ProjectStatus.VALIDATING),
-    (ProjectStatus.VALIDATING, ProjectStatus.RELEASE_READY),
-    (ProjectStatus.RELEASE_READY, ProjectStatus.RELEASED),
-    (ProjectStatus.RELEASED, ProjectStatus.MONITORED),
-    (ProjectStatus.EXECUTING, ProjectStatus.REWORK_REQUIRED),
-    (ProjectStatus.REWORK_REQUIRED, ProjectStatus.PLANNED),
-    (ProjectStatus.READY, ProjectStatus.SUSPENDED),
-])
+
+@pytest.mark.parametrize(
+    "current,target",
+    [
+        (ProjectStatus.CAPTURED, ProjectStatus.TRIAGE),
+        (ProjectStatus.TRIAGE, ProjectStatus.DISCOVERY),
+        (ProjectStatus.DISCOVERY, ProjectStatus.SPECIFIED),
+        (ProjectStatus.SPECIFIED, ProjectStatus.ARCHITECTED),
+        (ProjectStatus.ARCHITECTED, ProjectStatus.PLANNED),
+        (ProjectStatus.PLANNED, ProjectStatus.READY),
+        (ProjectStatus.READY, ProjectStatus.EXECUTING),
+        (ProjectStatus.EXECUTING, ProjectStatus.REVIEWING),
+        (ProjectStatus.REVIEWING, ProjectStatus.VALIDATING),
+        (ProjectStatus.VALIDATING, ProjectStatus.RELEASE_READY),
+        (ProjectStatus.RELEASE_READY, ProjectStatus.RELEASED),
+        (ProjectStatus.RELEASED, ProjectStatus.MONITORED),
+        (ProjectStatus.EXECUTING, ProjectStatus.REWORK_REQUIRED),
+        (ProjectStatus.REWORK_REQUIRED, ProjectStatus.PLANNED),
+        (ProjectStatus.READY, ProjectStatus.SUSPENDED),
+    ],
+)
 def test_project_valid_transitions(current: ProjectStatus, target: ProjectStatus):
     """Transições válidas não-terminais devem ser aceitas sem autoridade."""
     project = make_project(status=current)
@@ -53,9 +58,13 @@ def test_project_valid_transitions(current: ProjectStatus, target: ProjectStatus
 # TRANSIÇÕES PARA ESTADOS TERMINAIS (com autoridade)
 # =============================================================================
 
-@pytest.mark.parametrize("current,target", [
-    (ProjectStatus.MONITORED, ProjectStatus.ARCHIVED),
-])
+
+@pytest.mark.parametrize(
+    "current,target",
+    [
+        (ProjectStatus.MONITORED, ProjectStatus.ARCHIVED),
+    ],
+)
 def test_project_terminal_transitions_with_authority(
     current: ProjectStatus, target: ProjectStatus
 ):
@@ -69,9 +78,13 @@ def test_project_terminal_transitions_with_authority(
 # TRANSIÇÕES TERMINAIS SEM AUTORIDADE
 # =============================================================================
 
-@pytest.mark.parametrize("current,target", [
-    (ProjectStatus.MONITORED, ProjectStatus.ARCHIVED),
-])
+
+@pytest.mark.parametrize(
+    "current,target",
+    [
+        (ProjectStatus.MONITORED, ProjectStatus.ARCHIVED),
+    ],
+)
 def test_project_terminal_transitions_without_authority_rejected(
     current: ProjectStatus, target: ProjectStatus
 ):
@@ -85,15 +98,21 @@ def test_project_terminal_transitions_without_authority_rejected(
 # TRANSIÇÕES REJEITADAS
 # =============================================================================
 
-@pytest.mark.parametrize("current,target", [
-    (ProjectStatus.CAPTURED, ProjectStatus.READY),
-    (ProjectStatus.CAPTURED, ProjectStatus.RELEASED),
-    (ProjectStatus.READY, ProjectStatus.CAPTURED),
-    (ProjectStatus.RELEASED, ProjectStatus.CAPTURED),
-    (ProjectStatus.ABANDONED, ProjectStatus.CAPTURED),
-    (ProjectStatus.ARCHIVED, ProjectStatus.CAPTURED),
-])
-def test_project_invalid_transitions_rejected(current: ProjectStatus, target: ProjectStatus):
+
+@pytest.mark.parametrize(
+    "current,target",
+    [
+        (ProjectStatus.CAPTURED, ProjectStatus.READY),
+        (ProjectStatus.CAPTURED, ProjectStatus.RELEASED),
+        (ProjectStatus.READY, ProjectStatus.CAPTURED),
+        (ProjectStatus.RELEASED, ProjectStatus.CAPTURED),
+        (ProjectStatus.ABANDONED, ProjectStatus.CAPTURED),
+        (ProjectStatus.ARCHIVED, ProjectStatus.CAPTURED),
+    ],
+)
+def test_project_invalid_transitions_rejected(
+    current: ProjectStatus, target: ProjectStatus
+):
     """Transições inválidas devem ser rejeitadas."""
     project = make_project(status=current)
     with pytest.raises(InvalidTransitionError):
@@ -103,6 +122,7 @@ def test_project_invalid_transitions_rejected(current: ProjectStatus, target: Pr
 # =============================================================================
 # IDEMPOTÊNCIA
 # =============================================================================
+
 
 def test_project_idempotent_transition():
     """Transição para estado atual retorna a própria instância."""
@@ -114,6 +134,7 @@ def test_project_idempotent_transition():
 # =============================================================================
 # IMUTABILIDADE
 # =============================================================================
+
 
 def test_project_original_unchanged_after_transition():
     """Entidade original permanece inalterada após transição válida."""
@@ -134,6 +155,7 @@ def test_project_version_increments():
 # TIMEZONE
 # =============================================================================
 
+
 def test_project_rejects_naive_datetime():
     """Project rejeita datetime sem timezone."""
     with pytest.raises(ValueError, match="timezone"):
@@ -149,7 +171,7 @@ def test_project_accepts_aware_datetime():
     project = Project(
         project_id="prj_test123",
         name="Teste",
-        created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        created_at=datetime(2026, 1, 1, tzinfo=UTC),
     )
     assert project.created_at.tzinfo is not None
 
@@ -157,6 +179,7 @@ def test_project_accepts_aware_datetime():
 # =============================================================================
 # ESTADOS TERMINAIS
 # =============================================================================
+
 
 @pytest.mark.parametrize("terminal_status", list(PROJECT_TERMINAL))
 def test_project_terminal_states(terminal_status: ProjectStatus):

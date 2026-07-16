@@ -15,19 +15,20 @@ Regras aplicadas:
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
-
 
 # =============================================================================
 # VOCABULÁRIO CONTROLADO — Enums
 # =============================================================================
 
-class Purpose(str, Enum):
+
+class Purpose(StrEnum):
     """Finalidade da solicitação de contexto."""
+
     DISCOVER_PROJECT = "discover_project"
     SPECIFY_REQUIREMENTS = "specify_requirements"
     DESIGN_ARCHITECTURE = "design_architecture"
@@ -42,8 +43,9 @@ class Purpose(str, Enum):
     ANSWER_USER = "answer_user"
 
 
-class ObjectType(str, Enum):
+class ObjectType(StrEnum):
     """Natureza do objeto cognitivo (o que ele É)."""
+
     FACT = "fact"
     HYPOTHESIS = "hypothesis"
     INFERENCE = "inference"
@@ -55,8 +57,9 @@ class ObjectType(str, Enum):
     INCIDENT = "incident"
 
 
-class TrustLevel(str, Enum):
+class TrustLevel(StrEnum):
     """Nível ou origem de confiança do objeto (QUÃO CONFIÁVEL é)."""
+
     OWNER_DECLARED = "owner_declared"
     VERIFIED = "verified"
     INFERRED = "inferred"
@@ -65,8 +68,9 @@ class TrustLevel(str, Enum):
     UNKNOWN = "unknown"
 
 
-class ChecksumAlgorithm(str, Enum):
+class ChecksumAlgorithm(StrEnum):
     """Algoritmos de checksum suportados."""
+
     SHA256 = "sha256"
     SHA512 = "sha512"
     MD5 = "md5"
@@ -106,23 +110,23 @@ def check_duplicate_ids(ids: list[str]) -> list[str]:
 # EVIDÊNCIAS
 # =============================================================================
 
+
 class EvidenceReference(BaseModel):
     """Referência a uma evidência armazenada (fonte, checksum, localização)."""
+
     evidence_id: str = Field(description="ID único da evidência")
     source_description: str = Field(description="Descrição da fonte da evidência")
     checksum: str = Field(description="Valor do checksum")
     algorithm: ChecksumAlgorithm = Field(
-        default=ChecksumAlgorithm.SHA256,
-        description="Algoritmo usado no checksum"
+        default=ChecksumAlgorithm.SHA256, description="Algoritmo usado no checksum"
     )
     location: str = Field(description="Caminho ou URI da evidência")
     captured_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
-        description="Data/hora de captura da evidência"
+        default_factory=lambda: datetime.now(UTC),
+        description="Data/hora de captura da evidência",
     )
     size_bytes: int | None = Field(
-        default=None,
-        description="Tamanho em bytes (opcional)"
+        default=None, description="Tamanho em bytes (opcional)"
     )
 
     @field_validator("evidence_id")
@@ -135,33 +139,24 @@ class EvidenceReference(BaseModel):
 # SOLICITAÇÃO DE CONTEXTO
 # =============================================================================
 
+
 class ContextRequest(BaseModel):
     """Solicitação de contexto à MEC."""
+
     query_id: str = Field(description="ID único da consulta")
     project_id: str | None = Field(
-        default=None,
-        description="ID do projeto relacionado"
+        default=None, description="ID do projeto relacionado"
     )
-    task_id: str | None = Field(
-        default=None,
-        description="ID da tarefa relacionada"
-    )
-    purpose: Purpose = Field(
-        description="Finalidade da solicitação"
-    )
-    requesting_role: str = Field(
-        description="Papel que solicita o contexto"
-    )
-    objective: str = Field(
-        description="Objetivo da solicitação"
-    )
+    task_id: str | None = Field(default=None, description="ID da tarefa relacionada")
+    purpose: Purpose = Field(description="Finalidade da solicitação")
+    requesting_role: str = Field(description="Papel que solicita o contexto")
+    objective: str = Field(description="Objetivo da solicitação")
     required_object_types: list[ObjectType] = Field(
-        default_factory=list,
-        description="Tipos de objetos cognitivos desejados"
+        default_factory=list, description="Tipos de objetos cognitivos desejados"
     )
     limits: dict[str, Any] = Field(
         default_factory=dict,
-        description="Limites da consulta (max_items, max_tokens, etc.)"
+        description="Limites da consulta (max_items, max_tokens, etc.)",
     )
 
     @field_validator("query_id")
@@ -174,29 +169,22 @@ class ContextRequest(BaseModel):
 # ITENS E CÁPSULA DE CONTEXTO
 # =============================================================================
 
+
 class ContextItem(BaseModel):
     """Item individual dentro de uma cápsula de contexto."""
+
     object_id: str = Field(description="ID do objeto cognitivo")
     object_type: ObjectType = Field(
         description="Natureza do objeto (fact, hypothesis, etc.)"
     )
     content: str = Field(description="Conteúdo do item")
-    source: str | None = Field(
-        default=None,
-        description="Referência à fonte original"
-    )
-    trust_level: TrustLevel = Field(
-        description="Nível de confiança no item"
-    )
+    source: str | None = Field(default=None, description="Referência à fonte original")
+    trust_level: TrustLevel = Field(description="Nível de confiança no item")
     relevance_score: float | None = Field(
-        default=None,
-        ge=0.0,
-        le=1.0,
-        description="Score de relevância (0.0 a 1.0)"
+        default=None, ge=0.0, le=1.0, description="Score de relevância (0.0 a 1.0)"
     )
     evidence: list[EvidenceReference] = Field(
-        default_factory=list,
-        description="Evidências que sustentam este item"
+        default_factory=list, description="Evidências que sustentam este item"
     )
 
     @field_validator("object_id")
@@ -207,27 +195,24 @@ class ContextItem(BaseModel):
 
 class ContextCapsule(BaseModel):
     """Cápsula de contexto recuperada da MEC."""
+
     capsule_id: str = Field(description="ID único da cápsula")
     query_id: str = Field(description="ID da consulta que gerou esta cápsula")
     items: list[ContextItem] = Field(
-        default_factory=list,
-        description="Itens de contexto recuperados"
+        default_factory=list, description="Itens de contexto recuperados"
     )
     generated_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
-        description="Data/hora de geração da cápsula"
+        default_factory=lambda: datetime.now(UTC),
+        description="Data/hora de geração da cápsula",
     )
     expires_at: datetime | None = Field(
-        default=None,
-        description="Data/hora de expiração da cápsula"
+        default=None, description="Data/hora de expiração da cápsula"
     )
     fingerprint: str | None = Field(
-        default=None,
-        description="Fingerprint do contexto no momento da geração"
+        default=None, description="Fingerprint do contexto no momento da geração"
     )
     missing_context: list[str] = Field(
-        default_factory=list,
-        description="Descrição de contextos ausentes"
+        default_factory=list, description="Descrição de contextos ausentes"
     )
 
     @field_validator("capsule_id")
@@ -245,40 +230,35 @@ class ContextCapsule(BaseModel):
 # OBJETO COGNITIVO
 # =============================================================================
 
+
 class CognitiveObject(BaseModel):
     """Objeto cognitivo armazenado na MEC."""
+
     object_id: str = Field(description="ID único do objeto")
     object_type: ObjectType = Field(
         description="Natureza do objeto (fact, hypothesis, etc.)"
     )
     content: str = Field(description="Conteúdo do objeto")
     source_id: str | None = Field(
-        default=None,
-        description="ID da fonte que originou este objeto"
+        default=None, description="ID da fonte que originou este objeto"
     )
     trust_level: TrustLevel = Field(
-        default=TrustLevel.UNVERIFIED,
-        description="Nível de confiança no objeto"
+        default=TrustLevel.UNVERIFIED, description="Nível de confiança no objeto"
     )
     project_id: str | None = Field(
-        default=None,
-        description="ID do projeto relacionado"
+        default=None, description="ID do projeto relacionado"
     )
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
-        description="Data/hora de criação"
+        default_factory=lambda: datetime.now(UTC), description="Data/hora de criação"
     )
     updated_at: datetime | None = Field(
-        default=None,
-        description="Data/hora da última atualização"
+        default=None, description="Data/hora da última atualização"
     )
     relations: list[str] = Field(
-        default_factory=list,
-        description="IDs de objetos relacionados"
+        default_factory=list, description="IDs de objetos relacionados"
     )
     evidence: list[EvidenceReference] = Field(
-        default_factory=list,
-        description="Evidências que sustentam este objeto"
+        default_factory=list, description="Evidências que sustentam este objeto"
     )
 
     @field_validator("object_id")

@@ -8,19 +8,19 @@ Limite de rework configurável.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
 from harness.domain.enums import TaskStatus
-from harness.domain.transitions import TASK_TRANSITIONS, TASK_INITIAL, TASK_TERMINAL
 from harness.domain.errors import (
     InvalidTransitionError,
-    ReworkLimitExceededError,
     InvariantViolationError,
+    ReworkLimitExceededError,
 )
 from harness.domain.ids import validate_id_format
+from harness.domain.transitions import TASK_INITIAL, TASK_TERMINAL, TASK_TRANSITIONS
 
 DEFAULT_REWORK_LIMIT = 5
 
@@ -42,7 +42,7 @@ class Task(BaseModel):
     acceptance_criteria: list[str] = Field(default_factory=list)
     changeset_id: str | None = None
     version: int = 1
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -94,7 +94,7 @@ class Task(BaseModel):
 
         updates: dict[str, Any] = {
             "status": target,
-            "updated_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(UTC),
             "version": self.version + 1,
         }
 
@@ -109,13 +109,16 @@ class Task(BaseModel):
                 )
             updates["rework_count"] = new_count
 
-        if target in TASK_TERMINAL and self.status not in TASK_TERMINAL:
-            if authority is None:
-                raise InvariantViolationError(
-                    entity="Task",
-                    invariant="terminal_transition_requires_authority",
-                    details=f"Transição para estado terminal {target.value} requer autoridade",
-                )
+        if (
+            target in TASK_TERMINAL
+            and self.status not in TASK_TERMINAL
+            and authority is None
+        ):
+            raise InvariantViolationError(
+                entity="Task",
+                invariant="terminal_transition_requires_authority",
+                details=f"Transição para estado terminal {target.value} requer autoridade",
+            )
 
         return self.model_copy(update=updates)
 

@@ -14,32 +14,31 @@ __author__ = "Saimon"
 __status__ = "development"
 __phase__ = "FI-0"
 
+from harness.contracts.context import (
+    ChecksumAlgorithm,
+    CognitiveObject,
+    ContextCapsule,
+    ContextItem,
+    ContextRequest,
+    EvidenceReference,
+    ObjectType,
+    Purpose,
+    TrustLevel,
+)
 from harness.contracts.events import (
+    ErrorRecorded,
     Event,
     EventType,
-    TaskCreated,
-    TaskStarted,
-    TaskCompleted,
-    TaskFailed,
-    StepStarted,
-    StepCompleted,
-    ModelCalled,
-    ToolCalled,
-    ErrorRecorded,
-    ResultRecorded,
     ExecutionCompleted,
-)
-
-from harness.contracts.context import (
-    Purpose,
-    ObjectType,
-    TrustLevel,
-    ChecksumAlgorithm,
-    EvidenceReference,
-    ContextRequest,
-    ContextItem,
-    ContextCapsule,
-    CognitiveObject,
+    ModelCalled,
+    ResultRecorded,
+    StepCompleted,
+    StepStarted,
+    TaskCompleted,
+    TaskCreated,
+    TaskFailed,
+    TaskStarted,
+    ToolCalled,
 )
 
 __all__ = [
@@ -77,4 +76,5 @@ __all__ = [
 def main() -> None:
     """Ponto de entrada principal para o CLI."""
     from harness.cli import app
+
     app()

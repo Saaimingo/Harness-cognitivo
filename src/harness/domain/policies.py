@@ -12,16 +12,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from harness.domain.errors import InvariantViolationError
-
-
 # =============================================================================
 # RESULTADO DA POLÍTICA
 # =============================================================================
 
+
 @dataclass(frozen=True)
 class PolicyResult:
     """Resultado de uma política de domínio."""
+
     allowed: bool
     reason: str = ""
 
@@ -29,6 +28,7 @@ class PolicyResult:
 # =============================================================================
 # POLÍTICA: Project → ready
 # =============================================================================
+
 
 def project_can_become_ready(
     has_approved_plan: bool,
@@ -44,12 +44,12 @@ def project_can_become_ready(
     if not has_approved_plan:
         return PolicyResult(
             allowed=False,
-            reason="Projeto requer pelo menos um plano aprovado para entrar em 'ready'"
+            reason="Projeto requer pelo menos um plano aprovado para entrar em 'ready'",
         )
     if not has_approved_requirements:
         return PolicyResult(
             allowed=False,
-            reason="Projeto requer pelo menos um requisito aprovado para entrar em 'ready'"
+            reason="Projeto requer pelo menos um requisito aprovado para entrar em 'ready'",
         )
     return PolicyResult(allowed=True)
 
@@ -57,6 +57,7 @@ def project_can_become_ready(
 # =============================================================================
 # POLÍTICA: Project → release_ready
 # =============================================================================
+
 
 def project_can_become_release_ready(
     has_blocking_gate: bool,
@@ -72,12 +73,12 @@ def project_can_become_release_ready(
     if has_blocking_gate:
         return PolicyResult(
             allowed=False,
-            reason="Projeto possui gate bloqueador; não pode entrar em 'release_ready'"
+            reason="Projeto possui gate bloqueador; não pode entrar em 'release_ready'",
         )
     if pending_human_approvals > 0:
         return PolicyResult(
             allowed=False,
-            reason=f"Projeto possui {pending_human_approvals} aprovação(ões) humana(s) pendente(s)"
+            reason=f"Projeto possui {pending_human_approvals} aprovação(ões) humana(s) pendente(s)",
         )
     return PolicyResult(allowed=True)
 
@@ -85,6 +86,7 @@ def project_can_become_release_ready(
 # =============================================================================
 # POLÍTICA: Task → accepted
 # =============================================================================
+
 
 def task_can_become_accepted(
     has_changeset: bool,
@@ -108,33 +110,28 @@ def task_can_become_accepted(
     """
     if not has_changeset:
         return PolicyResult(
-            allowed=False,
-            reason="Task requer changeset identificado para ser aceita"
+            allowed=False, reason="Task requer changeset identificado para ser aceita"
         )
     if not review_approved:
         return PolicyResult(
-            allowed=False,
-            reason="Task requer revisão aprovada para ser aceita"
+            allowed=False, reason="Task requer revisão aprovada para ser aceita"
         )
     if not tests_passed:
         return PolicyResult(
-            allowed=False,
-            reason="Task requer testes passando para ser aceita"
+            allowed=False, reason="Task requer testes passando para ser aceita"
         )
     if not has_evidence:
         return PolicyResult(
-            allowed=False,
-            reason="Task requer evidências preservadas para ser aceita"
+            allowed=False, reason="Task requer evidências preservadas para ser aceita"
         )
     if not no_blockers:
         return PolicyResult(
-            allowed=False,
-            reason="Task possui bloqueadores; não pode ser aceita"
+            allowed=False, reason="Task possui bloqueadores; não pode ser aceita"
         )
     if rework_count >= rework_limit:
         return PolicyResult(
             allowed=False,
-            reason=f"Limite de rework atingido ({rework_count}/{rework_limit})"
+            reason=f"Limite de rework atingido ({rework_count}/{rework_limit})",
         )
     return PolicyResult(allowed=True)
 
@@ -142,6 +139,7 @@ def task_can_become_accepted(
 # =============================================================================
 # POLÍTICA: Gate → advance
 # =============================================================================
+
 
 def gate_can_advance(
     has_criteria: bool,
@@ -160,23 +158,15 @@ def gate_can_advance(
     """
     if not has_criteria:
         return PolicyResult(
-            allowed=False,
-            reason="Gate requer critérios definidos para avanço"
+            allowed=False, reason="Gate requer critérios definidos para avanço"
         )
     if not has_evidence:
-        return PolicyResult(
-            allowed=False,
-            reason="Gate requer evidências para avanço"
-        )
+        return PolicyResult(allowed=False, reason="Gate requer evidências para avanço")
     if not has_authority:
-        return PolicyResult(
-            allowed=False,
-            reason="Gate requer autoridade para avanço"
-        )
+        return PolicyResult(allowed=False, reason="Gate requer autoridade para avanço")
     if not tests_passed:
         return PolicyResult(
-            allowed=False,
-            reason="Gate requer testes passando para avanço"
+            allowed=False, reason="Gate requer testes passando para avanço"
         )
     return PolicyResult(allowed=True)
 
@@ -184,6 +174,7 @@ def gate_can_advance(
 # =============================================================================
 # POLÍTICA: Gate → waived
 # =============================================================================
+
 
 def gate_can_be_waived(
     has_authority: bool,
@@ -200,25 +191,19 @@ def gate_can_be_waived(
     """
     if not has_authority:
         return PolicyResult(
-            allowed=False,
-            reason="Gate waiver requer autoridade identificável"
+            allowed=False, reason="Gate waiver requer autoridade identificável"
         )
     if not has_justification:
-        return PolicyResult(
-            allowed=False,
-            reason="Gate waiver requer justificativa"
-        )
+        return PolicyResult(allowed=False, reason="Gate waiver requer justificativa")
     if not has_scope:
-        return PolicyResult(
-            allowed=False,
-            reason="Gate waiver requer escopo definido"
-        )
+        return PolicyResult(allowed=False, reason="Gate waiver requer escopo definido")
     return PolicyResult(allowed=True)
 
 
 # =============================================================================
 # POLÍTICA: Incident → closed
 # =============================================================================
+
 
 def incident_can_become_closed(
     has_cause: bool,
@@ -235,17 +220,15 @@ def incident_can_become_closed(
     """
     if not has_cause:
         return PolicyResult(
-            allowed=False,
-            reason="Incident requer causa registrada para encerramento"
+            allowed=False, reason="Incident requer causa registrada para encerramento"
         )
     if not has_corrective_action:
         return PolicyResult(
-            allowed=False,
-            reason="Incident requer ação corretiva para encerramento"
+            allowed=False, reason="Incident requer ação corretiva para encerramento"
         )
     if not has_regression_evidence:
         return PolicyResult(
             allowed=False,
-            reason="Incident requer evidência de teste de regressão para encerramento"
+            reason="Incident requer evidência de teste de regressão para encerramento",
         )
     return PolicyResult(allowed=True)

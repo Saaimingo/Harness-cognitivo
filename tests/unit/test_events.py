@@ -2,23 +2,22 @@
 Testes unitários para os contratos de eventos do Harness.
 """
 
+from datetime import datetime
+
 import pytest
-from datetime import datetime, timezone
 
 from harness.contracts.events import (
+    ErrorRecorded,
     Event,
     EventType,
-    TaskCreated,
-    TaskStarted,
-    TaskCompleted,
-    TaskFailed,
-    StepStarted,
-    StepCompleted,
-    ModelCalled,
-    ToolCalled,
-    ErrorRecorded,
-    ResultRecorded,
     ExecutionCompleted,
+    ModelCalled,
+    ResultRecorded,
+    TaskCompleted,
+    TaskCreated,
+    TaskFailed,
+    TaskStarted,
+    ToolCalled,
 )
 
 
@@ -34,8 +33,10 @@ class TestEvent:
 
     def test_event_immutability(self):
         """Evento deve ser imutável (frozen)."""
+        from pydantic import ValidationError
+
         event = Event(event_type=EventType.TASK_CREATED)
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             event.event_type = EventType.TASK_COMPLETED
 
     def test_event_with_correlation(self):
@@ -64,14 +65,26 @@ class TestEventTypes:
     def test_all_event_types_exist(self):
         """Todos os tipos de eventos devem existir."""
         expected_types = [
-            "task.created", "task.started", "task.completed",
-            "task.failed", "task.cancelled",
-            "step.started", "step.completed", "step.failed",
-            "model.called", "model.response", "model.error",
-            "tool.called", "tool.result", "tool.error",
+            "task.created",
+            "task.started",
+            "task.completed",
+            "task.failed",
+            "task.cancelled",
+            "step.started",
+            "step.completed",
+            "step.failed",
+            "model.called",
+            "model.response",
+            "model.error",
+            "tool.called",
+            "tool.result",
+            "tool.error",
             "error.recorded",
-            "test.executed", "test.passed", "test.failed",
-            "execution.completed", "execution.failed",
+            "test.executed",
+            "test.passed",
+            "test.failed",
+            "execution.completed",
+            "execution.failed",
         ]
         for et in expected_types:
             assert EventType(et) is not None

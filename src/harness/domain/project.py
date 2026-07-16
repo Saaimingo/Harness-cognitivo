@@ -8,14 +8,18 @@ Transições retornam nova instância (imutabilidade).
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
 from harness.domain.enums import ProjectStatus, RiskLevel
-from harness.domain.transitions import PROJECT_TRANSITIONS, PROJECT_INITIAL, PROJECT_TERMINAL
 from harness.domain.errors import InvalidTransitionError, InvariantViolationError
+from harness.domain.transitions import (
+    PROJECT_INITIAL,
+    PROJECT_TERMINAL,
+    PROJECT_TRANSITIONS,
+)
 
 
 class Project(BaseModel):
@@ -26,7 +30,7 @@ class Project(BaseModel):
     description: str = ""
     status: ProjectStatus = PROJECT_INITIAL
     risk_level: RiskLevel = RiskLevel.LOW
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime | None = None
     version: int = 1
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -35,6 +39,7 @@ class Project(BaseModel):
     @classmethod
     def validate_project_id(cls, v: str) -> str:
         from harness.domain.ids import validate_id_format
+
         return validate_id_format(v)
 
     @field_validator("created_at")
@@ -75,19 +80,24 @@ class Project(BaseModel):
                 allowed=[s.value for s in valid],
             )
 
-        if target in PROJECT_TERMINAL and self.status not in PROJECT_TERMINAL:
-            if authority is None:
-                raise InvariantViolationError(
-                    entity="Project",
-                    invariant="terminal_transition_requires_authority",
-                    details=f"Transicao para estado terminal {target.value} requer autoridade",
-                )
+        if (
+            target in PROJECT_TERMINAL
+            and self.status not in PROJECT_TERMINAL
+            and authority is None
+        ):
+            raise InvariantViolationError(
+                entity="Project",
+                invariant="terminal_transition_requires_authority",
+                details=f"Transicao para estado terminal {target.value} requer autoridade",
+            )
 
-        return self.model_copy(update={
-            "status": target,
-            "updated_at": datetime.now(timezone.utc),
-            "version": self.version + 1,
-        })
+        return self.model_copy(
+            update={
+                "status": target,
+                "updated_at": datetime.now(UTC),
+                "version": self.version + 1,
+            }
+        )
 
     @property
     def is_terminal(self) -> bool:

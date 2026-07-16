@@ -3,22 +3,19 @@ Testes para políticas puras de domínio — FI-2A.
 Cobre: casos positivos e negativos de cada política.
 """
 
-import pytest
-
 from harness.domain.policies import (
-    PolicyResult,
-    project_can_become_ready,
-    project_can_become_release_ready,
-    task_can_become_accepted,
     gate_can_advance,
     gate_can_be_waived,
     incident_can_become_closed,
+    project_can_become_ready,
+    project_can_become_release_ready,
+    task_can_become_accepted,
 )
-
 
 # =============================================================================
 # PROJECT → READY
 # =============================================================================
+
 
 class TestProjectReadyPolicy:
     def test_ready_with_plan_and_requirements(self):
@@ -49,6 +46,7 @@ class TestProjectReadyPolicy:
 # PROJECT → RELEASE_READY
 # =============================================================================
 
+
 class TestProjectReleaseReadyPolicy:
     def test_release_ready_no_blockers(self):
         result = project_can_become_release_ready(
@@ -77,6 +75,7 @@ class TestProjectReleaseReadyPolicy:
 # =============================================================================
 # TASK → ACCEPTED
 # =============================================================================
+
 
 class TestTaskAcceptedPolicy:
     def test_accepted_all_criteria_met(self):
@@ -135,6 +134,7 @@ class TestTaskAcceptedPolicy:
 # GATE → ADVANCE
 # =============================================================================
 
+
 class TestGateAdvancePolicy:
     def test_advance_all_met(self):
         result = gate_can_advance(
@@ -160,6 +160,7 @@ class TestGateAdvancePolicy:
 # GATE → WAIVED
 # =============================================================================
 
+
 class TestGateWaivedPolicy:
     def test_waived_all_met(self):
         result = gate_can_be_waived(
@@ -182,6 +183,7 @@ class TestGateWaivedPolicy:
 # =============================================================================
 # INCIDENT → CLOSED
 # =============================================================================
+
 
 class TestIncidentClosedPolicy:
     def test_closed_all_met(self):

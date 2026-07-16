@@ -6,8 +6,8 @@ Requirement representa comportamento, restrição ou qualidade verificável.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
@@ -15,8 +15,9 @@ from pydantic import BaseModel, Field, field_validator
 from harness.domain.ids import validate_id_format
 
 
-class RequirementStatus(str, Enum):
+class RequirementStatus(StrEnum):
     """Estados de um Requirement."""
+
     PROPOSED = "proposed"
     APPROVED = "approved"
     IMPLEMENTED = "implemented"
@@ -24,8 +25,9 @@ class RequirementStatus(str, Enum):
     REJECTED = "rejected"
 
 
-class RequirementPriority(str, Enum):
+class RequirementPriority(StrEnum):
     """Prioridade de um Requirement."""
+
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
@@ -43,7 +45,7 @@ class Requirement(BaseModel):
     acceptance_criteria: list[str] = Field(default_factory=list)
     source_id: str | None = None
     version: int = 1
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -66,11 +68,13 @@ class Requirement(BaseModel):
 
     def update_status(self, new_status: RequirementStatus) -> Requirement:
         """Retorna nova instância com status atualizado."""
-        return self.model_copy(update={
-            "status": new_status,
-            "updated_at": datetime.now(timezone.utc),
-            "version": self.version + 1,
-        })
+        return self.model_copy(
+            update={
+                "status": new_status,
+                "updated_at": datetime.now(UTC),
+                "version": self.version + 1,
+            }
+        )
 
     @property
     def is_approved(self) -> bool:
