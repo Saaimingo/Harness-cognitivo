@@ -4,12 +4,21 @@ Cobre: casos positivos e negativos de cada política.
 """
 
 from harness.domain.policies import (
+    execution_run_can_start,
     gate_can_advance,
     gate_can_be_waived,
     incident_can_become_closed,
     project_can_become_ready,
     project_can_become_release_ready,
+    review_can_be_approved,
+    review_requires_independence,
     task_can_become_accepted,
+)
+from harness.domain.policies import (
+    test_run_can_complete_as_passed as tr_passed_policy,
+)
+from harness.domain.policies import (
+    test_run_failure_vs_error as tr_failure_error_policy,
 )
 
 # =============================================================================
@@ -211,3 +220,196 @@ class TestIncidentClosedPolicy:
         )
         assert result.allowed is False
         assert "regressão" in result.reason.lower()
+
+
+# =============================================================================
+# EXECUTIONRUN → START (FI-2B)
+# =============================================================================
+
+
+class TestExecutionRunStartPolicy:
+    def test_er_start_all_met(self):
+        result = execution_run_can_start(
+            work_order_is_executable=True,
+            has_executor=True,
+            no_active_execution=True,
+        )
+        assert result.allowed is True
+
+    def test_er_start_wo_not_executable(self):
+        result = execution_run_can_start(
+            work_order_is_executable=False,
+            has_executor=True,
+            no_active_execution=True,
+        )
+        assert result.allowed is False
+        assert "executável" in result.reason.lower()
+
+    def test_er_start_no_executor(self):
+        result = execution_run_can_start(
+            work_order_is_executable=True,
+            has_executor=False,
+            no_active_execution=True,
+        )
+        assert result.allowed is False
+        assert "executor" in result.reason.lower()
+
+    def test_er_start_active_execution_exists(self):
+        result = execution_run_can_start(
+            work_order_is_executable=True,
+            has_executor=True,
+            no_active_execution=False,
+        )
+        assert result.allowed is False
+        assert "ativa" in result.reason.lower()
+
+
+# =============================================================================
+# REVIEW INDEPENDENCE (FI-2B)
+# =============================================================================
+
+
+class TestReviewIndependencePolicy:
+    def test_rev_independence_different_authors(self):
+        result = review_requires_independence(
+            reviewer="agent_a",
+            executor="agent_b",
+        )
+        assert result.allowed is True
+
+    def test_rev_independence_same_author(self):
+        result = review_requires_independence(
+            reviewer="agent_a",
+            executor="agent_a",
+        )
+        assert result.allowed is False
+        assert "mesma autoridade" in result.reason.lower()
+
+    def test_rev_independence_no_executor(self):
+        result = review_requires_independence(
+            reviewer="agent_a",
+            executor=None,
+        )
+        assert result.allowed is True
+
+    def test_rev_independence_no_reviewer(self):
+        result = review_requires_independence(
+            reviewer=None,
+            executor="agent_a",
+        )
+        assert result.allowed is True
+
+    def test_rev_independence_both_none(self):
+        result = review_requires_independence(
+            reviewer=None,
+            executor=None,
+        )
+        assert result.allowed is True
+
+
+# =============================================================================
+# REVIEW → APPROVED (FI-2B)
+# =============================================================================
+
+
+class TestReviewApprovedPolicy:
+    def test_rev_approved_all_met(self):
+        result = review_can_be_approved(
+            has_justification=True,
+            has_reviewer=True,
+            has_no_blocker_findings=True,
+        )
+        assert result.allowed is True
+
+    def test_rev_approved_without_justification(self):
+        result = review_can_be_approved(
+            has_justification=False,
+            has_reviewer=True,
+            has_no_blocker_findings=True,
+        )
+        assert result.allowed is False
+        assert "justificativa" in result.reason.lower()
+
+    def test_rev_approved_without_reviewer(self):
+        result = review_can_be_approved(
+            has_justification=True,
+            has_reviewer=False,
+            has_no_blocker_findings=True,
+        )
+        assert result.allowed is False
+        assert "reviewer" in result.reason.lower()
+
+    def test_rev_approved_with_blocker_findings(self):
+        result = review_can_be_approved(
+            has_justification=True,
+            has_reviewer=True,
+            has_no_blocker_findings=False,
+        )
+        assert result.allowed is False
+        assert "bloqueadores" in result.reason.lower()
+
+
+# =============================================================================
+# TESTRUN → PASSED (FI-2B)
+# =============================================================================
+
+
+class TestTestRunPassedPolicy:
+    def test_tr_passed_all_met(self):
+        result = tr_passed_policy(
+            has_total_tests=True,
+            has_evidence=True,
+        )
+        assert result.allowed is True
+
+    def test_tr_passed_without_total(self):
+        result = tr_passed_policy(
+            has_total_tests=False,
+            has_evidence=True,
+        )
+        assert result.allowed is False
+        assert "total_tests" in result.reason.lower()
+
+    def test_tr_passed_without_evidence(self):
+        result = tr_passed_policy(
+            has_total_tests=True,
+            has_evidence=False,
+        )
+        assert result.allowed is False
+        assert "evidências" in result.reason.lower()
+
+
+# =============================================================================
+# TESTRUN FAILURE VS ERROR (FI-2B)
+# =============================================================================
+
+
+class TestTestRunFailureVsErrorPolicy:
+    def test_tr_failure_only(self):
+        result = tr_failure_error_policy(
+            is_test_failure=True,
+            is_infra_error=False,
+        )
+        assert result.allowed is True
+
+    def test_tr_error_only(self):
+        result = tr_failure_error_policy(
+            is_test_failure=False,
+            is_infra_error=True,
+        )
+        assert result.allowed is True
+
+    def test_tr_both_failure_and_error(self):
+        result = tr_failure_error_policy(
+            is_test_failure=True,
+            is_infra_error=True,
+        )
+        assert result.allowed is False
+        assert "simultaneamente" in result.reason.lower()
+
+    def test_tr_neither(self):
+        result = tr_failure_error_policy(
+            is_test_failure=False,
+            is_infra_error=False,
+        )
+        assert result.allowed is True
