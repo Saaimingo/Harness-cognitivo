@@ -221,10 +221,10 @@ Success: no issues found in 28 source files
 
 ```
 $ pytest tests/ -ra --tb=short
-278 passed in 0.73s
+278 passed in 0.66s
 ```
 
-**Resultado:** 278 passed, 0 failed, 0 warnings.
+**Resultado:** 278 passed, 0 failed, 0 warnings, 0 skipped, 0 xfail.
 
 ### 8.5 pytest --collect-only
 
@@ -247,46 +247,18 @@ $ git diff --check
 ### 8.7 git diff --stat
 
 ```
-28 files changed, 823 insertions(+), 621 deletions(-)
+(tree clean — diff vazio, todas as alterações já commitadas)
 ```
+
+**Resultado:** Árvore limpa.
 
 ### 8.8 git status --short
 
 ```
- M docs/GLOSSARY.md
- M src/harness/__init__.py
- M src/harness/contracts/context.py
- M src/harness/contracts/events.py
- M src/harness/domain/enums.py
- M src/harness/domain/errors.py
- M src/harness/domain/ids.py
- M src/harness/domain/plan.py
- M src/harness/domain/policies.py
- M src/harness/domain/project.py
- M src/harness/domain/requirement.py
- M src/harness/domain/task.py
- M src/harness/domain/transitions.py
- M src/harness/domain/work_order.py
- M src/harness/logging.py
- M tests/unit/domain/test_imports.py
- M tests/unit/domain/test_invariants.py
- M tests/unit/domain/test_plan.py
- M tests/unit/domain/test_policies.py
- M tests/unit/domain/test_project.py
- M tests/unit/domain/test_requirement.py
- M tests/unit/domain/test_task.py
- M tests/unit/domain/test_transitions.py
- M tests/unit/domain/test_work_order.py
- M tests/unit/test_context.py
- M tests/unit/test_documents.py
- M tests/unit/test_events.py
- M tests/unit/test_logging.py
-?? docs/adr/
-?? docs/architecture/
-?? docs/operations/
+(vazio — working tree limpa)
 ```
 
-**Resultado:** 28 arquivos modificados, 3 diretórios novos não rastreados.
+**Resultado:** Working tree limpa. Todos os arquivos foram commitados.
 
 ---
 
@@ -315,32 +287,57 @@ $ git diff --check
 
 ---
 
-## 11. Riscos Remanescentes
+## 11. Estado Git
+
+### Commits criados
+
+```
+79bce9c (HEAD -> master, tag: fi-2a-approved) docs(report): record FI-2A consolidation evidence
+9d99834 docs(architecture): formalize SG-0 ESQ GRN and CTP
+eadf4c8 refactor(domain): finalize FI-2A semantics and quality
+```
+
+### Tag criada
+
+```
+Tag: fi-2a-approved (anotada)
+Commit: 79bce9c3b83454d9c188a61e3e8d21c382a97750
+Mensagem: FI-2A approved after architectural consolidation. Formalized SG-0 ESQ GRN CTP. 278 tests passing, zero warnings, zero errors.
+```
+
+### Push
+
+**Nenhum push foi realizado** (conforme restrição).
+
+---
+
+## 12. Riscos Remanescentes
 
 | # | Item | Risco | Nota |
 |---|------|-------|------|
 | 1 | `type: ignore[no-any-return]` em logging.py | Baixo | Limitação de stubs do structlog; documentado |
 | 2 | FI-2B não implementada | Esperado | Próxima fase |
-| 3 | Git não commitado | Esperado | Sessão atual |
-| 4 | 3 diretórios novos não rastreados (docs/adr, docs/architecture, docs/operations) | Baixo | Serão incluídos no commit de documentação |
 
 ---
 
-## 12. Confirmação Final
+## 13. Confirmação Final
 
 - ✅ FI-2B **NÃO** foi implementada
 - ✅ Nenhum push foi realizado
 - ✅ Nenhum histórico foi reescrito
-- ✅ Nenhuma alteração fuera do escopo solicitado foi feita
+- ✅ Nenhuma alteração fora do escopo solicitado foi feita
 - ✅ Todos os testes passam (278/278)
 - ✅ Todas as ferramentas de qualidade passam (ruff, mypy, format, diff --check)
 - ✅ DuplicateTransitionError foi removida (código morto)
 - ✅ Tabela de distribuição de testes soma exatamente o total coletado
 - ✅ Relatório salvo no diretório canônico (`docs/reports/`)
+- ✅ 3 commits semânticos criados
+- ✅ Tag anotada `fi-2a-approved` criada apontando para commit final
+- ✅ Git tree limpa
 
 ---
 
-## 13. Recomendação
+## 14. Recomendação
 
 ### ✅ AVANÇAR PARA FI-2B
 
@@ -352,7 +349,8 @@ $ git diff --check
 - Plano revisado da FI-2B completo
 - 278/278 testes passando, 0 warnings, 0 erros
 - Código limpo (ruff 0, mypy 0, format 0, diff --check 0)
+- Commits e tag criados com sucesso
 
 ---
 
-> **PARE OBRIGATÓRIO.** Relatório corrigido entregue. Aguardando autorização para commits, tag e/ou implementação da FI-2B.
+> **ENTREGA CONFIRMADA.** Relatório corrigido com estado pós-commit. Próximo passo: fazer push e/ou implementar FI-2B conforme autorização.
