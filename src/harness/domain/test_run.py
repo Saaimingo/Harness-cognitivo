@@ -11,7 +11,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from harness.domain.enums import TestRunStatus
 from harness.domain.errors import (
@@ -77,12 +77,80 @@ class TestRun(BaseModel):
     def validate_execution_run_id(cls, v: str) -> str:
         return validate_id_format(v)
 
-    @field_validator("created_at")
+    @field_validator("created_at", "updated_at", "started_at", "completed_at")
     @classmethod
-    def validate_created_at_timezone(cls, v: datetime) -> datetime:
-        if v.tzinfo is None:
-            raise ValueError("created_at requer timezone")
+    def validate_temporal_timezone(cls, v: datetime | None) -> datetime | None:
+        if v is not None and v.tzinfo is None:
+            raise ValueError("Campo temporal requer timezone")
         return v
+
+    @model_validator(mode="after")
+    def validate_state_consistency(self) -> TestRun:
+        """Impedir estados inválidos em construção direta e desserialização."""
+        s = self.status
+        if s == TestRunStatus.PASSED:
+            if self.total_tests is None or self.total_tests < 1:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="passed_requires_total_tests",
+                    details="Construção direta com PASSED sem total_tests >= 1",
+                )
+            if self.failed_tests is not None and self.failed_tests != 0:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="passed_requires_zero_failures",
+                    details=f"PASSED com failed_tests={self.failed_tests}",
+                )
+            if not self.evidence_hashes:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="passed_requires_evidence",
+                    details="PASSED sem evidence_hashes",
+                )
+            if (
+                self.passed_tests is not None
+                and self.total_tests is not None
+                and self.passed_tests != self.total_tests
+            ):
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="passed_tests_must_match_total",
+                    details=f"passed_tests={self.passed_tests} != total_tests={self.total_tests}",
+                )
+        if s == TestRunStatus.FAILED and not self.failure_details:
+            raise InvariantViolationError(
+                entity="TestRun",
+                invariant="failed_requires_failure_details",
+                details="Construção direta com FAILED sem failure_details",
+            )
+        if s == TestRunStatus.ERROR and self.error_message is None:
+            raise InvariantViolationError(
+                entity="TestRun",
+                invariant="error_requires_error_message",
+                details="Construção direta com ERROR sem error_message",
+            )
+        # Contagens não negativas
+        for field_name in ("total_tests", "passed_tests", "failed_tests"):
+            val = getattr(self, field_name)
+            if val is not None and val < 0:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="non_negative_counts",
+                    details=f"{field_name}={val} é negativo",
+                )
+        # Coerência quando as três contagens são conhecidas
+        if (
+            self.total_tests is not None
+            and self.passed_tests is not None
+            and self.failed_tests is not None
+            and self.passed_tests + self.failed_tests != self.total_tests
+        ):
+            raise InvariantViolationError(
+                entity="TestRun",
+                invariant="counts_coherence",
+                details=f"passed({self.passed_tests}) + failed({self.failed_tests}) != total({self.total_tests})",
+            )
+        return self
 
     def can_transition_to(self, target: TestRunStatus) -> bool:
         """Verificar se transição é válida."""
@@ -97,6 +165,7 @@ class TestRun(BaseModel):
         failure_details: list[str] | None = None,
         error_message: str | None = None,
         error_type: str | None = None,
+        evidence_hashes: list[str] | None = None,
     ) -> TestRun:
         """Transicionar para novo estado (retorna nova instância).
 
@@ -133,14 +202,26 @@ class TestRun(BaseModel):
                 updates["started_at"] = now
 
         if target == TestRunStatus.PASSED:
-            resolved_tt = total_tests or self.total_tests
+            resolved_tt = total_tests if total_tests is not None else self.total_tests
+            resolved_eh = (
+                evidence_hashes if evidence_hashes is not None else self.evidence_hashes
+            )
             if resolved_tt is None or resolved_tt < 1:
                 raise InvariantViolationError(
                     entity="TestRun",
                     invariant="passed_requires_total_tests",
                     details="Transição para passed requer total_tests >= 1",
                 )
+            if not resolved_eh:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="passed_requires_evidence",
+                    details="Transição para passed requer evidence_hashes",
+                )
             updates["total_tests"] = resolved_tt
+            updates["failed_tests"] = 0
+            updates["passed_tests"] = resolved_tt
+            updates["evidence_hashes"] = resolved_eh
 
         if target == TestRunStatus.FAILED:
             resolved_fd = failure_details or self.failure_details

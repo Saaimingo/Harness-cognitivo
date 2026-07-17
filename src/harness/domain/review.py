@@ -51,6 +51,10 @@ class Review(BaseModel):
     findings: list[str] = Field(
         default_factory=list, description="Lista de achados ou findings"
     )
+    blocking_findings: list[str] = Field(
+        default_factory=list,
+        description="Achados bloqueadores que impedem aprovação",
+    )
     requested_changes: list[str] = Field(
         default_factory=list,
         description="Alterações solicitadas (obrigatório para change_requested)",
@@ -78,11 +82,11 @@ class Review(BaseModel):
     def validate_execution_run_id(cls, v: str) -> str:
         return validate_id_format(v)
 
-    @field_validator("created_at")
+    @field_validator("created_at", "updated_at")
     @classmethod
-    def validate_created_at_timezone(cls, v: datetime) -> datetime:
-        if v.tzinfo is None:
-            raise ValueError("created_at requer timezone")
+    def validate_temporal_timezone(cls, v: datetime | None) -> datetime | None:
+        if v is not None and v.tzinfo is None:
+            raise ValueError("Campo temporal requer timezone")
         return v
 
     @model_validator(mode="after")
@@ -97,6 +101,37 @@ class Review(BaseModel):
                 entity="Review",
                 invariant="reviewer_must_differ_from_executor",
                 details="Reviewer e executor não podem ser a mesma autoridade",
+            )
+        # Estados terminais exigem reviewer
+        if self.status in REVIEW_TERMINAL and self.reviewer is None:
+            raise InvariantViolationError(
+                entity="Review",
+                invariant="terminal_requires_reviewer",
+                details=f"Estado {self.status.value} requer reviewer identificado",
+            )
+        # APROVED não pode ter bloqueadores
+        if self.status == ReviewStatus.APPROVED and self.blocking_findings:
+            raise InvariantViolationError(
+                entity="Review",
+                invariant="approved_requires_no_blockers",
+                details=f"Aprovada com {len(self.blocking_findings)} achado(s) bloqueador(es)",
+            )
+        # APPROVED/REJECTED exigem justificativa
+        if (
+            self.status in (ReviewStatus.APPROVED, ReviewStatus.REJECTED)
+            and self.justification is None
+        ):
+            raise InvariantViolationError(
+                entity="Review",
+                invariant="terminal_requires_justification",
+                details=f"Estado {self.status.value} requer justificativa",
+            )
+        # CHANGE_REQUESTED exige requested_changes não vazio
+        if self.status == ReviewStatus.CHANGE_REQUESTED and not self.requested_changes:
+            raise InvariantViolationError(
+                entity="Review",
+                invariant="change_requested_requires_changes",
+                details="CHANGE_REQUESTED sem requested_changes",
             )
         return self
 
@@ -150,6 +185,12 @@ class Review(BaseModel):
                     invariant="approved_requires_reviewer",
                     details="Transição para approved requer reviewer identificado",
                 )
+            if self.blocking_findings:
+                raise InvariantViolationError(
+                    entity="Review",
+                    invariant="approved_requires_no_blockers",
+                    details=f"Transição para approved impedida: {len(self.blocking_findings)} achado(s) bloqueador(es)",
+                )
             updates["justification"] = resolved_just
 
         if target == ReviewStatus.REJECTED:
@@ -159,6 +200,12 @@ class Review(BaseModel):
                     entity="Review",
                     invariant="rejected_requires_justification",
                     details="Transição para rejected requer justificativa",
+                )
+            if self.reviewer is None:
+                raise InvariantViolationError(
+                    entity="Review",
+                    invariant="rejected_requires_reviewer",
+                    details="Transição para rejected requer reviewer identificado",
                 )
             updates["justification"] = resolved_just
 

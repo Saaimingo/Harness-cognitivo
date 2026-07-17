@@ -24,7 +24,12 @@ def make_test_run(
     error_message: str | None = None,
     evidence_hashes: list[str] | None = None,
 ) -> DomainTestRun:
-    """Helper para criar DomainTestRun com estado específico."""
+    """Helper para criar DomainTestRun com estado específico.
+
+    PASSED exige total_tests >= 1, evidence_hashes e failed_tests=0.
+    FAILED exige failure_details.
+    ERROR exige error_message.
+    """
     kwargs: dict = {
         "test_run_id": "tst_test123",
         "execution_run_id": "exr_test456",
@@ -38,6 +43,13 @@ def make_test_run(
         kwargs["error_message"] = error_message
     if evidence_hashes is not None:
         kwargs["evidence_hashes"] = evidence_hashes
+    if status == DomainTestRunStatus.PASSED:
+        kwargs["total_tests"] = total_tests or 10
+        kwargs["evidence_hashes"] = evidence_hashes or ["sha256_default"]
+    if status == DomainTestRunStatus.FAILED:
+        kwargs["failure_details"] = failure_details or ["Falha padrão"]
+    if status == DomainTestRunStatus.ERROR:
+        kwargs["error_message"] = error_message or "Erro padrão"
     return DomainTestRun(**kwargs)
 
 
@@ -138,6 +150,7 @@ def test_test_run_valid_transitions(
     transition_kwargs: dict = {}
     if target == DomainTestRunStatus.PASSED:
         transition_kwargs["total_tests"] = 10
+        transition_kwargs["evidence_hashes"] = ["sha256_test"]
     if target == DomainTestRunStatus.FAILED:
         transition_kwargs["failure_details"] = ["test_foo failed"]
     if target == DomainTestRunStatus.ERROR:
@@ -186,7 +199,11 @@ class TestTestRunPassed:
     def test_passed_with_total_tests(self):
         """Transição para passed com total_tests funciona."""
         tr = make_test_run(status=DomainTestRunStatus.EXECUTING)
-        new_tr = tr.transition_to(DomainTestRunStatus.PASSED, total_tests=10)
+        new_tr = tr.transition_to(
+            DomainTestRunStatus.PASSED,
+            total_tests=10,
+            evidence_hashes=["sha256_test"],
+        )
         assert new_tr.status == DomainTestRunStatus.PASSED
         assert new_tr.total_tests == 10
 
@@ -282,7 +299,11 @@ def test_started_at_set_on_executing():
 def test_completed_at_set_on_terminal():
     """completed_at deve ser preenchido ao transicionar para estado final."""
     tr = make_test_run(status=DomainTestRunStatus.EXECUTING)
-    new_tr = tr.transition_to(DomainTestRunStatus.PASSED, total_tests=10)
+    new_tr = tr.transition_to(
+        DomainTestRunStatus.PASSED,
+        total_tests=10,
+        evidence_hashes=["sha256_test"],
+    )
     assert new_tr.completed_at is not None
 
 
@@ -294,14 +315,7 @@ def test_completed_at_set_on_terminal():
 @pytest.mark.parametrize("terminal_status", list(TESTRUN_TERMINAL))
 def test_test_run_terminal_states(terminal_status: DomainTestRunStatus):
     """DomainTestRuns em estados terminais são marcados como is_terminal."""
-    kwargs: dict = {"status": terminal_status}
-    if terminal_status == DomainTestRunStatus.PASSED:
-        kwargs["total_tests"] = 10
-    if terminal_status == DomainTestRunStatus.FAILED:
-        kwargs["failure_details"] = ["test_x failed"]
-    if terminal_status == DomainTestRunStatus.ERROR:
-        kwargs["error_message"] = "Timeout"
-    tr = make_test_run(**kwargs)
+    tr = make_test_run(status=terminal_status)
     assert tr.is_terminal
 
 
@@ -352,7 +366,7 @@ def test_test_run_version_increments():
 
 def test_test_run_json_roundtrip():
     """DomainTestRun deve serializar e desserializar corretamente."""
-    tr = make_test_run(status=DomainTestRunStatus.EXECUTING, total_tests=10)
+    tr = make_test_run(status=DomainTestRunStatus.EXECUTING)
     json_str = tr.model_dump_json()
     tr2 = DomainTestRun.model_validate_json(json_str)
     assert tr.test_run_id == tr2.test_run_id
@@ -376,6 +390,12 @@ class TestTestRunEvidence:
         assert len(tr.evidence_hashes) == 2
         assert "sha256_abc123" in tr.evidence_hashes
 
+    def test_passed_requires_evidence(self):
+        """PASSED sem evidence_hashes deve ser rejeitado."""
+        tr = make_test_run(status=DomainTestRunStatus.EXECUTING)
+        with pytest.raises(InvariantViolationError, match="evidence"):
+            tr.transition_to(DomainTestRunStatus.PASSED, total_tests=10)
+
 
 # =============================================================================
 # ESTADOS TERMINAIS BLOQUEIAM TRANSMISSÕES
@@ -387,13 +407,6 @@ def test_test_run_terminal_blocks_further_transitions(
     terminal_status: DomainTestRunStatus,
 ):
     """DomainTestRun em estado terminal bloqueia transições."""
-    kwargs: dict = {"status": terminal_status}
-    if terminal_status == DomainTestRunStatus.PASSED:
-        kwargs["total_tests"] = 10
-    if terminal_status == DomainTestRunStatus.FAILED:
-        kwargs["failure_details"] = ["test_x failed"]
-    if terminal_status == DomainTestRunStatus.ERROR:
-        kwargs["error_message"] = "Timeout"
-    tr = make_test_run(**kwargs)
+    tr = make_test_run(status=terminal_status)
     with pytest.raises(InvalidTransitionError):
         tr.transition_to(DomainTestRunStatus.EXECUTING)

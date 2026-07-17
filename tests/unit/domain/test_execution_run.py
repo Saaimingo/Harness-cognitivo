@@ -25,19 +25,29 @@ def make_execution_run(
     abandon_justification: str | None = None,
     executor: str | None = None,
 ) -> ExecutionRun:
-    """Helper para criar ExecutionRun com estado específico."""
+    """Helper para criar ExecutionRun com estado específico.
+
+    Estados não-initiated exigem started_at; terminais exigem completed_at.
+    """
+    now = datetime.now(UTC)
     kwargs: dict = {
         "execution_run_id": "exr_test123",
         "work_order_id": "wo_test456",
         "attempt_number": 1,
         "status": status,
     }
-    if changeset_id is not None:
-        kwargs["changeset_id"] = changeset_id
-    if failure_reason is not None:
-        kwargs["failure_reason"] = failure_reason
-    if abandon_justification is not None:
-        kwargs["abandon_justification"] = abandon_justification
+    if status != ExecutionRunStatus.INITIATED:
+        kwargs["started_at"] = now
+    if status in EXECUTIONRUN_TERMINAL:
+        kwargs["completed_at"] = now
+    if status == ExecutionRunStatus.COMPLETED:
+        kwargs["changeset_id"] = changeset_id or "chs_default"
+    if status == ExecutionRunStatus.FAILED:
+        kwargs["failure_reason"] = failure_reason or "Falha padrão"
+    if status == ExecutionRunStatus.ABANDONED:
+        kwargs["abandon_justification"] = (
+            abandon_justification or "Justificativa padrão"
+        )
     if executor is not None:
         kwargs["executor"] = executor
     return ExecutionRun(**kwargs)
@@ -195,14 +205,7 @@ def test_execution_run_invalid_transitions_rejected(
 @pytest.mark.parametrize("terminal_status", list(EXECUTIONRUN_TERMINAL))
 def test_execution_run_terminal_states(terminal_status: ExecutionRunStatus):
     """ExecutionRuns em estados terminais são marcados como is_terminal."""
-    kwargs: dict = {"status": terminal_status}
-    if terminal_status == ExecutionRunStatus.COMPLETED:
-        kwargs["changeset_id"] = "chs_abc123"
-    if terminal_status == ExecutionRunStatus.FAILED:
-        kwargs["failure_reason"] = "Erro"
-    if terminal_status == ExecutionRunStatus.ABANDONED:
-        kwargs["abandon_justification"] = "Justificativa"
-    run = make_execution_run(**kwargs)
+    run = make_execution_run(status=terminal_status)
     assert run.is_terminal
 
 
@@ -210,7 +213,10 @@ def test_execution_run_non_terminal_states():
     """ExecutionRuns em estados não-terminais não são marcados como is_terminal."""
     for status in ExecutionRunStatus:
         if status not in EXECUTIONRUN_TERMINAL:
-            run = make_execution_run(status=status)
+            if status == ExecutionRunStatus.INITIATED:
+                run = make_execution_run(status=status)
+            else:
+                run = make_execution_run(status=status)
             assert not run.is_terminal
 
 
@@ -243,6 +249,7 @@ def test_started_at_preserved_on_subsequent_transitions():
 def test_completed_at_set_on_terminal():
     """completed_at deve ser preenchido ao transicionar para estado final."""
     run = make_execution_run(status=ExecutionRunStatus.RUNNING)
+    assert run.completed_at is None
     new_run = run.transition_to(ExecutionRunStatus.COMPLETED, changeset_id="chs_abc123")
     assert new_run.completed_at is not None
 
@@ -360,6 +367,7 @@ def test_execution_run_json_roundtrip():
     assert run.execution_run_id == run2.execution_run_id
     assert run.status == run2.status
     assert run.attempt_number == run2.attempt_number
+    assert run2.started_at is not None
 
 
 # =============================================================================
@@ -372,13 +380,6 @@ def test_execution_run_terminal_blocks_further_transitions(
     terminal_status: ExecutionRunStatus,
 ):
     """ExecutionRun em estado terminal bloqueia transições."""
-    kwargs: dict = {"status": terminal_status}
-    if terminal_status == ExecutionRunStatus.COMPLETED:
-        kwargs["changeset_id"] = "chs_abc123"
-    if terminal_status == ExecutionRunStatus.FAILED:
-        kwargs["failure_reason"] = "Erro"
-    if terminal_status == ExecutionRunStatus.ABANDONED:
-        kwargs["abandon_justification"] = "Justificativa"
-    run = make_execution_run(**kwargs)
+    run = make_execution_run(status=terminal_status)
     with pytest.raises(InvalidTransitionError):
         run.transition_to(ExecutionRunStatus.RUNNING)

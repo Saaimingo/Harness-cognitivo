@@ -23,18 +23,34 @@ def make_review(
     review_type: ReviewType = ReviewType.FUNCTIONAL,
     reviewer: str | None = None,
     executor: str | None = None,
+    justification: str | None = None,
+    requested_changes: list[str] | None = None,
 ) -> Review:
-    """Helper para criar Review com estado específico."""
+    """Helper para criar Review com estado específico.
+
+    Estados não-requested exigem reviewer; terminais exigem justification;
+    CHANGE_REQUESTED exige requested_changes.
+    """
     kwargs: dict = {
         "review_id": "rev_test123",
         "execution_run_id": "exr_test456",
         "review_type": review_type,
         "status": status,
     }
+    if status != ReviewStatus.REQUESTED:
+        kwargs["reviewer"] = reviewer or "default_reviewer"
     if reviewer is not None:
         kwargs["reviewer"] = reviewer
     if executor is not None:
         kwargs["executor"] = executor
+    if status in (ReviewStatus.APPROVED, ReviewStatus.REJECTED):
+        kwargs["justification"] = justification or "Justificativa padrão"
+    if justification is not None:
+        kwargs["justification"] = justification
+    if status == ReviewStatus.CHANGE_REQUESTED:
+        kwargs["requested_changes"] = requested_changes or ["Mudança padrão"]
+    if requested_changes is not None:
+        kwargs["requested_changes"] = requested_changes
     return Review(**kwargs)
 
 
@@ -313,7 +329,12 @@ class TestReviewApproval:
 
     def test_approved_requires_reviewer(self):
         """Aprovação requer reviewer."""
-        review = make_review(status=ReviewStatus.IN_PROGRESS)
+        review = Review(
+            review_id="rev_test123",
+            execution_run_id="exr_test456",
+            review_type=ReviewType.FUNCTIONAL,
+            status=ReviewStatus.IN_PROGRESS,
+        )
         with pytest.raises(InvariantViolationError, match="reviewer"):
             review.transition_to(ReviewStatus.APPROVED, justification="OK")
 
@@ -334,13 +355,23 @@ class TestReviewApproval:
 class TestReviewRejection:
     def test_rejected_requires_justification(self):
         """Rejeição requer justificativa."""
-        review = make_review(status=ReviewStatus.IN_PROGRESS)
+        review = make_review(status=ReviewStatus.IN_PROGRESS, reviewer="agent")
         with pytest.raises(InvariantViolationError, match="justificativa"):
             review.transition_to(ReviewStatus.REJECTED)
 
+    def test_rejected_requires_reviewer(self):
+        """Rejeição requer reviewer."""
+        review = make_review(status=ReviewStatus.IN_PROGRESS, reviewer=None)
+        # Override para remover reviewer após construção
+        review = review.model_copy(
+            update={"reviewer": None, "status": ReviewStatus.IN_PROGRESS}
+        )
+        with pytest.raises(InvariantViolationError, match="reviewer"):
+            review.transition_to(ReviewStatus.REJECTED, justification="X")
+
     def test_rejected_with_justification(self):
         """Rejeição com justificativa funciona."""
-        review = make_review(status=ReviewStatus.IN_PROGRESS)
+        review = make_review(status=ReviewStatus.IN_PROGRESS, reviewer="agent")
         new_review = review.transition_to(
             ReviewStatus.REJECTED, justification="Código não atende requisitos"
         )
@@ -378,14 +409,7 @@ class TestReviewChangeRequested:
 @pytest.mark.parametrize("terminal_status", list(REVIEW_TERMINAL))
 def test_review_terminal_states(terminal_status: ReviewStatus):
     """Reviews em estados terminais são marcados como is_terminal."""
-    kwargs: dict = {"status": terminal_status, "reviewer": "agent"}
-    if terminal_status == ReviewStatus.APPROVED:
-        kwargs["status"] = ReviewStatus.APPROVED
-    if terminal_status == ReviewStatus.REJECTED:
-        kwargs["status"] = ReviewStatus.REJECTED
-    if terminal_status == ReviewStatus.CHANGE_REQUESTED:
-        kwargs["status"] = ReviewStatus.CHANGE_REQUESTED
-    review = make_review(**kwargs)
+    review = make_review(status=terminal_status)
     assert review.is_terminal
 
 
@@ -439,6 +463,7 @@ def test_review_json_roundtrip():
     review = make_review(
         status=ReviewStatus.IN_PROGRESS,
         review_type=ReviewType.DOMAIN,
+        reviewer="agent",
     )
     json_str = review.model_dump_json()
     review2 = Review.model_validate_json(json_str)
@@ -492,7 +517,6 @@ class TestReviewReferences:
 @pytest.mark.parametrize("terminal_status", list(REVIEW_TERMINAL))
 def test_review_terminal_blocks_further_transitions(terminal_status: ReviewStatus):
     """Review em estado terminal bloqueia transições."""
-    kwargs: dict = {"status": terminal_status, "reviewer": "agent"}
-    review = make_review(**kwargs)
+    review = make_review(status=terminal_status)
     with pytest.raises(InvalidTransitionError):
         review.transition_to(ReviewStatus.IN_PROGRESS)

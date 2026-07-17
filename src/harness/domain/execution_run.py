@@ -11,7 +11,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from harness.domain.enums import ExecutionRunStatus
 from harness.domain.errors import (
@@ -73,12 +73,57 @@ class ExecutionRun(BaseModel):
     def validate_work_order_id(cls, v: str) -> str:
         return validate_id_format(v)
 
-    @field_validator("created_at")
+    @field_validator("created_at", "updated_at", "started_at", "completed_at")
     @classmethod
-    def validate_created_at_timezone(cls, v: datetime) -> datetime:
-        if v.tzinfo is None:
-            raise ValueError("created_at requer timezone")
+    def validate_temporal_timezone(cls, v: datetime | None) -> datetime | None:
+        if v is not None and v.tzinfo is None:
+            raise ValueError("Campo temporal requer timezone")
         return v
+
+    @model_validator(mode="after")
+    def validate_state_consistency(self) -> ExecutionRun:
+        """Impedir estados inválidos em construção direta e desserialização."""
+        s = self.status
+        if s == ExecutionRunStatus.COMPLETED and self.changeset_id is None:
+            raise InvariantViolationError(
+                entity="ExecutionRun",
+                invariant="completed_requires_changeset",
+                details="Construção direta com COMPLETED sem changeset_id",
+            )
+        if s == ExecutionRunStatus.FAILED and self.failure_reason is None:
+            raise InvariantViolationError(
+                entity="ExecutionRun",
+                invariant="failed_requires_reason",
+                details="Construção direta com FAILED sem failure_reason",
+            )
+        if s == ExecutionRunStatus.ABANDONED and self.abandon_justification is None:
+            raise InvariantViolationError(
+                entity="ExecutionRun",
+                invariant="abandoned_requires_justification",
+                details="Construção direta com ABANDONED sem abandon_justification",
+            )
+        if (
+            s
+            in (
+                ExecutionRunStatus.RUNNING,
+                ExecutionRunStatus.COMPLETED,
+                ExecutionRunStatus.FAILED,
+                ExecutionRunStatus.ABANDONED,
+            )
+            and self.started_at is None
+        ):
+            raise InvariantViolationError(
+                entity="ExecutionRun",
+                invariant="non_initiated_requires_started_at",
+                details=f"Estado {s.value} requer started_at preenchido",
+            )
+        if s in EXECUTIONRUN_TERMINAL and self.completed_at is None:
+            raise InvariantViolationError(
+                entity="ExecutionRun",
+                invariant="terminal_requires_completed_at",
+                details=f"Estado terminal {s.value} requer completed_at preenchido",
+            )
+        return self
 
     def can_transition_to(self, target: ExecutionRunStatus) -> bool:
         """Verificar se transição é válida."""
@@ -119,13 +164,20 @@ class ExecutionRun(BaseModel):
 
         now = datetime.now(UTC)
 
-        if target == ExecutionRunStatus.RUNNING and self.started_at is None:
+        if (
+            target
+            in (
+                ExecutionRunStatus.RUNNING,
+                ExecutionRunStatus.COMPLETED,
+                ExecutionRunStatus.FAILED,
+                ExecutionRunStatus.ABANDONED,
+            )
+            and self.started_at is None
+        ):
             updates["started_at"] = now
 
         if target in EXECUTIONRUN_TERMINAL:
             updates["completed_at"] = now
-            if self.started_at is None:
-                updates["started_at"] = now
 
         if target == ExecutionRunStatus.COMPLETED:
             resolved_cs = changeset_id or self.changeset_id
