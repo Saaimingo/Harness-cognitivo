@@ -55,8 +55,8 @@ O commit documental foi criado na branch `master`:
 | Campo | Valor |
 |-------|-------|
 | **Branch** | `feat/fi-2b-part1` |
-| **HEAD** | `0936955` |
-| **Commits à frente de master** | 5 |
+| **HEAD** | `cd757b1` |
+| **Commits à frente de master** | 6 |
 | **Remote** | `origin` → `https://github.com/Saaimingo/Harness-cognitivo.git` |
 | **Push** | ✅ Realizado |
 | **Pull Request** | PR #1 (Draft) aberta |
@@ -170,11 +170,11 @@ Adicionados ao `src/harness/domain/enums.py`:
 
 Adicionadas ao `src/harness/domain/transitions.py`:
 
-| Entidade | Transições Definidas |
-|----------|---------------------|
-| ExecutionRun | 7 transições (initiated→running, initiated→abandoned, running→completed, running→failed, running→abandoned) |
-| Review | 7 transições (requested→in_progress, requested→cancelled, in_progress→approved, in_progress→rejected, in_progress→change_requested) |
-| TestRun | 7 transições (planned→executing, planned→cancelled, executing→passed, executing→failed, executing→error) |
+| Entidade | Arestas Definidas |
+|----------|-------------------|
+| ExecutionRun | 5 arestas (initiated→running, initiated→abandoned, running→completed, running→failed, running→abandoned) |
+| Review | 4 arestas (requested→in_progress, in_progress→approved, in_progress→rejected, in_progress→change_requested) |
+| TestRun | 4 arestas (planned→executing, executing→passed, executing→failed, executing→error) |
 
 ---
 
@@ -226,7 +226,7 @@ Todos os erros já existentes na FI-2A foram reutilizados:
 |---------|-----------|
 | `src/harness/domain/enums.py` | 4 novos enums (ExecutionRunStatus, ReviewStatus, ReviewType, TestRunStatus) |
 | `src/harness/domain/policies.py` | 7 novas políticas |
-| `src/harness/domain/transitions.py` | 21 novas transições |
+| `src/harness/domain/transitions.py` | 13 novas arestas (5 ExecutionRun + 4 Review + 4 TestRun) |
 | `tests/unit/domain/test_imports.py` | Atualizado para incluir novos módulos |
 | `tests/unit/domain/test_policies.py` | 37 novos testes de políticas |
 
@@ -317,9 +317,10 @@ from harness.domain.enums import TestRunStatus as DomainTestRunStatus
 
 | Fase | Testes | Delta |
 |------|--------|-------|
+
 | FI-0 | 29 | +29 |
-| FI-1 | 97 | +39 |
-| FI-2A | 278 | +210 |
+| FI-1 | 97 | +68 |
+| FI-2A | 278 | +181 |
 | **FI-2B Parte 1** | **534** | **+256** |
 
 ---
@@ -375,6 +376,7 @@ git diff --check
 | **Mypy** | ✅ 0 erros | 31 arquivos de origem verificados |
 | **Pytest** | ✅ 534 passed | 0 failed, 0 warnings, 0.88s |
 | **git diff --check** | ✅ 0 erros | Nenhum erro de whitespace |
+| **git log master..HEAD** | ✅ 6 commits | 61d58ca, 7325efa, 5b392e1, 4b04d02, 0936955, cd757b1 |
 
 ---
 
@@ -407,6 +409,7 @@ O problema original dos PytestCollectionWarning foi resolvido via aliases nos m�
 | `5b392e1` | `docs(report): record FI-2B part 1 evidence` | feat/fi-2b-part1 |
 | `4b04d02` | `fix(domain): harden FI-2B invariants on construction and deserialization` | feat/fi-2b-part1 |
 | `0936955` | `fix(domain): harden FI-2B invariants — model_validate revalidation, adversarial tests, report update` | feat/fi-2b-part1 |
+| `cd757b1` | `fix(domain): FB-0003 canonical TestRun invariants — PLANNED/EXECUTING/FAILED validation, transition_to counts, adversarial tests, report reconciliation` | feat/fi-2b-part1 |
 
 ---
 
@@ -415,7 +418,7 @@ O problema original dos PytestCollectionWarning foi resolvido via aliases nos m�
 | Campo | Valor |
 |-------|-------|
 | **Branch atual** | `feat/fi-2b-part1` |
-| **HEAD** | `0936955` |
+| **HEAD** | `cd757b1` |
 | **Master** | `be1236f` |
 | **Tag fi-2a-approved** | `be1236f` |
 | **Working tree** | Modificada (relatório atualizado) |
@@ -459,7 +462,7 @@ O problema original dos PytestCollectionWarning foi resolvido via aliases nos m�
 - ✅ **PR #1** (Draft) aberta
 - ✅ **`__test__ = False`** NÃO entrou no domínio
 - ✅ **`conftest.py`** foi removido
-- ✅ Working tree está **limpa**
+- ✅ Working tree está **limpa** (arquivo `nul` ignorado, não rastreado)
 
 ---
 
@@ -489,7 +492,7 @@ O problema original dos PytestCollectionWarning foi resolvido via aliases nos m�
 │  ✓ conftest.py removido                                        │
 │  ✓ Validação completa (Ruff, Mypy, Pytest)                     │
 │  ✓ Working tree limpa                                          │
-│  ✓ 5 commits atômicos na branch feat/fi-2b-part1               │
+│  ✓ 6 commits atômicos na branch feat/fi-2b-part1               │
 │  ✓ Branch pushada para GitHub                                  │
 │  ✓ PR #1 (Draft) aberta                                       │
 │                                                                 │
