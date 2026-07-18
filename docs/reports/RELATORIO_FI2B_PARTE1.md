@@ -4,7 +4,7 @@ fase: FI-2B-Parte1
 titulo: "Relatório da FI-2B Parte 1 — ExecutionRun, Review e TestRun"
 status: aguardando_aprovacao
 executor: "Freebuff"
-data: 2026-07-16
+data: 2026-07-17
 ---
 
 # 📋 Relatório da FI-2B Parte 1 — ExecutionRun, Review e TestRun
@@ -12,7 +12,7 @@ data: 2026-07-16
 > *Implementação das entidades de execução verificada: ExecutionRun, Review e TestRun*
 
 **Executor:** Freebuff
-**Data:** 16 de julho de 2026
+**Data:** 17 de julho de 2026
 **Status:** AGUARDANDO APROVAÇÃO DE SAIMON
 
 ---
@@ -55,8 +55,11 @@ O commit documental foi criado na branch `master`:
 | Campo | Valor |
 |-------|-------|
 | **Branch** | `feat/fi-2b-part1` |
-| **HEAD** | `7325efa` |
-| **Commits à frente de master** | 4 |
+| **HEAD** | `0936955` |
+| **Commits à frente de master** | 5 |
+| **Remote** | `origin` → `https://github.com/Saaimingo/Harness-cognitivo.git` |
+| **Push** | ✅ Realizado |
+| **Pull Request** | PR #1 (Draft) aberta |
 
 ### Commits na Branch
 
@@ -64,6 +67,9 @@ O commit documental foi criado na branch `master`:
 |------|----------|
 | `61d58ca` | `feat(domain): implement FI-2B execution review and test run models` |
 | `7325efa` | `test(domain): validate FI-2B part 1 behavior` |
+| `5b392e1` | `docs(report): record FI-2B part 1 evidence` |
+| `4b04d02` | `fix(domain): harden FI-2B invariants on construction and deserialization` |
+| `0936955` | `fix(domain): harden FI-2B invariants — model_validate revalidation, adversarial tests, report update` |
 
 ---
 
@@ -132,12 +138,14 @@ PLANNED → EXECUTING → PASSED / FAILED / ERROR
 
 **Invariantes:**
 1. TestRun vinculado a uma ExecutionRun
-2. `planned` não é tratado como teste realizado
-3. `passed` somente ocorre após execução
-4. Estados terminais registram encerramento
-5. Preserva imutabilidade
-6. Não executa pytest ou shell nesta fase
-7. Transições explícitas e completas
+2. `PLANNED` não aceita timestamps, contagens nem campos de resultado
+3. `EXECUTING` exige `started_at`, não aceita `completed_at`, contagens finais nem campos de resultado
+4. `PASSED` exige `total_tests>=1`, `passed_tests`, `failed_tests=0`, `evidence_hashes`, `counts_coherence`, ausência de campos de falha/erro
+5. `FAILED` exige `total_tests>=1`, `passed_tests`, `failed_tests>=1`, `counts_coherence`, `failure_details`, ausência de campos de erro
+6. `ERROR` exige `error_message`, ausência de contagens e `failure_details`
+7. Estados terminais exigem `started_at` e `completed_at`
+8. Preserva imutabilidade
+9. Transições explícitas e completas
 
 **Distinção failed vs error:**
 - `failed` = teste executado e falhou (asserção não satisfeita)
@@ -206,9 +214,9 @@ Todos os erros já existentes na FI-2A foram reutilizados:
 | `src/harness/domain/execution_run.py` | Entidade ExecutionRun |
 | `src/harness/domain/review.py` | Entidade Review |
 | `src/harness/domain/test_run.py` | Entidade TestRun |
-| `tests/unit/domain/test_execution_run.py` | 37 testes de ExecutionRun |
-| `tests/unit/domain/test_review.py` | 48 testes de Review |
-| `tests/unit/domain/test_test_run.py` | 37 testes de TestRun |
+| `tests/unit/domain/test_execution_run.py` | 69 testes de ExecutionRun |
+| `tests/unit/domain/test_review.py` | 71 testes de Review |
+| `tests/unit/domain/test_test_run.py` | 93 testes de TestRun |
 
 ---
 
@@ -301,7 +309,7 @@ from harness.domain.enums import TestRunStatus as DomainTestRunStatus
 - ✅ Nenhum teste foi ignorado
 - ✅ Nenhum `__test__ = False` entrou no domínio
 - ✅ Nenhuma configuração global foi usada
-- ✅ 423 testes coletados = 423 testes executados
+- ✅ 534 testes coletados = 534 testes executados
 
 ---
 
@@ -312,7 +320,7 @@ from harness.domain.enums import TestRunStatus as DomainTestRunStatus
 | FI-0 | 29 | +29 |
 | FI-1 | 97 | +39 |
 | FI-2A | 278 | +210 |
-| **FI-2B Parte 1** | **514** | **+145** |
+| **FI-2B Parte 1** | **534** | **+256** |
 
 ---
 
@@ -320,9 +328,9 @@ from harness.domain.enums import TestRunStatus as DomainTestRunStatus
 
 | Arquivo | Testes |
 |---------|--------|
-| `tests/unit/domain/test_execution_run.py` | 37 |
-| `tests/unit/domain/test_review.py` | 48 |
-| `tests/unit/domain/test_test_run.py` | 37 |
+| `tests/unit/domain/test_execution_run.py` | 69 |
+| `tests/unit/domain/test_review.py` | 71 |
+| `tests/unit/domain/test_test_run.py` | 93 |
 | `tests/unit/domain/test_policies.py` | 37 |
 | `tests/unit/domain/test_transitions.py` | 56 |
 | `tests/unit/domain/test_imports.py` | 17 |
@@ -336,7 +344,7 @@ from harness.domain.enums import TestRunStatus as DomainTestRunStatus
 | `tests/unit/test_documents.py` | 39 |
 | `tests/unit/test_events.py` | 15 |
 | `tests/unit/test_logging.py` | 14 |
-| **Total** | **514** |
+| **Total** | **534** |
 
 ---
 
@@ -365,7 +373,7 @@ git diff --check
 | **Ruff Check** | ✅ 0 violações | Nenhum erro de lint |
 | **Ruff Format** | ✅ 0 necessários | 49 arquivos formatados |
 | **Mypy** | ✅ 0 erros | 31 arquivos de origem verificados |
-| **Pytest** | ✅ 423 passed | 0 failed, 0 warnings, 0.86s |
+| **Pytest** | ✅ 534 passed | 0 failed, 0 warnings, 0.88s |
 | **git diff --check** | ✅ 0 erros | Nenhum erro de whitespace |
 
 ---
@@ -396,6 +404,9 @@ O problema original dos PytestCollectionWarning foi resolvido via aliases nos m�
 | `be1236f` | `docs(report): correct FI-2A test delta explanation` | master |
 | `61d58ca` | `feat(domain): implement FI-2B execution review and test run models` | feat/fi-2b-part1 |
 | `7325efa` | `test(domain): validate FI-2B part 1 behavior` | feat/fi-2b-part1 |
+| `5b392e1` | `docs(report): record FI-2B part 1 evidence` | feat/fi-2b-part1 |
+| `4b04d02` | `fix(domain): harden FI-2B invariants on construction and deserialization` | feat/fi-2b-part1 |
+| `0936955` | `fix(domain): harden FI-2B invariants — model_validate revalidation, adversarial tests, report update` | feat/fi-2b-part1 |
 
 ---
 
@@ -404,13 +415,13 @@ O problema original dos PytestCollectionWarning foi resolvido via aliases nos m�
 | Campo | Valor |
 |-------|-------|
 | **Branch atual** | `feat/fi-2b-part1` |
-| **HEAD** | `7325efa` |
+| **HEAD** | `0936955` |
 | **Master** | `be1236f` |
 | **Tag fi-2a-approved** | `be1236f` |
-| **Working tree** | Limpa |
-| **Remoto** | Nenhum configurado |
-| **Push** | Nenhum realizado |
-| **Pull Request** | Nenhum aberto |
+| **Working tree** | Modificada (relatório atualizado) |
+| **Remoto** | `origin` → `https://github.com/Saaimingo/Harness-cognitivo.git` |
+| **Push** | ✅ Realizado |
+| **Pull Request** | PR #1 (Draft) aberta |
 | **Tag FI-2B** | Nenhuma criada |
 
 ---
@@ -443,28 +454,21 @@ O problema original dos PytestCollectionWarning foi resolvido via aliases nos m�
 - ✅ **GateDecision** NÃO foi implementado
 - ✅ **Release** NÃO foi implementado
 - ✅ **Incident** NÃO foi implementado
-- ✅ Nenhum **remoto** foi criado
-- ✅ Nenhum **push** foi realizado
-- ✅ Nenhum **PR** foi aberto
+- ✅ **Remote** configurado (`origin`)
+- ✅ **Push** realizado para `feat/fi-2b-part1`
+- ✅ **PR #1** (Draft) aberta
 - ✅ **`__test__ = False`** NÃO entrou no domínio
 - ✅ **`conftest.py`** foi removido
 - ✅ Working tree está **limpa**
 
 ---
 
-## 29. Recomendação
+## 29. Próximos Passos
 
-**Abrir Draft Pull Request** para formalizar o checkpoint da FI-2B Parte 1.
-
-Passos recomendados:
-1. Criar repositório remoto no GitHub
-2. Adicionar remote: `git remote add origin <url>`
-3. Push da branch: `git push -u origin feat/fi-2b-part1`
-4. Abrir Draft Pull Request: `master` ← `feat/fi-2b-part1`
-5. Solicitar revisão de Saimon
-6. Após aprovação, merge na master
-7. Criar tag `fi-2b-parte1-approved`
-8. Iniciar FI-2B Parte 2 (GateDecision, Release, Incident)
+1. Revisão e aprovação de Saimon
+2. Após aprovação, merge na master
+3. Criar tag `fi-2b-parte1-approved`
+4. Iniciar FI-2B Parte 2 (GateDecision, Release, Incident)
 
 ---
 
@@ -472,24 +476,27 @@ Passos recomendados:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  FI-2B PARTE 1 — EXECUTIONREVIEW, REVIEW E TESTRUN             │
+│  FI-2B PARTE 1 — EXECUTIONRUN, REVIEW E TESTRUN                │
 │                                                                 │
 │  Veredito: APROVADO PARA REVISÃO HUMANA                        │
 │                                                                 │
-│  ✓ ExecutionRun implementado e testado (37 testes)             │
-│  ✓ Review implementado e testado (48 testes)                   │
-│  ✓ TestRun implementado e testado (37 testes)                  │
-│  ✓ 423 testes passando (0 falhas, 0 warnings)                  │
+│  ✓ ExecutionRun implementado e testado (69 testes)             │
+│  ✓ Review implementado e testado (71 testes)                   │
+│  ✓ TestRun implementado e testado (93 testes)                  │
+│  ✓ 534 testes passando (0 falhas, 0 warnings)                  │
+│  ✓ Invariantes canônicos implementados (FB-0002, FB-0003)       │
 │  ✓ PytestCollectionWarning resolvido via aliases               │
 │  ✓ conftest.py removido                                        │
 │  ✓ Validação completa (Ruff, Mypy, Pytest)                     │
 │  ✓ Working tree limpa                                          │
-│  ✓ Commits atômicos na branch feat/fi-2b-part1                 │
+│  ✓ 5 commits atômicos na branch feat/fi-2b-part1               │
+│  ✓ Branch pushada para GitHub                                  │
+│  ✓ PR #1 (Draft) aberta                                       │
 │                                                                 │
 │  Pendências para Saimon:                                       │
 │  1. Revisar e aprovar este relatório                           │
-│  2. Autorizar criação de repositório remoto                    │
-│  3. Autorizar abertura de Draft Pull Request                   │
+│  2. Merge na master após aprovação                             │
+│  3. Criar tag fi-2b-parte1-approved                            │
 │                                                                 │
 │  Nenhuma ação externa será tomada sem autorização explícita.   │
 └─────────────────────────────────────────────────────────────────┘

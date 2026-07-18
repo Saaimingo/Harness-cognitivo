@@ -64,6 +64,12 @@ def make_test_run(
         kwargs["failed_tests"] = failed_tests if failed_tests is not None else 0
         kwargs["evidence_hashes"] = evidence_hashes or ["sha256_default"]
     if status == DomainTestRunStatus.FAILED:
+        tt = total_tests if total_tests is not None else 10
+        pt = passed_tests if passed_tests is not None else 8
+        ft = failed_tests if failed_tests is not None else 2
+        kwargs["total_tests"] = tt
+        kwargs["passed_tests"] = pt
+        kwargs["failed_tests"] = ft
         kwargs["failure_details"] = failure_details or ["Falha padrão"]
     if status == DomainTestRunStatus.ERROR:
         kwargs["error_message"] = error_message or "Erro padrão"
@@ -90,18 +96,14 @@ class TestTestRunConstruction:
         assert tr.error_message is None
 
     def test_creation_with_all_fields(self):
-        """DomainTestRun deve aceitar todos os campos."""
+        """DomainTestRun PLANNED não deve ter contagens."""
         tr = DomainTestRun(
             test_run_id="tst_test123",
             execution_run_id="exr_test456",
-            total_tests=10,
-            passed_tests=10,
-            evidence_hashes=["abc123"],
             executor="freebuff",
         )
-        assert tr.total_tests == 10
-        assert tr.passed_tests == 10
-        assert len(tr.evidence_hashes) == 1
+        assert tr.total_tests is None
+        assert tr.passed_tests is None
 
     def test_invalid_test_run_id_rejected(self):
         """test_run_id inválido deve ser rejeitado."""
@@ -169,6 +171,9 @@ def test_test_run_valid_transitions(
         transition_kwargs["total_tests"] = 10
         transition_kwargs["evidence_hashes"] = ["sha256_test"]
     if target == DomainTestRunStatus.FAILED:
+        transition_kwargs["total_tests"] = 10
+        transition_kwargs["passed_tests"] = 8
+        transition_kwargs["failed_tests"] = 2
         transition_kwargs["failure_details"] = ["test_foo failed"]
     if target == DomainTestRunStatus.ERROR:
         transition_kwargs["error_message"] = "Timeout"
@@ -234,18 +239,31 @@ class TestTestRunFailed:
     def test_failed_requires_failure_details(self):
         """Transição para failed requer failure_details."""
         tr = make_test_run(status=DomainTestRunStatus.EXECUTING)
-        with pytest.raises(InvariantViolationError, match="failure_details"):
-            tr.transition_to(DomainTestRunStatus.FAILED)
+        with pytest.raises(
+            InvariantViolationError, match="failed_requires_failure_details"
+        ):
+            tr.transition_to(
+                DomainTestRunStatus.FAILED,
+                total_tests=10,
+                passed_tests=8,
+                failed_tests=2,
+            )
 
     def test_failed_with_failure_details(self):
-        """Transição para failed com failure_details funciona."""
+        """Transição para failed com contagens coerentes funciona."""
         tr = make_test_run(status=DomainTestRunStatus.EXECUTING)
         new_tr = tr.transition_to(
             DomainTestRunStatus.FAILED,
+            total_tests=10,
+            passed_tests=8,
+            failed_tests=2,
             failure_details=["test_auth failed", "test_login failed"],
         )
         assert new_tr.status == DomainTestRunStatus.FAILED
         assert len(new_tr.failure_details) == 2
+        assert new_tr.total_tests == 10
+        assert new_tr.passed_tests == 8
+        assert new_tr.failed_tests == 2
 
 
 # =============================================================================
@@ -286,7 +304,11 @@ class TestTestRunFailureVsError:
             status=DomainTestRunStatus.EXECUTING,
         )
         failed_result = failed_tr.transition_to(
-            DomainTestRunStatus.FAILED, failure_details=["test_x failed"]
+            DomainTestRunStatus.FAILED,
+            total_tests=10,
+            passed_tests=8,
+            failed_tests=2,
+            failure_details=["test_x failed"],
         )
         error_result = error_tr.transition_to(
             DomainTestRunStatus.ERROR, error_message="Timeout"
@@ -540,7 +562,7 @@ class TestTestRunAdversarialConstruction:
         now = datetime.now(UTC)
         with pytest.raises(
             InvariantViolationError,
-            match="passed_tests_must_match_total|counts_coherence",
+            match="counts_coherence",
         ):
             DomainTestRun(
                 test_run_id="tst_test123",
@@ -559,7 +581,7 @@ class TestTestRunAdversarialConstruction:
         now = datetime.now(UTC)
         with pytest.raises(
             InvariantViolationError,
-            match="passed_requires_zero_failures|counts_coherence",
+            match="counts_coherence",
         ):
             DomainTestRun(
                 test_run_id="tst_test123",
@@ -583,6 +605,9 @@ class TestTestRunAdversarialConstruction:
                 test_run_id="tst_test123",
                 execution_run_id="exr_test456",
                 status=DomainTestRunStatus.FAILED,
+                total_tests=10,
+                passed_tests=8,
+                failed_tests=2,
                 started_at=now,
                 completed_at=now,
             )
@@ -595,6 +620,9 @@ class TestTestRunAdversarialConstruction:
                 test_run_id="tst_test123",
                 execution_run_id="exr_test456",
                 status=DomainTestRunStatus.FAILED,
+                total_tests=10,
+                passed_tests=8,
+                failed_tests=2,
                 failure_details=["falha"],
                 error_message="erro",
                 started_at=now,
@@ -635,7 +663,7 @@ class TestTestRunAdversarialConstruction:
         now = datetime.now(UTC)
         with pytest.raises(
             InvariantViolationError,
-            match="error_no_test_counts|error_no_failure_details",
+            match="error_no_test_counts",
         ):
             DomainTestRun(
                 test_run_id="tst_test123",
@@ -652,7 +680,7 @@ class TestTestRunAdversarialConstruction:
         now = datetime.now(UTC)
         with pytest.raises(
             InvariantViolationError,
-            match="error_no_failure_details|error_no_test_counts",
+            match="error_no_failure_details",
         ):
             DomainTestRun(
                 test_run_id="tst_test123",
@@ -702,6 +730,9 @@ class TestTestRunAdversarialConstruction:
                 test_run_id="tst_test123",
                 execution_run_id="exr_test456",
                 status=DomainTestRunStatus.FAILED,
+                total_tests=10,
+                passed_tests=8,
+                failed_tests=2,
                 failure_details=["falha"],
                 started_at=now,
             )
@@ -761,18 +792,298 @@ class TestTestRunAdversarialConstruction:
     def test_counts_incoherent(self):
         """passed + failed != total deve falhar."""
         now = datetime.now(UTC)
-        with pytest.raises(InvariantViolationError):
+        with pytest.raises(InvariantViolationError, match="counts_coherence"):
             DomainTestRun(
                 test_run_id="tst_test123",
                 execution_run_id="exr_test456",
                 status=DomainTestRunStatus.PASSED,
                 total_tests=10,
                 passed_tests=8,
-                failed_tests=2,
+                failed_tests=3,
                 started_at=now,
                 completed_at=now,
                 evidence_hashes=["sha256_abc"],
             )
+
+    # =========================================================================
+    # FB-0003 Part 2/2 — Testes obrigatórios PLANNED
+    # =========================================================================
+
+    def test_planned_with_total_tests(self):
+        """PLANNED com total_tests deve falhar."""
+        with pytest.raises(InvariantViolationError, match="planned_no_test_counts"):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.PLANNED,
+                total_tests=10,
+            )
+
+    def test_planned_with_evidence_hashes(self):
+        """PLANNED com evidence_hashes deve falhar."""
+        with pytest.raises(InvariantViolationError, match="planned_no_result_fields"):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.PLANNED,
+                evidence_hashes=["sha256_abc"],
+            )
+
+    def test_planned_with_failure_details(self):
+        """PLANNED com failure_details deve falhar."""
+        with pytest.raises(InvariantViolationError, match="planned_no_result_fields"):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.PLANNED,
+                failure_details=["falha"],
+            )
+
+    def test_planned_with_error_message(self):
+        """PLANNED com error_message deve falhar."""
+        with pytest.raises(InvariantViolationError, match="planned_no_result_fields"):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.PLANNED,
+                error_message="erro",
+            )
+
+    def test_planned_with_timestamps(self):
+        """PLANNED com started_at deve falhar."""
+        now = datetime.now(UTC)
+        with pytest.raises(
+            InvariantViolationError, match="planned_no_execution_timestamps"
+        ):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.PLANNED,
+                started_at=now,
+            )
+
+    def test_planned_with_completed_at(self):
+        """PLANNED com completed_at deve falhar."""
+        now_completed = datetime.now(UTC)
+        with pytest.raises(
+            InvariantViolationError, match="planned_no_execution_timestamps"
+        ):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.PLANNED,
+                completed_at=now_completed,
+            )
+
+    # =========================================================================
+    # FB-0003 Part 2/2 — Testes obrigatórios EXECUTING
+    # =========================================================================
+
+    def test_executing_with_completed_at(self):
+        """EXECUTING com completed_at deve falhar."""
+        now = datetime.now(UTC)
+        with pytest.raises(InvariantViolationError, match="executing_no_completed_at"):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.EXECUTING,
+                started_at=now,
+                completed_at=now,
+            )
+
+    def test_executing_with_total_tests(self):
+        """EXECUTING com total_tests deve falhar."""
+        now = datetime.now(UTC)
+        with pytest.raises(InvariantViolationError, match="executing_no_final_counts"):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.EXECUTING,
+                started_at=now,
+                total_tests=10,
+            )
+
+    def test_executing_with_evidence_hashes(self):
+        """EXECUTING com evidence_hashes deve falhar."""
+        now = datetime.now(UTC)
+        with pytest.raises(InvariantViolationError, match="executing_no_result_fields"):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.EXECUTING,
+                started_at=now,
+                evidence_hashes=["sha256_abc"],
+            )
+
+    def test_executing_with_failure_details(self):
+        """EXECUTING com failure_details deve falhar."""
+        now = datetime.now(UTC)
+        with pytest.raises(InvariantViolationError, match="executing_no_result_fields"):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.EXECUTING,
+                started_at=now,
+                failure_details=["falha"],
+            )
+
+    def test_executing_with_error_message(self):
+        """EXECUTING com error_message deve falhar."""
+        now = datetime.now(UTC)
+        with pytest.raises(InvariantViolationError, match="executing_no_result_fields"):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.EXECUTING,
+                started_at=now,
+                error_message="erro",
+            )
+
+    # =========================================================================
+    # FB-0003 Part 2/2 — Testes obrigatórios FAILED (contagens)
+    # =========================================================================
+
+    def test_failed_without_total_tests(self):
+        """FAILED sem total_tests deve falhar."""
+        now = datetime.now(UTC)
+        with pytest.raises(
+            InvariantViolationError, match="failed_requires_total_tests"
+        ):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.FAILED,
+                started_at=now,
+                completed_at=now,
+                failure_details=["falha"],
+            )
+
+    def test_failed_without_passed_tests(self):
+        """FAILED sem passed_tests deve falhar."""
+        now = datetime.now(UTC)
+        with pytest.raises(
+            InvariantViolationError, match="failed_requires_passed_tests"
+        ):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.FAILED,
+                total_tests=10,
+                started_at=now,
+                completed_at=now,
+                failure_details=["falha"],
+            )
+
+    def test_failed_without_failed_tests(self):
+        """FAILED sem failed_tests deve falhar."""
+        now = datetime.now(UTC)
+        with pytest.raises(
+            InvariantViolationError, match="failed_requires_nonzero_failures"
+        ):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.FAILED,
+                total_tests=10,
+                passed_tests=10,
+                started_at=now,
+                completed_at=now,
+                failure_details=["falha"],
+            )
+
+    def test_failed_with_zero_failures(self):
+        """FAILED com failed_tests=0 deve falhar."""
+        now = datetime.now(UTC)
+        with pytest.raises(
+            InvariantViolationError, match="failed_requires_nonzero_failures"
+        ):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.FAILED,
+                total_tests=10,
+                passed_tests=10,
+                failed_tests=0,
+                started_at=now,
+                completed_at=now,
+                failure_details=["falha"],
+            )
+
+    def test_failed_with_incoherent_counts(self):
+        """FAILED com soma incoerente deve falhar."""
+        now = datetime.now(UTC)
+        with pytest.raises(InvariantViolationError, match="counts_coherence"):
+            DomainTestRun(
+                test_run_id="tst_test123",
+                execution_run_id="exr_test456",
+                status=DomainTestRunStatus.FAILED,
+                total_tests=10,
+                passed_tests=8,
+                failed_tests=3,
+                started_at=now,
+                completed_at=now,
+                failure_details=["falha"],
+            )
+
+    def test_failed_valid_construction(self):
+        """FAILED com contagens coerentes funciona."""
+        now = datetime.now(UTC)
+        tr = DomainTestRun(
+            test_run_id="tst_test123",
+            execution_run_id="exr_test456",
+            status=DomainTestRunStatus.FAILED,
+            total_tests=10,
+            passed_tests=8,
+            failed_tests=2,
+            started_at=now,
+            completed_at=now,
+            failure_details=["test_foo failed"],
+        )
+        assert tr.total_tests == 10
+        assert tr.passed_tests == 8
+        assert tr.failed_tests == 2
+
+    # =========================================================================
+    # FB-0003 Part 2/2 — Testes obrigatórios transição para FAILED
+    # =========================================================================
+
+    def test_transition_to_failed_without_counts(self):
+        """Transição para FAILED sem contagens deve falhar."""
+        tr = make_test_run(status=DomainTestRunStatus.EXECUTING)
+        with pytest.raises(
+            InvariantViolationError, match="failed_requires_total_tests"
+        ):
+            tr.transition_to(
+                DomainTestRunStatus.FAILED,
+                failure_details=["falha"],
+            )
+
+    def test_transition_to_failed_with_incoherent_counts(self):
+        """Transição para FAILED com contagens incoerentes deve falhar."""
+        tr = make_test_run(status=DomainTestRunStatus.EXECUTING)
+        with pytest.raises(InvariantViolationError, match="counts_coherence"):
+            tr.transition_to(
+                DomainTestRunStatus.FAILED,
+                total_tests=10,
+                passed_tests=8,
+                failed_tests=3,
+                failure_details=["falha"],
+            )
+
+    def test_transition_to_failed_valid(self):
+        """Transição válida para FAILED com contagens coerentes."""
+        tr = make_test_run(status=DomainTestRunStatus.EXECUTING)
+        new_tr = tr.transition_to(
+            DomainTestRunStatus.FAILED,
+            total_tests=10,
+            passed_tests=8,
+            failed_tests=2,
+            failure_details=["test_foo failed"],
+        )
+        assert new_tr.status == DomainTestRunStatus.FAILED
+        assert new_tr.total_tests == 10
+        assert new_tr.passed_tests == 8
+        assert new_tr.failed_tests == 2
 
 
 class TestTestRunAdversarialModelValidate:
@@ -844,6 +1155,9 @@ class TestTestRunAdversarialModelValidate:
             "test_run_id": "tst_test123",
             "execution_run_id": "exr_test456",
             "status": "failed",
+            "total_tests": 10,
+            "passed_tests": 8,
+            "failed_tests": 2,
             "failure_details": ["falha"],
             "error_message": "erro",
             "started_at": now.isoformat(),
@@ -872,6 +1186,9 @@ class TestTestRunAdversarialModelValidate:
         tr2 = DomainTestRun.model_validate_json(json_str)
         assert tr2.status == DomainTestRunStatus.FAILED
         assert tr2.failure_details
+        assert tr2.total_tests == 10
+        assert tr2.passed_tests == 8
+        assert tr2.failed_tests == 2
         assert tr2.error_message is None
 
     def test_roundtrip_valid_error(self):
@@ -919,12 +1236,19 @@ class TestTestRunAdversarialTransition:
         """Transição para FAILED deve produzir objeto válido via model_validate."""
         tr = make_test_run(status=DomainTestRunStatus.EXECUTING)
         new_tr = tr.transition_to(
-            DomainTestRunStatus.FAILED, failure_details=["test_x failed"]
+            DomainTestRunStatus.FAILED,
+            total_tests=10,
+            passed_tests=8,
+            failed_tests=2,
+            failure_details=["test_x failed"],
         )
         data = new_tr.model_dump()
         revalidated = DomainTestRun.model_validate(data)
         assert revalidated.status == DomainTestRunStatus.FAILED
         assert revalidated.failure_details == ["test_x failed"]
+        assert revalidated.total_tests == 10
+        assert revalidated.passed_tests == 8
+        assert revalidated.failed_tests == 2
         assert revalidated.error_message is None
         assert revalidated.error_type is None
 
