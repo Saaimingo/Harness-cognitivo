@@ -55,8 +55,8 @@ O commit documental foi criado na branch `master`:
 | Campo | Valor |
 |-------|-------|
 | **Branch** | `feat/fi-2b-part1` |
-| **HEAD** | `cd757b1` |
-| **Commits à frente de master** | 6 |
+| **HEAD** | `14316f6` |
+| **Commits à frente de master** | 7 |
 | **Remote** | `origin` → `https://github.com/Saaimingo/Harness-cognitivo.git` |
 | **Push** | ✅ Realizado |
 | **Pull Request** | PR #1 (Draft) aberta |
@@ -376,7 +376,7 @@ git diff --check
 | **Mypy** | ✅ 0 erros | 31 arquivos de origem verificados |
 | **Pytest** | ✅ 534 passed | 0 failed, 0 warnings, 0.88s |
 | **git diff --check** | ✅ 0 erros | Nenhum erro de whitespace |
-| **git log master..HEAD** | ✅ 6 commits | 61d58ca, 7325efa, 5b392e1, 4b04d02, 0936955, cd757b1 |
+| **git log master..HEAD** | ✅ 7 commits | 61d58ca, 7325efa, 5b392e1, 4b04d02, 0936955, cd757b1, 14316f6 |
 
 ---
 
@@ -410,6 +410,7 @@ O problema original dos PytestCollectionWarning foi resolvido via aliases nos m�
 | `4b04d02` | `fix(domain): harden FI-2B invariants on construction and deserialization` | feat/fi-2b-part1 |
 | `0936955` | `fix(domain): harden FI-2B invariants — model_validate revalidation, adversarial tests, report update` | feat/fi-2b-part1 |
 | `cd757b1` | `fix(domain): FB-0003 canonical TestRun invariants — PLANNED/EXECUTING/FAILED validation, transition_to counts, adversarial tests, report reconciliation` | feat/fi-2b-part1 |
+| `14316f6` | `docs(report): FB-0004 reconcile report with real state — HEAD cd757b1, 6 commits, 13 arestas, 534 tests` | feat/fi-2b-part1 |
 
 ---
 
@@ -418,7 +419,7 @@ O problema original dos PytestCollectionWarning foi resolvido via aliases nos m�
 | Campo | Valor |
 |-------|-------|
 | **Branch atual** | `feat/fi-2b-part1` |
-| **HEAD** | `cd757b1` |
+| **HEAD** | `14316f6` |
 | **Master** | `be1236f` |
 | **Tag fi-2a-approved** | `be1236f` |
 | **Working tree** | Modificada (relatório atualizado) |
@@ -492,7 +493,7 @@ O problema original dos PytestCollectionWarning foi resolvido via aliases nos m�
 │  ✓ conftest.py removido                                        │
 │  ✓ Validação completa (Ruff, Mypy, Pytest)                     │
 │  ✓ Working tree limpa                                          │
-│  ✓ 6 commits atômicos na branch feat/fi-2b-part1               │
+│  ✓ 7 commits atômicos na branch feat/fi-2b-part1               │
 │  ✓ Branch pushada para GitHub                                  │
 │  ✓ PR #1 (Draft) aberta                                       │
 │                                                                 │
