@@ -520,3 +520,260 @@ def test_review_terminal_blocks_further_transitions(terminal_status: ReviewStatu
     review = make_review(status=terminal_status)
     with pytest.raises(InvalidTransitionError):
         review.transition_to(ReviewStatus.IN_PROGRESS)
+
+
+# =============================================================================
+# TESTES ADVERSARIAIS — Construção direta inválida
+# =============================================================================
+
+
+class TestReviewAdversarialConstruction:
+    def test_approved_without_reviewer(self):
+        """APPROVED sem reviewer deve falhar."""
+        with pytest.raises(InvariantViolationError, match="terminal_requires_reviewer"):
+            Review(
+                review_id="rev_test123",
+                execution_run_id="exr_test456",
+                review_type=ReviewType.FUNCTIONAL,
+                status=ReviewStatus.APPROVED,
+                justification="OK",
+            )
+
+    def test_approved_without_justification(self):
+        """APPROVED sem justificativa deve falhar."""
+        with pytest.raises(InvariantViolationError, match="justificativa"):
+            Review(
+                review_id="rev_test123",
+                execution_run_id="exr_test456",
+                review_type=ReviewType.FUNCTIONAL,
+                status=ReviewStatus.APPROVED,
+                reviewer="agent",
+            )
+
+    def test_approved_with_empty_justification(self):
+        """APPROVED com justificativa vazia deve falhar."""
+        with pytest.raises(InvariantViolationError, match="justificativa"):
+            Review(
+                review_id="rev_test123",
+                execution_run_id="exr_test456",
+                review_type=ReviewType.FUNCTIONAL,
+                status=ReviewStatus.APPROVED,
+                reviewer="agent",
+                justification="  ",
+            )
+
+    def test_approved_with_blockers(self):
+        """APPROVED com blocking_findings deve falhar."""
+        with pytest.raises(InvariantViolationError, match="blockers"):
+            Review(
+                review_id="rev_test123",
+                execution_run_id="exr_test456",
+                review_type=ReviewType.FUNCTIONAL,
+                status=ReviewStatus.APPROVED,
+                reviewer="agent",
+                justification="OK",
+                blocking_findings=["bug critical"],
+            )
+
+    def test_rejected_without_reviewer(self):
+        """REJECTED sem reviewer deve falhar."""
+        with pytest.raises(InvariantViolationError, match="terminal_requires_reviewer"):
+            Review(
+                review_id="rev_test123",
+                execution_run_id="exr_test456",
+                review_type=ReviewType.FUNCTIONAL,
+                status=ReviewStatus.REJECTED,
+                justification="Rejeitado",
+            )
+
+    def test_rejected_without_justification(self):
+        """REJECTED sem justificativa deve falhar."""
+        with pytest.raises(InvariantViolationError, match="justificativa"):
+            Review(
+                review_id="rev_test123",
+                execution_run_id="exr_test456",
+                review_type=ReviewType.FUNCTIONAL,
+                status=ReviewStatus.REJECTED,
+                reviewer="agent",
+            )
+
+    def test_rejected_with_empty_justification(self):
+        """REJECTED com justificativa vazia deve falhar."""
+        with pytest.raises(InvariantViolationError, match="justificativa"):
+            Review(
+                review_id="rev_test123",
+                execution_run_id="exr_test456",
+                review_type=ReviewType.FUNCTIONAL,
+                status=ReviewStatus.REJECTED,
+                reviewer="agent",
+                justification="  ",
+            )
+
+    def test_change_requested_without_reviewer(self):
+        """CHANGE_REQUESTED sem reviewer deve falhar."""
+        with pytest.raises(InvariantViolationError, match="reviewer"):
+            Review(
+                review_id="rev_test123",
+                execution_run_id="exr_test456",
+                review_type=ReviewType.FUNCTIONAL,
+                status=ReviewStatus.CHANGE_REQUESTED,
+                requested_changes=["mudar X"],
+            )
+
+    def test_change_requested_without_changes(self):
+        """CHANGE_REQUESTED sem requested_changes deve falhar."""
+        with pytest.raises(InvariantViolationError, match="requested_changes"):
+            Review(
+                review_id="rev_test123",
+                execution_run_id="exr_test456",
+                review_type=ReviewType.FUNCTIONAL,
+                status=ReviewStatus.CHANGE_REQUESTED,
+                reviewer="agent",
+            )
+
+    def test_reviewer_empty_string(self):
+        """Reviewer string vazia deve falhar."""
+        with pytest.raises(InvariantViolationError, match="reviewer_must_not_be_empty"):
+            Review(
+                review_id="rev_test123",
+                execution_run_id="exr_test456",
+                review_type=ReviewType.FUNCTIONAL,
+                reviewer="  ",
+            )
+
+    def test_reviewer_equals_executor(self):
+        """Reviewer igual ao executor deve falhar."""
+        with pytest.raises(InvariantViolationError, match="reviewer_must_differ"):
+            Review(
+                review_id="rev_test123",
+                execution_run_id="exr_test456",
+                review_type=ReviewType.FUNCTIONAL,
+                reviewer="agent",
+                executor="agent",
+            )
+
+    def test_created_at_naive(self):
+        """created_at sem timezone deve falhar."""
+        with pytest.raises(ValueError, match="timezone"):
+            Review(
+                review_id="rev_test123",
+                execution_run_id="exr_test456",
+                review_type=ReviewType.FUNCTIONAL,
+                created_at=datetime(2026, 1, 1),
+            )
+
+    def test_updated_at_naive(self):
+        """updated_at sem timezone deve falhar."""
+        with pytest.raises(ValueError, match="timezone"):
+            Review(
+                review_id="rev_test123",
+                execution_run_id="exr_test456",
+                review_type=ReviewType.FUNCTIONAL,
+                updated_at=datetime(2026, 1, 1),
+            )
+
+
+class TestReviewAdversarialModelValidate:
+    def test_model_validate_approved_without_reviewer(self):
+        """model_validate com APPROVED sem reviewer deve falhar."""
+        data = {
+            "review_id": "rev_test123",
+            "execution_run_id": "exr_test456",
+            "review_type": "functional",
+            "status": "approved",
+            "justification": "OK",
+        }
+        with pytest.raises(InvariantViolationError):
+            Review.model_validate(data)
+
+    def test_model_validate_json_change_requested_without_reviewer(self):
+        """model_validate_json com CHANGE_REQUESTED sem reviewer deve falhar."""
+        import json
+
+        data = {
+            "review_id": "rev_test123",
+            "execution_run_id": "exr_test456",
+            "review_type": "functional",
+            "status": "change_requested",
+            "requested_changes": ["mudar X"],
+        }
+        with pytest.raises(InvariantViolationError):
+            Review.model_validate_json(json.dumps(data))
+
+    def test_roundtrip_valid_approved(self):
+        """Roundtrip de APPROVED válido."""
+        review = make_review(
+            status=ReviewStatus.APPROVED, reviewer="agent", justification="OK"
+        )
+        json_str = review.model_dump_json()
+        review2 = Review.model_validate_json(json_str)
+        assert review2.status == ReviewStatus.APPROVED
+        assert review2.reviewer == "agent"
+        assert review2.justification == "OK"
+
+    def test_roundtrip_valid_rejected(self):
+        """Roundtrip de REJECTED válido."""
+        review = make_review(
+            status=ReviewStatus.REJECTED, reviewer="agent", justification="Rejeitado"
+        )
+        json_str = review.model_dump_json()
+        review2 = Review.model_validate_json(json_str)
+        assert review2.status == ReviewStatus.REJECTED
+
+    def test_roundtrip_valid_change_requested(self):
+        """Roundtrip de CHANGE_REQUESTED válido."""
+        review = make_review(
+            status=ReviewStatus.CHANGE_REQUESTED,
+            reviewer="agent",
+            requested_changes=["mudar X"],
+        )
+        json_str = review.model_dump_json()
+        review2 = Review.model_validate_json(json_str)
+        assert review2.status == ReviewStatus.CHANGE_REQUESTED
+        assert review2.reviewer == "agent"
+
+
+class TestReviewAdversarialTransition:
+    """Testes de transições que produzem objetos normativamente válidos."""
+
+    def test_transition_to_approved_produces_valid_object(self):
+        """Transição para APPROVED deve produzir objeto válido via model_validate."""
+        review = make_review(status=ReviewStatus.IN_PROGRESS, reviewer="agent")
+        new_review = review.transition_to(ReviewStatus.APPROVED, justification="OK")
+        data = new_review.model_dump()
+        revalidated = Review.model_validate(data)
+        assert revalidated.status == ReviewStatus.APPROVED
+        assert revalidated.reviewer == "agent"
+        assert revalidated.justification == "OK"
+
+    def test_transition_to_rejected_produces_valid_object(self):
+        """Transição para REJECTED deve produzir objeto válido via model_validate."""
+        review = make_review(status=ReviewStatus.IN_PROGRESS, reviewer="agent")
+        new_review = review.transition_to(
+            ReviewStatus.REJECTED, justification="Rejeitado"
+        )
+        data = new_review.model_dump()
+        revalidated = Review.model_validate(data)
+        assert revalidated.status == ReviewStatus.REJECTED
+        assert revalidated.reviewer == "agent"
+
+    def test_transition_to_change_requested_produces_valid_object(self):
+        """Transição para CHANGE_REQUESTED deve produzir objeto válido via model_validate."""
+        review = make_review(status=ReviewStatus.IN_PROGRESS, reviewer="agent")
+        new_review = review.transition_to(
+            ReviewStatus.CHANGE_REQUESTED, requested_changes=["mudar X"]
+        )
+        data = new_review.model_dump()
+        revalidated = Review.model_validate(data)
+        assert revalidated.status == ReviewStatus.CHANGE_REQUESTED
+        assert revalidated.reviewer == "agent"
+        assert new_review.requested_changes == ["mudar X"]
+
+    def test_transition_to_change_requested_without_reviewer_fails(self):
+        """Transição para CHANGE_REQUESTED sem reviewer deve falhar."""
+        review = make_review(status=ReviewStatus.IN_PROGRESS, reviewer=None)
+        review = review.model_copy(update={"reviewer": None})
+        with pytest.raises(InvariantViolationError, match="reviewer"):
+            review.transition_to(
+                ReviewStatus.CHANGE_REQUESTED, requested_changes=["mudar X"]
+            )

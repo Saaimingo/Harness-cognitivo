@@ -88,48 +88,8 @@ class TestRun(BaseModel):
     def validate_state_consistency(self) -> TestRun:
         """Impedir estados inválidos em construção direta e desserialização."""
         s = self.status
-        if s == TestRunStatus.PASSED:
-            if self.total_tests is None or self.total_tests < 1:
-                raise InvariantViolationError(
-                    entity="TestRun",
-                    invariant="passed_requires_total_tests",
-                    details="Construção direta com PASSED sem total_tests >= 1",
-                )
-            if self.failed_tests is not None and self.failed_tests != 0:
-                raise InvariantViolationError(
-                    entity="TestRun",
-                    invariant="passed_requires_zero_failures",
-                    details=f"PASSED com failed_tests={self.failed_tests}",
-                )
-            if not self.evidence_hashes:
-                raise InvariantViolationError(
-                    entity="TestRun",
-                    invariant="passed_requires_evidence",
-                    details="PASSED sem evidence_hashes",
-                )
-            if (
-                self.passed_tests is not None
-                and self.total_tests is not None
-                and self.passed_tests != self.total_tests
-            ):
-                raise InvariantViolationError(
-                    entity="TestRun",
-                    invariant="passed_tests_must_match_total",
-                    details=f"passed_tests={self.passed_tests} != total_tests={self.total_tests}",
-                )
-        if s == TestRunStatus.FAILED and not self.failure_details:
-            raise InvariantViolationError(
-                entity="TestRun",
-                invariant="failed_requires_failure_details",
-                details="Construção direta com FAILED sem failure_details",
-            )
-        if s == TestRunStatus.ERROR and self.error_message is None:
-            raise InvariantViolationError(
-                entity="TestRun",
-                invariant="error_requires_error_message",
-                details="Construção direta com ERROR sem error_message",
-            )
-        # Contagens não negativas
+
+        # --- Contagens não negativas ---
         for field_name in ("total_tests", "passed_tests", "failed_tests"):
             val = getattr(self, field_name)
             if val is not None and val < 0:
@@ -138,7 +98,8 @@ class TestRun(BaseModel):
                     invariant="non_negative_counts",
                     details=f"{field_name}={val} é negativo",
                 )
-        # Coerência quando as três contagens são conhecidas
+
+        # --- Coerência quando as três contagens são conhecidas ---
         if (
             self.total_tests is not None
             and self.passed_tests is not None
@@ -150,6 +111,135 @@ class TestRun(BaseModel):
                 invariant="counts_coherence",
                 details=f"passed({self.passed_tests}) + failed({self.failed_tests}) != total({self.total_tests})",
             )
+
+        # --- EXECUTING exige started_at ---
+        if s == TestRunStatus.EXECUTING and self.started_at is None:
+            raise InvariantViolationError(
+                entity="TestRun",
+                invariant="executing_requires_started_at",
+                details="EXECUTING exige started_at",
+            )
+
+        # --- Terminais exigem started_at e completed_at ---
+        if s in TESTRUN_TERMINAL:
+            if self.started_at is None:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="terminal_requires_started_at",
+                    details=f"Estado terminal {s.value} requer started_at",
+                )
+            if self.completed_at is None:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="terminal_requires_completed_at",
+                    details=f"Estado terminal {s.value} requer completed_at",
+                )
+
+        # --- PASSED: rigor total ---
+        if s == TestRunStatus.PASSED:
+            if self.total_tests is None or self.total_tests < 1:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="passed_requires_total_tests",
+                    details="PASSED exige total_tests >= 1",
+                )
+            if self.passed_tests is None:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="passed_requires_passed_tests",
+                    details="PASSED exige passed_tests obrigatório",
+                )
+            if self.failed_tests is None:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="passed_requires_failed_tests",
+                    details="PASSED exige failed_tests obrigatório",
+                )
+            if self.failed_tests != 0:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="passed_requires_zero_failures",
+                    details=f"PASSED com failed_tests={self.failed_tests}",
+                )
+            if self.passed_tests != self.total_tests:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="passed_tests_must_match_total",
+                    details=f"passed_tests={self.passed_tests} != total_tests={self.total_tests}",
+                )
+            if not self.evidence_hashes:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="passed_requires_evidence",
+                    details="PASSED exige evidence_hashes não vazio",
+                )
+            # PASSED não pode ter campos de FAILED/ERROR
+            if self.failure_details:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="passed_no_failure_details",
+                    details="PASSED não pode ter failure_details",
+                )
+            if self.error_message or self.error_type:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="passed_no_error_fields",
+                    details="PASSED não pode ter error_message ou error_type",
+                )
+
+        # --- FAILED: rigor ---
+        if s == TestRunStatus.FAILED:
+            if not self.failure_details:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="failed_requires_failure_details",
+                    details="FAILED exige failure_details não vazio",
+                )
+            if self.error_message or self.error_type:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="failed_no_error_fields",
+                    details="FAILED não pode ter error_message ou error_type",
+                )
+            # Se total_tests e passed_tests existem, failed_tests deve ser coerente
+            if (
+                self.total_tests is not None
+                and self.passed_tests is not None
+                and self.failed_tests is not None
+                and self.failed_tests < 1
+            ):
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="failed_requires_nonzero_failures",
+                    details=f"FAILED com failed_tests={self.failed_tests}",
+                )
+
+        # --- ERROR: rigor ---
+        if s == TestRunStatus.ERROR:
+            if not self.error_message or not self.error_message.strip():
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="error_requires_error_message",
+                    details="ERROR exige error_message não vazio",
+                )
+            # ERROR não pode ter dados conclusivos de teste
+            if (
+                self.total_tests is not None
+                or self.passed_tests is not None
+                or self.failed_tests is not None
+            ):
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="error_no_test_counts",
+                    details="ERROR não pode ter total_tests, passed_tests ou failed_tests",
+                )
+            if self.failure_details:
+                raise InvariantViolationError(
+                    entity="TestRun",
+                    invariant="error_no_failure_details",
+                    details="ERROR não pode ter failure_details",
+                )
+
         return self
 
     def can_transition_to(self, target: TestRunStatus) -> bool:
@@ -245,7 +335,10 @@ class TestRun(BaseModel):
             if error_type is not None:
                 updates["error_type"] = error_type
 
-        return self.model_copy(update=updates)
+        # Usar model_validate para garantir revalidação via model_validator
+        data = self.model_dump()
+        data.update(updates)
+        return type(self).model_validate(data)
 
     @property
     def is_terminal(self) -> bool:

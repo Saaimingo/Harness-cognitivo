@@ -56,7 +56,7 @@ O commit documental foi criado na branch `master`:
 |-------|-------|
 | **Branch** | `feat/fi-2b-part1` |
 | **HEAD** | `7325efa` |
-| **Commits à frente de master** | 2 |
+| **Commits à frente de master** | 4 |
 
 ### Commits na Branch
 
@@ -310,9 +310,9 @@ from harness.domain.enums import TestRunStatus as DomainTestRunStatus
 | Fase | Testes | Delta |
 |------|--------|-------|
 | FI-0 | 29 | +29 |
-| FI-1 | 68 | +39 |
+| FI-1 | 97 | +39 |
 | FI-2A | 278 | +210 |
-| **FI-2B Parte 1** | **423** | **+145** |
+| **FI-2B Parte 1** | **514** | **+145** |
 
 ---
 
@@ -336,7 +336,7 @@ from harness.domain.enums import TestRunStatus as DomainTestRunStatus
 | `tests/unit/test_documents.py` | 39 |
 | `tests/unit/test_events.py` | 15 |
 | `tests/unit/test_logging.py` | 14 |
-| **Total** | **423** |
+| **Total** | **514** |
 
 ---
 

@@ -92,6 +92,7 @@ class Review(BaseModel):
     @model_validator(mode="after")
     def validate_reviewer_executor_independence(self) -> Review:
         """Reviewer e executor não podem ser a mesma autoridade."""
+        # Independência reviewer/executor
         if (
             self.reviewer is not None
             and self.executor is not None
@@ -102,30 +103,49 @@ class Review(BaseModel):
                 invariant="reviewer_must_differ_from_executor",
                 details="Reviewer e executor não podem ser a mesma autoridade",
             )
-        # Estados terminais exigem reviewer
+
+        # Reviewer não pode ser string vazia
+        if self.reviewer is not None and not self.reviewer.strip():
+            raise InvariantViolationError(
+                entity="Review",
+                invariant="reviewer_must_not_be_empty",
+                details="Reviewer não pode ser string vazia",
+            )
+
+        # Estados terminais exigem reviewer identificado
         if self.status in REVIEW_TERMINAL and self.reviewer is None:
             raise InvariantViolationError(
                 entity="Review",
                 invariant="terminal_requires_reviewer",
                 details=f"Estado {self.status.value} requer reviewer identificado",
             )
-        # APROVED não pode ter bloqueadores
+
+        # CHANGE_REQUESTED exige reviewer (não apenas terminais)
+        if self.status == ReviewStatus.CHANGE_REQUESTED and self.reviewer is None:
+            raise InvariantViolationError(
+                entity="Review",
+                invariant="change_requested_requires_reviewer",
+                details="CHANGE_REQUESTED requer reviewer identificado",
+            )
+
+        # APPROVED não pode ter bloqueadores
         if self.status == ReviewStatus.APPROVED and self.blocking_findings:
             raise InvariantViolationError(
                 entity="Review",
                 invariant="approved_requires_no_blockers",
                 details=f"Aprovada com {len(self.blocking_findings)} achado(s) bloqueador(es)",
             )
-        # APPROVED/REJECTED exigem justificativa
-        if (
-            self.status in (ReviewStatus.APPROVED, ReviewStatus.REJECTED)
-            and self.justification is None
+
+        # APPROVED/REJECTED exigem justificativa não vazia
+        if self.status in (ReviewStatus.APPROVED, ReviewStatus.REJECTED) and (
+            self.justification is None or not self.justification.strip()
         ):
             raise InvariantViolationError(
                 entity="Review",
                 invariant="terminal_requires_justification",
-                details=f"Estado {self.status.value} requer justificativa",
+                details=f"Estado {self.status.value} requer justificativa não vazia",
             )
+
         # CHANGE_REQUESTED exige requested_changes não vazio
         if self.status == ReviewStatus.CHANGE_REQUESTED and not self.requested_changes:
             raise InvariantViolationError(
@@ -133,6 +153,7 @@ class Review(BaseModel):
                 invariant="change_requested_requires_changes",
                 details="CHANGE_REQUESTED sem requested_changes",
             )
+
         return self
 
     def can_transition_to(self, target: ReviewStatus) -> bool:
@@ -217,9 +238,18 @@ class Review(BaseModel):
                     invariant="change_requested_requires_changes",
                     details="Transição para change_requested requer lista de alterações solicitadas",
                 )
+            if self.reviewer is None:
+                raise InvariantViolationError(
+                    entity="Review",
+                    invariant="change_requested_requires_reviewer",
+                    details="Transição para change_requested requer reviewer identificado",
+                )
             updates["requested_changes"] = resolved_changes
 
-        return self.model_copy(update=updates)
+        # Usar model_validate para garantir revalidação via model_validator
+        data = self.model_dump()
+        data.update(updates)
+        return type(self).model_validate(data)
 
     @property
     def is_terminal(self) -> bool:

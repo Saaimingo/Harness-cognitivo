@@ -84,24 +84,74 @@ class ExecutionRun(BaseModel):
     def validate_state_consistency(self) -> ExecutionRun:
         """Impedir estados inválidos em construção direta e desserialização."""
         s = self.status
-        if s == ExecutionRunStatus.COMPLETED and self.changeset_id is None:
+
+        # --- Requisitos por estado ---
+        if s == ExecutionRunStatus.COMPLETED:
+            if not self.changeset_id or not self.changeset_id.strip():
+                raise InvariantViolationError(
+                    entity="ExecutionRun",
+                    invariant="completed_requires_changeset",
+                    details="COMPLETED exige changeset_id não vazio",
+                )
+            if self.failure_reason or self.abandon_justification:
+                raise InvariantViolationError(
+                    entity="ExecutionRun",
+                    invariant="completed_no_conflicting_fields",
+                    details="COMPLETED não pode ter failure_reason ou abandon_justification",
+                )
+
+        if s == ExecutionRunStatus.FAILED:
+            if not self.failure_reason or not self.failure_reason.strip():
+                raise InvariantViolationError(
+                    entity="ExecutionRun",
+                    invariant="failed_requires_reason",
+                    details="FAILED exige failure_reason não vazio",
+                )
+            if self.changeset_id or self.abandon_justification:
+                raise InvariantViolationError(
+                    entity="ExecutionRun",
+                    invariant="failed_no_conflicting_fields",
+                    details="FAILED não pode ter changeset_id ou abandon_justification",
+                )
+
+        if s == ExecutionRunStatus.ABANDONED:
+            if not self.abandon_justification or not self.abandon_justification.strip():
+                raise InvariantViolationError(
+                    entity="ExecutionRun",
+                    invariant="abandoned_requires_justification",
+                    details="ABANDONED exige abandon_justification não vazio",
+                )
+            if self.changeset_id or self.failure_reason:
+                raise InvariantViolationError(
+                    entity="ExecutionRun",
+                    invariant="abandoned_no_conflicting_fields",
+                    details="ABANDONED não pode ter changeset_id ou failure_reason",
+                )
+
+        # --- INITIATED não deve ter campos de execução ---
+        if s == ExecutionRunStatus.INITIATED:
+            if self.started_at or self.completed_at:
+                raise InvariantViolationError(
+                    entity="ExecutionRun",
+                    invariant="initiated_no_execution_fields",
+                    details="INITIATED não pode ter started_at ou completed_at",
+                )
+            if self.changeset_id or self.failure_reason or self.abandon_justification:
+                raise InvariantViolationError(
+                    entity="ExecutionRun",
+                    invariant="initiated_no_result_fields",
+                    details="INITIATED não pode ter changeset_id, failure_reason ou abandon_justification",
+                )
+
+        # --- RUNNING não deve ter completed_at ---
+        if s == ExecutionRunStatus.RUNNING and self.completed_at:
             raise InvariantViolationError(
                 entity="ExecutionRun",
-                invariant="completed_requires_changeset",
-                details="Construção direta com COMPLETED sem changeset_id",
+                invariant="running_no_completed_at",
+                details="RUNNING não pode ter completed_at",
             )
-        if s == ExecutionRunStatus.FAILED and self.failure_reason is None:
-            raise InvariantViolationError(
-                entity="ExecutionRun",
-                invariant="failed_requires_reason",
-                details="Construção direta com FAILED sem failure_reason",
-            )
-        if s == ExecutionRunStatus.ABANDONED and self.abandon_justification is None:
-            raise InvariantViolationError(
-                entity="ExecutionRun",
-                invariant="abandoned_requires_justification",
-                details="Construção direta com ABANDONED sem abandon_justification",
-            )
+
+        # --- Timestamps obrigatórios ---
         if (
             s
             in (
@@ -117,12 +167,14 @@ class ExecutionRun(BaseModel):
                 invariant="non_initiated_requires_started_at",
                 details=f"Estado {s.value} requer started_at preenchido",
             )
+
         if s in EXECUTIONRUN_TERMINAL and self.completed_at is None:
             raise InvariantViolationError(
                 entity="ExecutionRun",
                 invariant="terminal_requires_completed_at",
                 details=f"Estado terminal {s.value} requer completed_at preenchido",
             )
+
         return self
 
     def can_transition_to(self, target: ExecutionRunStatus) -> bool:
@@ -209,7 +261,10 @@ class ExecutionRun(BaseModel):
                 )
             updates["abandon_justification"] = resolved_aj
 
-        return self.model_copy(update=updates)
+        # Usar model_validate para garantir revalidação via model_validator
+        data = self.model_dump()
+        data.update(updates)
+        return type(self).model_validate(data)
 
     @property
     def is_terminal(self) -> bool:
