@@ -1,0 +1,16 @@
+tests/unit/domain/test_execution_run.py: 69
+tests/unit/domain/test_imports.py: 17
+tests/unit/domain/test_invariants.py: 9
+tests/unit/domain/test_plan.py: 7
+tests/unit/domain/test_policies.py: 37
+tests/unit/domain/test_project.py: 31
+tests/unit/domain/test_requirement.py: 5
+tests/unit/domain/test_review.py: 71
+tests/unit/domain/test_task.py: 28
+tests/unit/domain/test_test_run.py: 93
+tests/unit/domain/test_transitions.py: 56
+tests/unit/domain/test_work_order.py: 14
+tests/unit/test_context.py: 29
+tests/unit/test_documents.py: 39
+tests/unit/test_events.py: 15
+tests/unit/test_logging.py: 14

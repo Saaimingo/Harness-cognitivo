@@ -2,510 +2,370 @@
 tipo: relatorio_fase
 fase: FI-2B-Parte1
 titulo: "Relatório da FI-2B Parte 1 — ExecutionRun, Review e TestRun"
-status: aguardando_aprovacao
-executor: "Freebuff"
+status: ready_for_review
+executor_original: Freebuff
+reconciliacao: Codex
 data: 2026-07-17
+reconciliado_em: 2026-07-18
+branch: feat/fi-2b-part1
+base_head: be1236ff7885b950cfdd7cdac50c3f9531be48f9
+audited_head: d11f983f701936a6b3e7fde68c81fba0699f1fcd
 ---
 
-# 📋 Relatório da FI-2B Parte 1 — ExecutionRun, Review e TestRun
+# Relatório da FI-2B Parte 1
 
-> *Implementação das entidades de execução verificada: ExecutionRun, Review e TestRun*
+## 1. Estado deste documento
 
-**Executor:** Freebuff
-**Data:** 17 de julho de 2026
-**Status:** AGUARDANDO APROVAÇÃO DE SAIMON
+Este relatório reconcilia o código, a PR #1, o histórico Git e as evidências reproduzidas da FI-2B Parte 1.
 
----
+- Branch auditada: `feat/fi-2b-part1`.
+- Base auditada: `master` em `be1236ff7885b950cfdd7cdac50c3f9531be48f9`.
+- `audited_head=d11f983f701936a6b3e7fde68c81fba0699f1fcd`.
+- PR #1: aberta, Draft, sem merge.
+- Commits no baseline auditado: 9 à frente da base, 0 atrás.
+- Estado desta reconciliação: `READY_FOR_REVIEW`, pendente de nova auditoria independente.
 
-## 1. Resumo Executivo
+O `audited_head` identifica o baseline anterior a esta reconciliação. Este documento não tenta registrar o hash do commit que futuramente possa contê-lo, evitando autorreferência e commits documentais sucessivos apenas para atualizar o próprio hash.
 
-A FI-2B Parte 1 implementou as três primeiras entidades do domínio de execução e governança do Harness Cognitivo: **ExecutionRun**, **Review** e **TestRun**. Essas entidades completam o ciclo de trabalho iniciado na FI-2A (Project, Plan, Task, WorkOrder) ao registrar tentativas concretas de execução, avaliações estruturadas e evidências de testes.
+Nenhum merge, tag, release ou avanço para FI-2B Parte 2 é autorizado por este relatório.
 
----
+## 2. Resumo do escopo implementado
 
-## 2. Estado Inicial
+A FI-2B Parte 1 adiciona três entidades de domínio para representar execução verificada:
 
-| Campo | Valor |
-|-------|-------|
-| **Baseline** | `be1236f` (tag fi-2a-approved) |
-| **Master** | `be1236f` |
-| **Testes anteriores** | 278 (FI-2A) |
-| **Arquivos de domínio** | Project, Task, WorkOrder, Plan, Requirement, enums, policies, transitions, errors |
+| Entidade | Responsabilidade | Estados |
+|---|---|---|
+| ExecutionRun | Tentativa concreta de cumprir uma WorkOrder | initiated, running, completed, failed, abandoned |
+| Review | Avaliação estruturada de uma ExecutionRun | requested, in_progress, approved, rejected, change_requested |
+| TestRun | Execução verificável de testes e evidências | planned, executing, passed, failed, error |
 
----
+Também foram adicionados ou ampliados:
 
-## 3. Correção Documental Final da FI-2A
+- enums de execução, revisão e testes;
+- tabelas explícitas de transição;
+- políticas puras de domínio;
+- invariantes de construção, desserialização e transição;
+- testes de regressão e tentativas adversariais;
+- rastreabilidade documental da FI-2B Parte 1.
 
-Antes de iniciar a FI-2B, foi necessária uma correção documental no `RELATORIO_CONSOLIDACAO_FI2A.md` para esclarecer o delta de testes da FI-2A:
+## 3. Fora do escopo
 
-- **Baseline anterior:** 279 testes
-- **Remoção do caso parametrizado `GateStatus.WAIVED`:** -1
-- **Criação de `test_waived_not_in_gate_status`:** +1
-- **Remoção do teste de `DuplicateTransitionError`:** -1
-- **Resultado líquido:** 278 testes
+Continuam ausentes e não foram iniciados nesta parte:
 
-O commit documental foi criado na branch `master`:
-- **Commit:** `be1236f` — `docs(report): correct FI-2A test delta explanation`
-- **Tag `fi-2a-approved`** foi atualizada para apontar para `be1236f`
+- GateDecision;
+- Release;
+- Incident;
+- persistência e repositórios;
+- event store;
+- executor real de ferramentas;
+- integrações externas;
+- avanço para FI-3 ou FI-2B Parte 2.
 
----
+## 4. Entidades e invariantes
 
-## 4. Branch da FI-2B Parte 1
+### 4.1 ExecutionRun
 
-| Campo | Valor |
-|-------|-------|
-| **Branch** | `feat/fi-2b-part1` |
-| **HEAD** | `a486be6` |
-| **Commits à frente de master** | 8 |
-| **Remote** | `origin` → `https://github.com/Saaimingo/Harness-cognitivo.git` |
-| **Push** | ✅ Realizado |
-| **Pull Request** | PR #1 (Draft) aberta |
+Principais invariantes:
 
-### Commits na Branch
+1. vinculada a uma WorkOrder;
+2. estados não iniciais exigem timestamps coerentes;
+3. `completed` exige changeset;
+4. `failed` exige erro registrado;
+5. `abandoned` exige justificativa;
+6. campos temporais exigem timezone;
+7. construção e desserialização não podem materializar estados impossíveis.
 
-| Hash | Mensagem |
-|------|----------|
-| `61d58ca` | `feat(domain): implement FI-2B execution review and test run models` |
-| `7325efa` | `test(domain): validate FI-2B part 1 behavior` |
-| `5b392e1` | `docs(report): record FI-2B part 1 evidence` |
-| `4b04d02` | `fix(domain): harden FI-2B invariants on construction and deserialization` |
-| `0936955` | `fix(domain): harden FI-2B invariants — model_validate revalidation, adversarial tests, report update` |
+Transições reais: 5 arestas.
 
----
-
-## 5. Entidades Implementadas
-
-### 5.1 ExecutionRun
-
-**Responsabilidade:** Registrar cada tentativa concreta de cumprir uma WorkOrder.
-
-**Estados:**
-```
-INITIATED → RUNNING → COMPLETED / FAILED / ABANDONED
-```
-
-**Invariantes:**
-1. ExecutionRun vinculada a WorkOrder em estado `AUTHORIZED` ou `DISPATCHED`
-2. Transição para `completed` requer changeset identificado
-3. Transição para `failed` requer erro registrado
-4. `started_at` preenchido ao transicionar para `running`
-5. `completed_at` ou `failed_at` preenchido ao transicionar para estado final
-6. Timezone obrigatório em todos os campos temporais
-
-**Propriedades:**
-- Não executa ferramentas
-- Não decide gate
-- Referencia WorkOrder por ID
-- Possui tentativa positiva
-- Preserva imutabilidade (via pattern de transição)
-- Transições explícitas e completas
-
-### 5.2 Review
-
-**Responsabilidade:** Avaliação estruturada do resultado de uma ExecutionRun.
-
-**Tipos:**
-| Tipo | Descrição |
-|------|-----------|
-| `functional` | Verifica se o pedido foi atendido |
-| `domain` | Verifica conformidade com regras de negócio |
-| `structural` | Verifica qualidade estrutural do código |
-| `security` | Verifica conformidade com SG-0 |
-
-**Estados:**
-```
-REQUESTED → IN_PROGRESS → APPROVED / REJECTED / CHANGE_REQUESTED
+```text
+initiated -> running
+initiated -> abandoned
+running -> completed
+running -> failed
+running -> abandoned
 ```
 
-**Invariantes:**
-1. Review vinculado a uma ExecutionRun
-2. Cada tipo é independente
-3. `approved` não aceita achados bloqueadores
-4. `rejected` e `change_requested` exigem justificativa
-5. Preserva imutabilidade
-6. Transições explícitas e completas
+### 4.2 Review
 
-**Política de Independência:** Reviewer não pode ser o executor da ExecutionRun revisada.
+Tipos suportados:
 
-### 5.3 TestRun
+- functional;
+- domain;
+- structural;
+- security.
 
-**Responsabilidade:** Registro de execução de testes e suas evidências.
+Principais invariantes:
 
-**Estados:**
+1. vinculada a uma ExecutionRun;
+2. decisões terminais exigem revisor e justificativa;
+3. aprovação não aceita `blocking_findings`;
+4. `change_requested` exige mudanças solicitadas;
+5. reviewer e executor devem ser autoridades diferentes;
+6. construção e desserialização preservam as invariantes.
+
+Transições reais: 4 arestas.
+
+```text
+requested -> in_progress
+in_progress -> approved
+in_progress -> rejected
+in_progress -> change_requested
 ```
-PLANNED → EXECUTING → PASSED / FAILED / ERROR
+
+### 4.3 TestRun
+
+Principais invariantes:
+
+1. `planned` não aceita resultados conclusivos;
+2. `executing` exige `started_at` e não aceita conclusão antecipada;
+3. contagens não podem ser negativas;
+4. `passed_tests + failed_tests == total_tests` quando aplicável;
+5. `passed` exige total positivo, todas as aprovações, zero falhas e evidências;
+6. `failed` exige ao menos uma falha e detalhes;
+7. `error` exige mensagem e não aceita contagens de resultado;
+8. estados terminais exigem timestamps coerentes;
+9. `failed` e `error` permanecem semanticamente distintos.
+
+Transições reais: 4 arestas.
+
+```text
+planned -> executing
+executing -> passed
+executing -> failed
+executing -> error
 ```
 
-**Invariantes:**
-1. TestRun vinculado a uma ExecutionRun
-2. `PLANNED` não aceita timestamps, contagens nem campos de resultado
-3. `EXECUTING` exige `started_at`, não aceita `completed_at`, contagens finais nem campos de resultado
-4. `PASSED` exige `total_tests>=1`, `passed_tests`, `failed_tests=0`, `evidence_hashes`, `counts_coherence`, ausência de campos de falha/erro
-5. `FAILED` exige `total_tests>=1`, `passed_tests`, `failed_tests>=1`, `counts_coherence`, `failure_details`, ausência de campos de erro
-6. `ERROR` exige `error_message`, ausência de contagens e `failure_details`
-7. Estados terminais exigem `started_at` e `completed_at`
-8. Preserva imutabilidade
-9. Transições explícitas e completas
+## 5. Alterações da PR no baseline auditado
 
-**Distinção failed vs error:**
-- `failed` = teste executado e falhou (asserção não satisfeita)
-- `error` = erro de execução (timeout, OOM, crash)
+| Métrica | Valor |
+|---|---:|
+| Arquivos alterados | 12 |
+| Inserções | 4.865 |
+| Exclusões | 5 |
+| Commits à frente de `master` | 9 |
+| Commits atrás de `master` | 0 |
 
----
+Arquivos do baseline da PR:
 
-## 6. Enums
+- `docs/reports/RELATORIO_FI2B_PARTE1.md`;
+- `src/harness/domain/enums.py`;
+- `src/harness/domain/execution_run.py`;
+- `src/harness/domain/policies.py`;
+- `src/harness/domain/review.py`;
+- `src/harness/domain/test_run.py`;
+- `src/harness/domain/transitions.py`;
+- `tests/unit/domain/test_execution_run.py`;
+- `tests/unit/domain/test_imports.py`;
+- `tests/unit/domain/test_policies.py`;
+- `tests/unit/domain/test_review.py`;
+- `tests/unit/domain/test_test_run.py`.
 
-Adicionados ao `src/harness/domain/enums.py`:
+As alterações da presente reconciliação documental são tratadas separadamente no diff local e não são retroativamente atribuídas ao baseline `d11f983`.
 
-| Enum | Valores |
-|------|---------|
-| `ExecutionRunStatus` | `initiated`, `running`, `completed`, `failed`, `abandoned` |
-| `ReviewStatus` | `requested`, `in_progress`, `approved`, `rejected`, `change_requested` |
-| `ReviewType` | `functional`, `domain`, `structural`, `security` |
-| `TestRunStatus` | `planned`, `executing`, `passed`, `failed`, `error` |
+## 6. Histórico da branch auditada
 
----
+```text
+d11f983 docs(report): FB-0004 final reconciliation — HEAD a486be6, 8 commits
+a486be6 docs(report): finalize FB-0004 — HEAD 14316f6, 7 commits, 534 tests
+14316f6 docs(report): FB-0004 reconcile report with real state — HEAD cd757b1, 6 commits, 13 arestas, 534 tests
+cd757b1 fix(domain): FB-0003 canonical TestRun invariants — PLANNED/EXECUTING/FAILED validation, transition_to counts, adversarial tests, report reconciliation
+0936955 fix(domain): harden FI-2B invariants — model_validate revalidation, adversarial tests, report update
+4b04d02 fix(domain): harden FI-2B invariants on construction and deserialization
+5b392e1 docs(report): record FI-2B part 1 evidence
+7325efa test(domain): validate FI-2B part 1 behavior
+61d58ca feat(domain): implement FI-2B execution review and test run models
+```
 
-## 7. Transições
+Os hashes acima descrevem o baseline auditado. Nenhum hash de commit futuro desta reconciliação é antecipado neste documento.
 
-Adicionadas ao `src/harness/domain/transitions.py`:
+## 7. Evidências reproduzidas
 
-| Entidade | Arestas Definidas |
-|----------|-------------------|
-| ExecutionRun | 5 arestas (initiated→running, initiated→abandoned, running→completed, running→failed, running→abandoned) |
-| Review | 4 arestas (requested→in_progress, in_progress→approved, in_progress→rejected, in_progress→change_requested) |
-| TestRun | 4 arestas (planned→executing, executing→passed, executing→failed, executing→error) |
+### 7.1 Ambiente
 
----
+- Python 3.12.13.
+- uv 0.11.29.
+- Dependências restauradas pelo `uv.lock` com `uv sync --frozen --all-extras`.
+- Checkout isolado de `feat/fi-2b-part1`.
+- HEAD local e remoto iguais em `d11f983f701936a6b3e7fde68c81fba0699f1fcd` durante a reprodução do baseline.
 
-## 8. Políticas
+### 7.2 Resultados e códigos de saída
 
-Adicionadas ao `src/harness/domain/policies.py`:
+| Comando | Código | Resultado |
+|---|---:|---|
+| `pytest --collect-only -q` | 0 | 534 testes coletados |
+| `pytest tests/ -ra --tb=short` | 0 | 534 passed, 1 `PytestCacheWarning` |
+| `ruff check src/ tests/` | 0 | All checks passed |
+| `ruff format --check src/ tests/` | 0 | 49 arquivos já formatados |
+| `mypy src/harness/ --ignore-missing-imports` | 0 | Sem issues em 31 arquivos; nota sobre seção `tests.*` não usada |
+| `git diff --check` | 0 | Sem saída |
+| `git status --short` | 0 | Sem saída no baseline |
+| `git rev-parse HEAD` | 0 | `d11f983f701936a6b3e7fde68c81fba0699f1fcd` |
+| `git rev-parse origin/feat/fi-2b-part1` | 0 | `d11f983f701936a6b3e7fde68c81fba0699f1fcd` |
+| `git log --oneline master..HEAD` | 0 | 9 commits |
 
-| Política | Descrição |
-|----------|-----------|
-| `execution_run_can_initiate` | WorkOrder deve estar em estado executável |
-| `execution_run_can_complete` | Changeset deve ser fornecido |
-| `execution_run_can_abandon` | Justificativa deve ser fornecida |
-| `review_requires_independence` | Reviewer não pode ser o executor |
-| `review_approved_requires_no_blockers` | Aprovado não aceita achados bloqueadores |
-| `test_run_can_complete_as_passed` | Contagem de testes deve ser fornecida |
-| `test_run_failure_vs_error` | failed requer lista; error requer mensagem |
+As saídas completas e sanitizadas estão em:
 
----
+- `evidence/fi2b-part1/2026-07-18/baseline/EVIDENCIAS_FI2B_PARTE1.md`;
+- `evidence/fi2b-part1/2026-07-18/baseline/evidence-manifest.json`;
+- `evidence/fi2b-part1/2026-07-18/baseline/logs/`.
 
-## 9. Erros de Domínio
+## 8. Investigação do `PytestCacheWarning`
 
-Todos os erros já existentes na FI-2A foram reutilizados:
+O warning não foi ocultado nem suprimido.
 
-| Erro | Uso |
-|------|-----|
-| `InvalidTransitionError` | Transições inválidas em todas as entidades |
-| `InvariantViolationError` | Violação de invariantes |
-| `MissingAuthorityError` | Autoridade não fornecida |
-| `MissingEvidenceError` | Evidências não fornecidas |
+### Sintoma
 
----
+O Pytest não conseguiu atualizar `<repo>/.pytest_cache/v/cache/nodeids` por permissão negada. A suíte terminou com código 0 e `534 passed, 1 warning`.
 
-## 10. Arquivos Criados
+### Causa provável
 
-| Arquivo | Descrição |
-|---------|-----------|
-| `src/harness/domain/execution_run.py` | Entidade ExecutionRun |
-| `src/harness/domain/review.py` | Entidade Review |
-| `src/harness/domain/test_run.py` | Entidade TestRun |
-| `tests/unit/domain/test_execution_run.py` | 69 testes de ExecutionRun |
-| `tests/unit/domain/test_review.py` | 71 testes de Review |
-| `tests/unit/domain/test_test_run.py` | 93 testes de TestRun |
+A `.pytest_cache` pertence à identidade isolada da primeira tentativa e possui ACL mais restrita que o diretório raiz do checkout. A identidade usada na reprodução autorizada conseguiu ler e executar o projeto, mas não modificar o cache pertencente à outra identidade.
 
----
+Isso caracteriza uma divergência de permissões do ambiente local, não uma falha dos testes ou do domínio.
 
-## 11. Arquivos Alterados
+### Correções propostas — não aplicadas
 
-| Arquivo | Alterações |
-|---------|-----------|
-| `src/harness/domain/enums.py` | 4 novos enums (ExecutionRunStatus, ReviewStatus, ReviewType, TestRunStatus) |
-| `src/harness/domain/policies.py` | 7 novas políticas |
-| `src/harness/domain/transitions.py` | 13 novas arestas (5 ExecutionRun + 4 Review + 4 TestRun) |
-| `tests/unit/domain/test_imports.py` | Atualizado para incluir novos módulos |
-| `tests/unit/domain/test_policies.py` | 37 novos testes de políticas |
+1. recriar o cache em checkout limpo sob a mesma identidade que executará o Pytest;
+2. ajustar a ACL da `.pytest_cache` de forma controlada;
+3. validar no runner Linux efêmero do CI, onde workspace e cache pertencem à mesma identidade.
 
----
+Não foram alterados testes, plugin de cache ou configuração do Pytest. Remoção/recriação do cache e mudança de ACL permanecem dependentes de autorização específica.
 
-## 12. Decisões Arquiteturais
+Detalhes: `evidence/fi2b-part1/2026-07-18/WARNING_INVESTIGATION.md`.
 
-| Decisão | Justificativa |
-|---------|---------------|
-| ExecutionRun não executa ferramentas | Separação de responsabilidades; execução é papel do executor externo |
-| Review não modifica o objeto revisado | Imutabilidade; review é avaliação, não mutação |
-| 4 tipos de Review | Cobertura completa: funcional, domínio, estrutural, segurança |
-| Independência entre executor e revisor | Política pura; previne conflito de interesse |
-| TestRun distingue failed de error | Semântica diferente: falha de asserção vs erro de infraestrutura |
-| Timestamps timezone-aware | Conforme SG-0; evita ambiguidade temporal |
-| Transições via pattern de criação | Preserva imutabilidade; cria nova instância a cada transição |
+## 9. Marcos históricos
 
----
+As tags existentes resolvem para:
 
-## 13. Aplicação de SG-0
+| Marco | Commit | Tag |
+|---|---|---|
+| FI-0 | `b3700c1` | `fi-0-approved` |
+| FI-1 | `0b15b5f` | `fi-1-approved` |
+| FI-2A | `be1236f` | `fi-2a-approved` |
 
-- ExecutionRun exige autoridade da WorkOrder antes de iniciar
-- Review de segurança é obrigatório para ações de risco
-- Todos os timestamps são timezone-aware
-- Todas as ações são registradas em entidades imutáveis
+Não existe tag de aprovação da FI-2B Parte 1.
 
----
+## 10. Governança da reconciliação
 
-## 14. Aplicação de ESQ
+- A FB-0004 recebeu veredito anterior sobre `d11f983`.
+- Esta reconciliação altera documentação, workflow e evidências; portanto, um futuro commit/push produzirá novo HEAD e invalidará o uso do veredito anterior para o novo estado.
+- A descrição da PR não foi alterada nesta WorkOrder.
+- O Obsidian não foi alterado nesta WorkOrder.
+- Nenhuma mudança foi realizada em domínio, testes, dependências, `pyproject.toml` ou `uv.lock`.
+- A `master` não foi alterada.
 
-- changeset deve ser rastreável
-- código deve ser testável
-- Review structural verifica qualidade estrutural
-- TestRun registra evidências com hashes
+## 11. Estado permitido
 
----
+Após a preparação do diff e a reprodução das validações sobre todas as mudanças locais, o estado máximo permitido é:
 
-## 15. Aplicação de GRN
+`READY_FOR_REVIEW`
 
-- ExecutionRun deve respeitar regras de negócio identificadas
-- Review de domínio verifica conformidade com regras
-- TestRun inclui testes de regra de negócio
+Continuam fora da autorização:
 
----
+- commit;
+- push;
+- alteração da descrição da PR;
+- merge;
+- tag;
+- release;
+- deployment;
+- FI-2B Parte 2.
 
-## 16. Aplicação de CTP
+## 12. Apêndice histórico e arquitetural preservado
 
-- ExecutionRun herda contexto do pacote de promoção via WorkOrder
-- Reviews herdam contexto do pacote de promoção
-- TestRun herda contexto do pacote de promoção
+Este apêndice restaura informações técnicas válidas que constavam do relatório anterior. Ele complementa o estado reconciliado acima e não substitui os números, referências Git ou resultados atuais. Métricas históricas de HEAD, commits e testes não são repetidas aqui.
 
----
+### A. Políticas de domínio
 
-## 17. Problema dos PytestCollectionWarning
+Os nomes abaixo correspondem às funções existentes no baseline auditado.
 
-### Problema
+| Política | Função | Entidades às quais se aplica |
+|---|---|---|
+| `execution_run_can_start` | Exige WorkOrder executável, executor identificado e ausência de outra execução ativa | ExecutionRun e WorkOrder |
+| `review_requires_independence` | Impede que reviewer e executor sejam a mesma autoridade quando ambos são conhecidos | Review e a ExecutionRun revisada |
+| `review_can_be_approved` | Exige justificativa, reviewer identificado e ausência de achados bloqueadores | Review |
+| `test_run_can_complete_as_passed` | Exige total de testes e evidências preservadas para conclusão como `passed` | TestRun |
+| `test_run_failure_vs_error` | Impede classificar simultaneamente o resultado como falha de teste e erro de infraestrutura | TestRun |
 
-O pytest tentava coletar classes `TestRun` e `TestRunStatus` como classes de teste porque iniciavam com o prefixo `Test`.
+O relatório histórico usava alguns nomes descritivos que não correspondem a funções autônomas no baseline atual:
 
-### Solução Rejeitada
+- `execution_run_can_initiate` corresponde à política existente `execution_run_can_start`;
+- `execution_run_can_complete` e `execution_run_can_abandon` descreviam regras que hoje são invariantes e validações de transição da própria `ExecutionRun`, não funções separadas em `policies.py`;
+- `review_approved_requires_no_blockers` está representada pela política existente `review_can_be_approved` e pelas invariantes de `Review`.
 
-Criar `conftest.py` com `collect_ignore` para ocultar arquivos do domínio. **Rejeitada** porque:
-- Pode ocultar arquivos ou módulos da coleta
-- Trata o sintoma no coletor em vez da causa nos imports
-- Pode reduzir silenciosamente a suíte futura
-- Cria configuração global desnecessária
+Essa distinção preserva a intenção registrada sem apresentar nomes históricos como APIs atuais.
 
-### Solução Adotada
+### B. Inventário de implementação
 
-Aliases nos módulos de teste:
+Arquivos criados pela implementação da FI-2B Parte 1:
+
+| Arquivo | Responsabilidade |
+|---|---|
+| `src/harness/domain/execution_run.py` | Modelar tentativas auditáveis de execução de uma WorkOrder e suas transições |
+| `src/harness/domain/review.py` | Modelar avaliações estruturadas, tipos de review, achados e independência de autoridade |
+| `src/harness/domain/test_run.py` | Modelar execuções de testes, contagens, evidências e distinção entre `failed` e `error` |
+| `tests/unit/domain/test_execution_run.py` | Verificar estados, invariantes e transições de ExecutionRun |
+| `tests/unit/domain/test_review.py` | Verificar estados, decisões, achados e independência de Review |
+| `tests/unit/domain/test_test_run.py` | Verificar estados, contagens, evidências e resultados de TestRun |
+
+Arquivos alterados pela implementação:
+
+| Arquivo | Responsabilidade da alteração |
+|---|---|
+| `src/harness/domain/enums.py` | Acrescentar estados e tipos usados por ExecutionRun, Review e TestRun |
+| `src/harness/domain/policies.py` | Acrescentar políticas puras aplicáveis à execução, revisão e testes |
+| `src/harness/domain/transitions.py` | Registrar as tabelas explícitas de transição das três entidades |
+| `tests/unit/domain/test_imports.py` | Incluir os novos módulos na verificação de importação |
+| `tests/unit/domain/test_policies.py` | Cobrir as novas políticas de domínio |
+
+### C. Decisões arquiteturais
+
+| Decisão preservada | Justificativa registrada |
+|---|---|
+| ExecutionRun registra a execução, mas não executa ferramentas | Separar o modelo de domínio do executor externo e de infraestrutura |
+| Review não modifica o objeto revisado | Manter a avaliação como registro independente e evitar mutação do resultado avaliado |
+| Review possui tipos `functional`, `domain`, `structural` e `security` | Representar fidelidades distintas de avaliação sem misturá-las em um único resultado implícito |
+| Reviewer e executor devem ser independentes | Evitar conflito de interesse por meio de política e invariantes explícitas |
+| TestRun distingue `failed` de `error` | Separar falha de asserção de erro operacional ou de infraestrutura |
+| Campos temporais são timezone-aware | Evitar ambiguidade temporal e preservar rastreabilidade |
+| Transições retornam nova instância | Preservar imutabilidade convencional e revalidar invariantes a cada mudança de estado |
+
+A alternativa explicitamente rejeitada no histórico foi mascarar a coleta do Pytest por configuração global em `conftest.py`. Os aliases nos testes foram preferidos porque atuam na causa do conflito de nomes e não reduzem silenciosamente a superfície coletada. A marcação `__test__ = False` também não foi adotada como mecanismo de ocultação.
+
+### D. Aplicação dos eixos de governança
+
+| Eixo | Relação válida com a FI-2B Parte 1 |
+|---|---|
+| SG-0 | A política de início verifica condição executável e autoridade do executor; timestamps exigem timezone; `ReviewType.SECURITY` permite registrar revisão de segurança. O baseline não torna toda security review obrigatória automaticamente. |
+| ESQ | ExecutionRun preserva `changeset_id`; TestRun preserva `evidence_hashes`; reviews estruturais e testes separados sustentam verificabilidade e qualidade estrutural. |
+| GRN | `ReviewType.DOMAIN` e `referenced_rules` permitem relacionar uma avaliação às regras de negócio; invariantes e políticas mantêm decisões de domínio explícitas. |
+| CTP | A rastreabilidade é indireta pela cadeia de identificadores WorkOrder -> ExecutionRun -> Review/TestRun. O baseline não copia nem materializa um pacote de promoção dentro dessas entidades. |
+
+### E. Correção histórica dos warnings de coleta
+
+O warning histórico era um `PytestCollectionWarning`: imports com os nomes `TestRun` e `TestRunStatus` em módulos de teste podiam ser interpretados pelo Pytest como classes coletáveis por começarem com `Test`.
+
+A correção adotada usou aliases explícitos nos módulos de teste, por exemplo:
 
 ```python
-# tests/unit/domain/test_test_run.py
 from harness.domain.test_run import TestRun as DomainTestRun
 from harness.domain.enums import TestRunStatus as DomainTestRunStatus
 ```
 
-### Confirmação
+Foram preservadas as seguintes decisões:
 
-- ✅ Nenhum teste foi ignorado
-- ✅ Nenhum `__test__ = False` entrou no domínio
-- ✅ Nenhuma configuração global foi usada
-- ✅ 534 testes coletados = 534 testes executados
+- não usar `conftest.py` com `collect_ignore`, pois isso poderia ocultar módulos ou reduzir silenciosamente a coleta futura;
+- não inserir `__test__ = False` no domínio como ocultação artificial;
+- manter os testes coletáveis e resolver o conflito no ponto de importação por aliases.
 
----
+Esse warning histórico de descoberta de classes é diferente do warning atual. A evidência reconciliada registra um `PytestCacheWarning`, causado pela impossibilidade de atualizar `.pytest_cache` no ambiente Windows por permissão negada. O warning atual não foi suprimido e não representa regressão da correção por aliases.
 
-## 18. Baseline de Testes
+### F. Riscos residuais
 
-| Fase | Testes | Delta |
-|------|--------|-------|
-
-| FI-0 | 29 | +29 |
-| FI-1 | 97 | +68 |
-| FI-2A | 278 | +181 |
-| **FI-2B Parte 1** | **534** | **+256** |
-
----
-
-## 19. Distribuição de Testes por Arquivo
-
-| Arquivo | Testes |
-|---------|--------|
-| `tests/unit/domain/test_execution_run.py` | 69 |
-| `tests/unit/domain/test_review.py` | 71 |
-| `tests/unit/domain/test_test_run.py` | 93 |
-| `tests/unit/domain/test_policies.py` | 37 |
-| `tests/unit/domain/test_transitions.py` | 56 |
-| `tests/unit/domain/test_imports.py` | 17 |
-| `tests/unit/domain/test_project.py` | 31 |
-| `tests/unit/domain/test_task.py` | 28 |
-| `tests/unit/domain/test_work_order.py` | 14 |
-| `tests/unit/domain/test_invariants.py` | 9 |
-| `tests/unit/domain/test_plan.py` | 7 |
-| `tests/unit/domain/test_requirement.py` | 5 |
-| `tests/unit/test_context.py` | 29 |
-| `tests/unit/test_documents.py` | 39 |
-| `tests/unit/test_events.py` | 15 |
-| `tests/unit/test_logging.py` | 14 |
-| **Total** | **534** |
-
----
-
-## 20. Comandos Executados
-
-```bash
-# Validação de código
-ruff check src/ tests/
-ruff format --check src/ tests/
-mypy src/harness/ --ignore-missing-imports
-
-# Testes
-pytest tests/ -ra --tb=short
-pytest --collect-only -q
-
-# Git
-git diff --check
-```
-
----
-
-## 21. Resultados de Validação
-
-| Ferramenta | Resultado | Detalhes |
-|------------|-----------|----------|
-| **Ruff Check** | ✅ 0 violações | Nenhum erro de lint |
-| **Ruff Format** | ✅ 0 necessários | 49 arquivos formatados |
-| **Mypy** | ✅ 0 erros | 31 arquivos de origem verificados |
-| **Pytest** | ✅ 534 passed | 0 failed, 0 warnings, 0.88s |
-| **git diff --check** | ✅ 0 erros | Nenhum erro de whitespace |
-| **git log master..HEAD** | ✅ 8 commits | 61d58ca, 7325efa, 5b392e1, 4b04d02, 0936955, cd757b1, 14316f6, a486be6 |
-
----
-
-## 22. Warnings
-
-**Zero warnings.**
-
-O problema original dos PytestCollectionWarning foi resolvido via aliases nos módulos de teste.
-
----
-
-## 23. Diff Resumido
-
-| Métrica | Valor |
-|---------|-------|
-| Arquivos criados | 6 |
-| Arquivos modificados | 5 |
-| Inserções | ~1.200 |
-| Remoções | ~50 |
-
----
-
-## 24. Commits e Hashes
-
-| Hash | Mensagem | Branch |
-|------|----------|--------|
-| `be1236f` | `docs(report): correct FI-2A test delta explanation` | master |
-| `61d58ca` | `feat(domain): implement FI-2B execution review and test run models` | feat/fi-2b-part1 |
-| `7325efa` | `test(domain): validate FI-2B part 1 behavior` | feat/fi-2b-part1 |
-| `5b392e1` | `docs(report): record FI-2B part 1 evidence` | feat/fi-2b-part1 |
-| `4b04d02` | `fix(domain): harden FI-2B invariants on construction and deserialization` | feat/fi-2b-part1 |
-| `0936955` | `fix(domain): harden FI-2B invariants — model_validate revalidation, adversarial tests, report update` | feat/fi-2b-part1 |
-| `cd757b1` | `fix(domain): FB-0003 canonical TestRun invariants — PLANNED/EXECUTING/FAILED validation, transition_to counts, adversarial tests, report reconciliation` | feat/fi-2b-part1 |
-| `a486be6` | `docs(report): FB-0004 reconcile report with real state — HEAD cd757b1, 6 commits, 13 arestas, 534 tests` | feat/fi-2b-part1 |
-
----
-
-## 25. Git Status
-
-| Campo | Valor |
-|-------|-------|
-| **Branch atual** | `feat/fi-2b-part1` |
-| **HEAD** | `a486be6` |
-| **Master** | `be1236f` |
-| **Tag fi-2a-approved** | `be1236f` |
-| **Working tree** | Modificada (relatório atualizado) |
-| **Remoto** | `origin` → `https://github.com/Saaimingo/Harness-cognitivo.git` |
-| **Push** | ✅ Realizado |
-| **Pull Request** | PR #1 (Draft) aberta |
-| **Tag FI-2B** | Nenhuma criada |
-
----
-
-## 26. Riscos
-
-| Risco | Classificação | Mitigação |
-|-------|---------------|-----------|
-| Imutabilidade via pattern (não frozen=True) | Baixo | Convenção do projeto; transições criam novas instâncias |
-| Volume de evidências pode crescer | Médio | Será endereçado na FI-2B Parte 2 |
-| Necessidade de integração com infraestrutura | Médio | Escopo da FI-3 |
-
----
-
-## 27. Pendências
-
-| Item | Classificação | Próxima Fase |
-|------|---------------|--------------|
-| GateDecision | Importante | FI-2B Parte 2 |
-| Release | Importante | FI-2B Parte 2 |
-| Incident | Importante | FI-2B Parte 2 |
-| Persistência | Necessária | FI-3 |
-| CLI | Necessária | FI-3 |
-| Integrações | Necessária | FI-3+ |
-
----
-
-## 28. Confirmações
-
-- ✅ **GateDecision** NÃO foi implementado
-- ✅ **Release** NÃO foi implementado
-- ✅ **Incident** NÃO foi implementado
-- ✅ **Remote** configurado (`origin`)
-- ✅ **Push** realizado para `feat/fi-2b-part1`
-- ✅ **PR #1** (Draft) aberta
-- ✅ **`__test__ = False`** NÃO entrou no domínio
-- ✅ **`conftest.py`** foi removido
-- ✅ Working tree está **limpa** (arquivo `nul` ignorado, não rastreado)
-
----
-
-## 29. Próximos Passos
-
-1. Revisão e aprovação de Saimon
-2. Após aprovação, merge na master
-3. Criar tag `fi-2b-parte1-approved`
-4. Iniciar FI-2B Parte 2 (GateDecision, Release, Incident)
-
----
-
-## 30. Veredito
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  FI-2B PARTE 1 — EXECUTIONRUN, REVIEW E TESTRUN                │
-│                                                                 │
-│  Veredito: APROVADO PARA REVISÃO HUMANA                        │
-│                                                                 │
-│  ✓ ExecutionRun implementado e testado (69 testes)             │
-│  ✓ Review implementado e testado (71 testes)                   │
-│  ✓ TestRun implementado e testado (93 testes)                  │
-│  ✓ 534 testes passando (0 falhas, 0 warnings)                  │
-│  ✓ Invariantes canônicos implementados (FB-0002, FB-0003)       │
-│  ✓ PytestCollectionWarning resolvido via aliases               │
-│  ✓ conftest.py removido                                        │
-│  ✓ Validação completa (Ruff, Mypy, Pytest)                     │
-│  ✓ Working tree limpa                                          │
-│  ✓ 8 commits atômicos na branch feat/fi-2b-part1               │
-│  ✓ Branch pushada para GitHub                                  │
-│  ✓ PR #1 (Draft) aberta                                       │
-│                                                                 │
-│  Pendências para Saimon:                                       │
-│  1. Revisar e aprovar este relatório                           │
-│  2. Merge na master após aprovação                             │
-│  3. Criar tag fi-2b-parte1-approved                            │
-│                                                                 │
-│  Nenhuma ação externa será tomada sem autorização explícita.   │
-└─────────────────────────────────────────────────────────────────┘
-```
-
----
-
-*Este relatório é vivo e deve ser atualizado conforme decisões de Saimon.*
+| Risco ainda aplicável | Situação e tratamento |
+|---|---|
+| Imutabilidade convencional | Os modelos não usam congelamento estrutural; a disciplina depende das transições que retornam novas instâncias e da revalidação por Pydantic |
+| Crescimento dos arquivos de evidência | Logs e relatórios podem aumentar o repositório; requer política futura de retenção sem remover a rastreabilidade atual |
+| Ausência de CI remoto | O workflow foi preparado, mas não haverá execução remota até o primeiro push autorizado |
+| Integração com infraestrutura | Persistência, executor de ferramentas e integrações continuam fora desta parte e permanecem risco para fases posteriores |
+| Cache local do Pytest | A ACL da `.pytest_cache` continua produzindo `PytestCacheWarning`; qualquer correção de permissão permanece separada e dependente de autorização |

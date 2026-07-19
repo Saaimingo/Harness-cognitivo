@@ -1,0 +1,9 @@
+d11f983 docs(report): FB-0004 final reconciliation — HEAD a486be6, 8 commits
+a486be6 docs(report): finalize FB-0004 — HEAD 14316f6, 7 commits, 534 tests
+14316f6 docs(report): FB-0004 reconcile report with real state — HEAD cd757b1, 6 commits, 13 arestas, 534 tests
+cd757b1 fix(domain): FB-0003 canonical TestRun invariants — PLANNED/EXECUTING/FAILED validation, transition_to counts, adversarial tests, report reconciliation
+0936955 fix(domain): harden FI-2B invariants — model_validate revalidation, adversarial tests, report update
+4b04d02 fix(domain): harden FI-2B invariants on construction and deserialization
+5b392e1 docs(report): record FI-2B part 1 evidence
+7325efa test(domain): validate FI-2B part 1 behavior
+61d58ca feat(domain): implement FI-2B execution review and test run models

@@ -1,0 +1,102 @@
+[
+    {
+        "id":  "01",
+        "command":  "pytest --collect-only -q",
+        "started_at":  "2026-07-18T22:40:48.9000223-03:00",
+        "finished_at":  "2026-07-18T22:40:53.0404192-03:00",
+        "exit_code":  0,
+        "result":  "PASS",
+        "log_file":  "logs/01-pytest-collect-only.log",
+        "audited_head":  "d11f983f701936a6b3e7fde68c81fba0699f1fcd"
+    },
+    {
+        "id":  "02",
+        "command":  "pytest tests/ -ra --tb=short",
+        "started_at":  "2026-07-18T22:40:53.0508669-03:00",
+        "finished_at":  "2026-07-18T22:40:55.9499395-03:00",
+        "exit_code":  0,
+        "result":  "PASS",
+        "log_file":  "logs/02-pytest-tests.log",
+        "audited_head":  "d11f983f701936a6b3e7fde68c81fba0699f1fcd"
+    },
+    {
+        "id":  "03",
+        "command":  "ruff check src/ tests/",
+        "started_at":  "2026-07-18T22:40:55.9509396-03:00",
+        "finished_at":  "2026-07-18T22:40:56.0015275-03:00",
+        "exit_code":  0,
+        "result":  "PASS",
+        "log_file":  "logs/03-ruff-check.log",
+        "audited_head":  "d11f983f701936a6b3e7fde68c81fba0699f1fcd"
+    },
+    {
+        "id":  "04",
+        "command":  "ruff format --check src/ tests/",
+        "started_at":  "2026-07-18T22:40:56.0025276-03:00",
+        "finished_at":  "2026-07-18T22:40:56.0511357-03:00",
+        "exit_code":  0,
+        "result":  "PASS",
+        "log_file":  "logs/04-ruff-format-check.log",
+        "audited_head":  "d11f983f701936a6b3e7fde68c81fba0699f1fcd"
+    },
+    {
+        "id":  "05",
+        "command":  "mypy src/harness/ --ignore-missing-imports",
+        "started_at":  "2026-07-18T22:40:56.0521362-03:00",
+        "finished_at":  "2026-07-18T22:41:07.6753439-03:00",
+        "exit_code":  0,
+        "result":  "PASS",
+        "log_file":  "logs/05-mypy.log",
+        "audited_head":  "d11f983f701936a6b3e7fde68c81fba0699f1fcd"
+    },
+    {
+        "id":  "06",
+        "command":  "git diff --check",
+        "started_at":  "2026-07-18T22:41:07.6763441-03:00",
+        "finished_at":  "2026-07-18T22:41:07.7295595-03:00",
+        "exit_code":  0,
+        "result":  "PASS",
+        "log_file":  "logs/06-git-diff-check.log",
+        "audited_head":  "d11f983f701936a6b3e7fde68c81fba0699f1fcd"
+    },
+    {
+        "id":  "07",
+        "command":  "git status --short",
+        "started_at":  "2026-07-18T22:41:07.7305751-03:00",
+        "finished_at":  "2026-07-18T22:41:07.7829901-03:00",
+        "exit_code":  0,
+        "result":  "PASS",
+        "log_file":  "logs/07-git-status-short.log",
+        "audited_head":  "d11f983f701936a6b3e7fde68c81fba0699f1fcd"
+    },
+    {
+        "id":  "08",
+        "command":  "git rev-parse HEAD",
+        "started_at":  "2026-07-18T22:41:07.7840551-03:00",
+        "finished_at":  "2026-07-18T22:41:07.8302047-03:00",
+        "exit_code":  0,
+        "result":  "PASS",
+        "log_file":  "logs/08-git-rev-parse-head.log",
+        "audited_head":  "d11f983f701936a6b3e7fde68c81fba0699f1fcd"
+    },
+    {
+        "id":  "09",
+        "command":  "git rev-parse origin/feat/fi-2b-part1",
+        "started_at":  "2026-07-18T22:41:07.8302047-03:00",
+        "finished_at":  "2026-07-18T22:41:07.8749837-03:00",
+        "exit_code":  0,
+        "result":  "PASS",
+        "log_file":  "logs/09-git-rev-parse-origin-feature.log",
+        "audited_head":  "d11f983f701936a6b3e7fde68c81fba0699f1fcd"
+    },
+    {
+        "id":  "10",
+        "command":  "git log --oneline master..HEAD",
+        "started_at":  "2026-07-18T22:41:07.8764655-03:00",
+        "finished_at":  "2026-07-18T22:41:07.9254317-03:00",
+        "exit_code":  0,
+        "result":  "PASS",
+        "log_file":  "logs/10-git-log-master-head.log",
+        "audited_head":  "d11f983f701936a6b3e7fde68c81fba0699f1fcd"
+    }
+]
