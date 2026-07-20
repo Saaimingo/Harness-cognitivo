@@ -1,8 +1,8 @@
 """
-Enums compartilhados do dominio Harness Cognitivo - FI-2.
+Enums compartilhados do dominio Harness Cognitivo - FI-2B.
 
 Vocabulario controlado para estados, severidades e classificacoes.
-Reutiliza enums da FI-1 quando semanticamente apropriado.
+Extends FI-2A enums with ExecutionRun, Review, and TestRun status.
 """
 
 from enum import StrEnum
@@ -150,3 +150,47 @@ class RiskLevel(StrEnum):
     MODERATE = "moderate"
     HIGH = "high"
     CRITICAL = "critical"
+
+
+# =============================================================================
+# FI-2B ENUMS
+# =============================================================================
+
+
+class ExecutionRunStatus(StrEnum):
+    """Estados do ciclo de vida de uma ExecutionRun."""
+
+    INITIATED = "initiated"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    ABANDONED = "abandoned"
+
+
+class ReviewType(StrEnum):
+    """Tipos de revisão suportados."""
+
+    FUNCTIONAL = "functional"
+    DOMAIN = "domain"
+    STRUCTURAL = "structural"
+    SECURITY = "security"
+
+
+class ReviewStatus(StrEnum):
+    """Estados do ciclo de vida de uma Review."""
+
+    REQUESTED = "requested"
+    IN_PROGRESS = "in_progress"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    CHANGE_REQUESTED = "change_requested"
+
+
+class TestRunStatus(StrEnum):
+    """Estados do ciclo de vida de uma TestRun."""
+
+    PLANNED = "planned"
+    EXECUTING = "executing"
+    PASSED = "passed"
+    FAILED = "failed"
+    ERROR = "error"

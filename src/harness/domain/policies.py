@@ -201,6 +201,155 @@ def gate_can_be_waived(
 
 
 # =============================================================================
+# POLÍTICA: ExecutionRun → start
+# =============================================================================
+
+
+def execution_run_can_start(
+    work_order_is_executable: bool,
+    has_executor: bool,
+    no_active_execution: bool,
+) -> PolicyResult:
+    """
+    Política para início de ExecutionRun.
+
+    Uma ExecutionRun só pode ser iniciada se:
+    - A WorkOrder está em estado executável (AUTHORIZED ou DISPATCHED)
+    - Existe executor identificado
+    - Não há outra execução ativa para a mesma WorkOrder
+    """
+    if not work_order_is_executable:
+        return PolicyResult(
+            allowed=False,
+            reason="WorkOrder não está em estado executável (AUTHORIZED ou DISPATCHED)",
+        )
+    if not has_executor:
+        return PolicyResult(
+            allowed=False,
+            reason="ExecutionRun requer executor identificado",
+        )
+    if not no_active_execution:
+        return PolicyResult(
+            allowed=False,
+            reason="Já existe uma execução ativa para esta WorkOrder",
+        )
+    return PolicyResult(allowed=True)
+
+
+# =============================================================================
+# POLÍTICA: Review independence
+# =============================================================================
+
+
+def review_requires_independence(
+    reviewer: str | None,
+    executor: str | None,
+) -> PolicyResult:
+    """
+    Política de independência de revisão.
+
+    O reviewer e o executor não podem ser a mesma autoridade
+    quando ambas as identidades estão disponíveis.
+    """
+    if reviewer is not None and executor is not None and reviewer == executor:
+        return PolicyResult(
+            allowed=False,
+            reason="Reviewer e executor não podem ser a mesma autoridade",
+        )
+    return PolicyResult(allowed=True)
+
+
+# =============================================================================
+# POLÍTICA: Review → approved (três fidelidades)
+# =============================================================================
+
+
+def review_can_be_approved(
+    has_justification: bool,
+    has_reviewer: bool,
+    has_no_blocker_findings: bool,
+) -> PolicyResult:
+    """
+    Política para aprovação de Review.
+
+    Uma Review só pode ser aprovada se:
+    - Justificativa fornecida
+    - Reviewer identificado
+    - Sem achados bloqueadores
+    """
+    if not has_justification:
+        return PolicyResult(
+            allowed=False,
+            reason="Review requer justificativa para aprovação",
+        )
+    if not has_reviewer:
+        return PolicyResult(
+            allowed=False,
+            reason="Review requer reviewer identificado para aprovação",
+        )
+    if not has_no_blocker_findings:
+        return PolicyResult(
+            allowed=False,
+            reason="Review possui achados bloqueadores; não pode ser aprovada",
+        )
+    return PolicyResult(allowed=True)
+
+
+# =============================================================================
+# POLÍTICA: TestRun completion
+# =============================================================================
+
+
+def test_run_can_complete_as_passed(
+    has_total_tests: bool,
+    has_evidence: bool,
+) -> PolicyResult:
+    """
+    Política para conclusão de TestRun como passed.
+
+    Um TestRun só pode ser marcado como passed se:
+    - Total de testes informado
+    - Evidências preservadas
+    """
+    if not has_total_tests:
+        return PolicyResult(
+            allowed=False,
+            reason="TestRun requer total_tests para ser marcado como passed",
+        )
+    if not has_evidence:
+        return PolicyResult(
+            allowed=False,
+            reason="TestRun requer evidências para ser marcado como passed",
+        )
+    return PolicyResult(allowed=True)
+
+
+# =============================================================================
+# POLÍTICA: TestRun failure vs error distinction
+# =============================================================================
+
+
+def test_run_failure_vs_error(
+    is_test_failure: bool,
+    is_infra_error: bool,
+) -> PolicyResult:
+    """
+    Política de distinção entre falha de teste e erro de infraestrutura.
+
+    failed = teste executou e falhou (resultado inesperado)
+    error = erro operacional ou técnico (infraestrutura, timeout, etc.)
+
+    Não pode ser ambos ao mesmo tempo.
+    """
+    if is_test_failure and is_infra_error:
+        return PolicyResult(
+            allowed=False,
+            reason="TestRun não pode ser simultaneamente failed e error",
+        )
+    return PolicyResult(allowed=True)
+
+
+# =============================================================================
 # POLÍTICA: Incident → closed
 # =============================================================================
 

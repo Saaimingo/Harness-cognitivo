@@ -1,5 +1,5 @@
 """
-Teste de independência de infraestrutura — FI-2A.
+Teste de independência de infraestrutura — FI-2B.
 
 Analisa imports dos módulos de domínio para confirmar ausência de
 imports de banco, ORM, rede, SDKs de IA, adaptadores externos e filesystem.
@@ -86,15 +86,18 @@ def test_domain_modules_importable():
         "harness.domain.plan",
         "harness.domain.task",
         "harness.domain.work_order",
+        "harness.domain.execution_run",
+        "harness.domain.review",
+        "harness.domain.test_run",
     ]
     for mod in modules:
         importlib.import_module(mod)
 
 
 def test_domain_files_count():
-    """Deve haver 11 arquivos de domínio (init + 10 módulos)."""
+    """Deve haver 14 arquivos de domínio (init + 13 módulos)."""
     py_files = list(DOMAIN_DIR.glob("*.py"))
-    assert len(py_files) == 11, f"Esperado 11 arquivos, encontrado {len(py_files)}"
+    assert len(py_files) == 14, f"Esperado 14 arquivos, encontrado {len(py_files)}"
 
 
 def test_pydantic_is_present():

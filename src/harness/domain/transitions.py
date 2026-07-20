@@ -10,9 +10,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from harness.domain.enums import (
+    ExecutionRunStatus,
     GateStatus,
     ProjectStatus,
+    ReviewStatus,
     TaskStatus,
+    TestRunStatus,
     WorkOrderStatus,
 )
 
@@ -338,6 +341,103 @@ GATE_TRANSITIONS: dict[GateStatus, frozenset[GateStatus]] = {
     ),
     GateStatus.DECIDED: frozenset(),  # terminal — resultado em GateDecisionType
     GateStatus.CANCELLED: frozenset(),  # terminal
+}
+
+
+# =============================================================================
+# EXECUTIONRUN — 5 estados (FI-2B)
+# =============================================================================
+
+EXECUTIONRUN_INITIAL = ExecutionRunStatus.INITIATED
+EXECUTIONRUN_TERMINAL: frozenset[ExecutionRunStatus] = frozenset(
+    {
+        ExecutionRunStatus.COMPLETED,
+        ExecutionRunStatus.FAILED,
+        ExecutionRunStatus.ABANDONED,
+    }
+)
+
+EXECUTIONRUN_TRANSITIONS: dict[ExecutionRunStatus, frozenset[ExecutionRunStatus]] = {
+    ExecutionRunStatus.INITIATED: frozenset(
+        {
+            ExecutionRunStatus.RUNNING,
+            ExecutionRunStatus.ABANDONED,
+        }
+    ),
+    ExecutionRunStatus.RUNNING: frozenset(
+        {
+            ExecutionRunStatus.COMPLETED,
+            ExecutionRunStatus.FAILED,
+            ExecutionRunStatus.ABANDONED,
+        }
+    ),
+    ExecutionRunStatus.COMPLETED: frozenset(),  # terminal
+    ExecutionRunStatus.FAILED: frozenset(),  # terminal
+    ExecutionRunStatus.ABANDONED: frozenset(),  # terminal
+}
+
+
+# =============================================================================
+# REVIEW — 5 estados (FI-2B)
+# =============================================================================
+
+REVIEW_INITIAL = ReviewStatus.REQUESTED
+REVIEW_TERMINAL: frozenset[ReviewStatus] = frozenset(
+    {
+        ReviewStatus.APPROVED,
+        ReviewStatus.REJECTED,
+        ReviewStatus.CHANGE_REQUESTED,
+    }
+)
+
+REVIEW_TRANSITIONS: dict[ReviewStatus, frozenset[ReviewStatus]] = {
+    ReviewStatus.REQUESTED: frozenset(
+        {
+            ReviewStatus.IN_PROGRESS,
+        }
+    ),
+    ReviewStatus.IN_PROGRESS: frozenset(
+        {
+            ReviewStatus.APPROVED,
+            ReviewStatus.REJECTED,
+            ReviewStatus.CHANGE_REQUESTED,
+        }
+    ),
+    ReviewStatus.APPROVED: frozenset(),  # terminal
+    ReviewStatus.REJECTED: frozenset(),  # terminal
+    ReviewStatus.CHANGE_REQUESTED: frozenset(),  # terminal — nova ExecutionRun necessária
+}
+
+
+# =============================================================================
+# TESTRUN — 5 estados (FI-2B)
+# =============================================================================
+
+TESTRUN_INITIAL = TestRunStatus.PLANNED
+TESTRUN_TERMINAL: frozenset[TestRunStatus] = frozenset(
+    {
+        TestRunStatus.PASSED,
+        TestRunStatus.FAILED,
+        TestRunStatus.ERROR,
+    }
+)
+
+TESTRUN_TRANSITIONS: dict[TestRunStatus, frozenset[TestRunStatus]] = {
+    TestRunStatus.PLANNED: frozenset(
+        {
+            TestRunStatus.EXECUTING,
+        }
+    ),
+    TestRunStatus.EXECUTING: frozenset(
+        {
+            TestRunStatus.PASSED,
+            TestRunStatus.FAILED,
+            TestRunStatus.ERROR,
+        }
+    ),
+    TestRunStatus.PASSED: frozenset(),  # terminal
+    TestRunStatus.FAILED: frozenset(),  # terminal
+    TestRunStatus.ERROR: frozenset(),  # terminal
 }
 
 
