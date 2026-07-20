@@ -1,0 +1,5 @@
+# Forensic custody: preserve source bytes without line-ending normalization.
+docs/forensics/HC-DOC-ORIGIN-01/0[0-5]_*.md binary
+docs/forensics/HC-DOC-REC-01/hash-manifests/source-snapshots/*.md binary
+docs/forensics/HC-DOC-REC-01/vault-clone-d11f983/snapshots/working-tree/*.md binary
+docs/forensics/HC-DOC-REC-01/vault-clone-d11f983/snapshots/untracked/* binary

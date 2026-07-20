@@ -1,15 +1,16 @@
 ---
 tipo: indice
 titulo: "Índice Mestre — Harness Cognitivo"
-status: ready_for_commit
+status: documentary_reconciliation_in_progress
 data: 2026-07-15
-atualizado: 2026-07-18
-audited_head: d11f983f701936a6b3e7fde68c81fba0699f1fcd
+atualizado: 2026-07-20
+base_canonica: a191a37d207e47d322297f7ce84c2dd211ca02d9
+workorder_atual: HC-DOC-REC-01
 ---
 
 # Índice Mestre — Harness Cognitivo
 
-> Mapa navegacional do projeto e estado reconciliado das fases.
+> Mapa navegacional do estado implementado, das normas preservadas e da reconciliação documental em andamento.
 
 ## Status das fases
 
@@ -18,48 +19,43 @@ audited_head: d11f983f701936a6b3e7fde68c81fba0699f1fcd
 | FI-0 | Fundação Inicial | Aprovada | `b3700c1` | `fi-0-approved` |
 | FI-1 | Protocolo Cognitivo no Obsidian | Aprovada | `0b15b5f` | `fi-1-approved` |
 | FI-2A | Domínio e Contratos Puros | Aprovada | `be1236f` | `fi-2a-approved` |
-| FI-2B Parte 1 | ExecutionRun, Review e TestRun | Implementada e auditada na branch; reconciliação preparada para commit | PR #1; `audited_head=d11f983` | Não criada |
-| FI-2B Parte 2 | GateDecision, Release e Incident | Não iniciada | Fora do escopo atual | — |
-| FI-3 | Persistência e Recuperação | Bloqueada | Depende de autorização e das fases anteriores | — |
-| FI-4 | Projeções, Busca e Orquestração | Bloqueada | Fase futura | — |
-| FI-5 | Linhagem e Cápsula de Contexto | Bloqueada | Fase futura | — |
-| FI-6 | CLI e Fluxo Simulado | Bloqueada | Fase futura | — |
-| FI-7 | MCP e Primeiro Executor | Bloqueada | Fase futura | — |
-| FI-8 | Revisão Independente e Rework | Bloqueada | Fase futura | — |
-| FI-9 | Laboratório de Testes e Evidências | Bloqueada | Fase futura | — |
-| FI-10 | Laboratório Web e Auditoria Visual | Bloqueada | Fase futura | — |
-| FI-11 | Papéis, Moderador e Promoção | Bloqueada | Fase futura | — |
-| FI-12 | Release, Operação e Incidente | Bloqueada | Fase futura | — |
-| FI-13 | Evals e Evolução Opcional | Bloqueada | Fase futura | — |
+| FI-2B Parte 1 | ExecutionRun, Review e TestRun | Integrada e encerrada | merge `a191a37d207e47d322297f7ce84c2dd211ca02d9` | `fi-2b-part1-approved` |
+| FI-2B Parte 2 | GateDecision, Release e Incident | Não iniciada; suspensa | Fora do escopo da reconciliação documental | — |
+| FI-3+ | Fases futuras | Não iniciadas/bloqueadas | Dependem de decisão soberana e fases anteriores | — |
 
-## Estado da FI-2B Parte 1
+## Estado canônico da FI-2B Parte 1
 
-- Branch: `feat/fi-2b-part1`.
-- PR #1: aberta, Draft, sem merge.
-- Base auditada: `master` em `be1236f`.
-- `audited_head=d11f983f701936a6b3e7fde68c81fba0699f1fcd`.
-- Branch auditada: 9 commits à frente e 0 atrás da base.
-- Escopo implementado: ExecutionRun, Review e TestRun.
-- Fora do escopo: GateDecision, Release, Incident, persistência e integrações operacionais.
-- Reconciliação atual: alterações locais preparadas; nenhum commit ou push realizado.
+- Branch histórica preservada: `feat/fi-2b-part1` em `ccaa0a55aaa78a08d8f4588e8ec3a5669f84b738`.
+- PR #1: fechada por merge commit, sem squash e sem rebase.
+- Merge na master: `a191a37d207e47d322297f7ce84c2dd211ca02d9`.
+- Quality da feature: execução `29747690315`, conclusão `success`.
+- Quality da master: execução `29751012597`, conclusão `success`.
+- Tag anotada publicada: `fi-2b-part1-approved`, resolvendo ao merge.
+- Testes: 534 aprovados; 1 `PytestCacheWarning` local ambiental preservado.
+- Estado formal: `FI-2B_PART1_CLOSED`.
 
-## Evidências reproduzidas
+## Reconciliação documental atual
 
-| Validação | Resultado |
+| Item | Estado |
 |---|---|
-| Coleta | 534 testes coletados |
-| Pytest | 534 passed, 1 `PytestCacheWarning` |
-| Ruff check | Aprovado |
-| Ruff format | 49 arquivos já formatados |
-| Mypy | Sem issues em 31 arquivos |
-| `git diff --check` | Código de saída 0 |
-| HEAD local/remoto | Iguais em `d11f983` no baseline auditado |
+| WorkOrder | `HC-DOC-REC-01` |
+| Branch de trabalho | `docs/hc-documentary-reconciliation` |
+| Base | master canônica `a191a37d…` |
+| Escopo | preservação, reconciliação documental e rascunhos controlados |
+| Implementação FI-2B Parte 2 | não iniciada |
+| Bíblia | rascunho não canônico |
+| Próximo gate | revisão interna Mimo, verificações, commit/push e auditoria final |
 
-O warning foi preservado e investigado como provável divergência de ACL da `.pytest_cache` entre identidades locais de execução.
+Esta reconciliação não altera os originais normativos 01–08, código Python, testes, dependências ou fase.
 
-## Documentos centrais
+## Governança e autoridade
 
-### Arquitetura
+- [Registro canônico de fontes e autoridade](../governance/00_REGISTRO_CANONICO_DE_FONTES_E_AUTORIDADE.md)
+- [Matriz de reconciliação conceitual](../reconciliation/01_MATRIZ_DE_RECONCILIACAO_CONCEITUAL.md)
+- [ADRs históricos](../adr/history/)
+- [Status da WorkOrder HC-DOC-REC-01](HC_DOC_REC_01_STATUS.md)
+
+## Arquitetura
 
 - [Mapa arquitetural](../architecture/ARCHITECTURAL_MAP.md)
 - [Constituição ESQ](../architecture/ESQ_CONSTITUTION.md)
@@ -67,13 +63,13 @@ O warning foi preservado e investigado como provável divergência de ACL da `.p
 - [Governança GRN](../architecture/GRN_BUSINESS_RULES_GOVERNANCE.md)
 - [Protocolo CTP](../architecture/CTP_CHAT_TO_PROJECT.md)
 
-### Operações
+## Operações
 
 - [Guia de agentes](../operations/AGENTS.md)
 - [Política SG-0](../operations/SG-0_AGENT_DESTRUCTIVE_ACTIONS_POLICY.md)
 - [Checklist SG-0](../operations/SG-0_CHECKLIST.md)
 
-### Relatórios
+## Relatórios
 
 - [Relatório FI-0](RELATORIO_FI0.md)
 - [Relatório FI-1](RELATORIO_FI1.md)
@@ -82,18 +78,18 @@ O warning foi preservado e investigado como provável divergência de ACL da `.p
 - [Mapeamento de componentes e planos](MAPEAMENTO_COMPONENTES_PLANOS.md)
 - [Classificação de lacunas](CLASSIFICACAO_LACUNAS.md)
 
-### Evidências FI-2B Parte 1
+## Evidências e forense
 
-- [`evidence/fi2b-part1/2026-07-18/`](../../evidence/fi2b-part1/2026-07-18/)
+- [Evidências FI-2B Parte 1](../../evidence/fi2b-part1/2026-07-18/)
+- [Manifesto de preservação HC-DOC-ORIGIN-01](../forensics/HC-DOC-ORIGIN-01/PRESERVATION_MANIFEST.md)
+- [Clone divergente do Vault](../forensics/HC-DOC-REC-01/vault-clone-d11f983/README.md)
+- [Reconciliação dos manifestos de hashes](../forensics/HC-DOC-REC-01/hash-manifests/01_RECONCILIACAO_DOS_MANIFESTOS.md)
+- [Manifesto atual dos originais 01–08](../forensics/HC-DOC-REC-01/hash-manifests/02_MANIFESTO_CANONICO_ATUAL.md)
 
-## Próxima decisão permitida
+## Rascunhos
 
-Revisar o diff e as validações desta reconciliação. O estado máximo desta WorkOrder é `READY_FOR_COMMIT`.
+- [Bíblia do Harness Cognitivo — rascunho inicial não canônico](../drafts/00_BIBLIA_DO_HARNESS_COGNITIVO_DRAFT.md)
 
-Não estão autorizados nesta etapa:
+## Estado permitido
 
-- commit ou push;
-- atualização da descrição da PR;
-- merge;
-- criação de tag;
-- início da FI-2B Parte 2.
+Antes da auditoria documental final, o teto permanece `READY_FOR_FINAL_DOCUMENTARY_AUDIT`. FI-2B Parte 2 não pode ser iniciada por esta WorkOrder.

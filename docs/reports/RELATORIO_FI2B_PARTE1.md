@@ -2,32 +2,39 @@
 tipo: relatorio_fase
 fase: FI-2B-Parte1
 titulo: "Relatório da FI-2B Parte 1 — ExecutionRun, Review e TestRun"
-status: ready_for_review
+status: integrated_closed
 executor_original: Freebuff
 reconciliacao: Codex
 data: 2026-07-17
-reconciliado_em: 2026-07-18
+reconciliado_em: 2026-07-20
 branch: feat/fi-2b-part1
 base_head: be1236ff7885b950cfdd7cdac50c3f9531be48f9
 audited_head: d11f983f701936a6b3e7fde68c81fba0699f1fcd
+approved_head: ccaa0a55aaa78a08d8f4588e8ec3a5669f84b738
+merge_head: a191a37d207e47d322297f7ce84c2dd211ca02d9
+tag: fi-2b-part1-approved
 ---
 
 # Relatório da FI-2B Parte 1
 
 ## 1. Estado deste documento
 
-Este relatório reconcilia o código, a PR #1, o histórico Git e as evidências reproduzidas da FI-2B Parte 1.
+Este relatório registra a implementação, reconciliação, integração e encerramento administrativo da FI-2B Parte 1.
 
-- Branch auditada: `feat/fi-2b-part1`.
-- Base auditada: `master` em `be1236ff7885b950cfdd7cdac50c3f9531be48f9`.
-- `audited_head=d11f983f701936a6b3e7fde68c81fba0699f1fcd`.
-- PR #1: aberta, Draft, sem merge.
-- Commits no baseline auditado: 9 à frente da base, 0 atrás.
-- Estado desta reconciliação: `READY_FOR_REVIEW`, pendente de nova auditoria independente.
+- Base original: `master` em `be1236ff7885b950cfdd7cdac50c3f9531be48f9`.
+- Baseline técnico reproduzido: `audited_head=d11f983f701936a6b3e7fde68c81fba0699f1fcd`.
+- HEAD final aprovado da feature: `ccaa0a55aaa78a08d8f4588e8ec3a5669f84b738`.
+- Branch histórica preservada: `feat/fi-2b-part1`.
+- PR #1: fechada por merge commit.
+- Merge na master: `a191a37d207e47d322297f7ce84c2dd211ca02d9`.
+- Tag anotada publicada: `fi-2b-part1-approved`, resolvendo ao merge.
+- Quality da feature `29747690315`: `success`.
+- Quality da master `29751012597`: `success`.
+- Estado formal: `FI-2B_PART1_CLOSED`.
 
-O `audited_head` identifica o baseline anterior a esta reconciliação. Este documento não tenta registrar o hash do commit que futuramente possa contê-lo, evitando autorreferência e commits documentais sucessivos apenas para atualizar o próprio hash.
+O campo `audited_head` é preservado como referência histórica da reprodução local e não deve ser lido como HEAD atual. O commit documental/CI `ccaa0a55…` e o merge `a191a37d…` são os marcos atuais da Parte 1.
 
-Nenhum merge, tag, release ou avanço para FI-2B Parte 2 é autorizado por este relatório.
+Este relatório não autoriza a FI-2B Parte 2. GateDecision, Release e Incident permanecem não implementados.
 
 ## 2. Resumo do escopo implementado
 
@@ -135,7 +142,9 @@ executing -> failed
 executing -> error
 ```
 
-## 5. Alterações da PR no baseline auditado
+## 5. Alterações da PR e integração
+
+### 5.1 Baseline técnico `d11f983…`
 
 | Métrica | Valor |
 |---|---:|
@@ -160,11 +169,16 @@ Arquivos do baseline da PR:
 - `tests/unit/domain/test_review.py`;
 - `tests/unit/domain/test_test_run.py`.
 
-As alterações da presente reconciliação documental são tratadas separadamente no diff local e não são retroativamente atribuídas ao baseline `d11f983`.
+As métricas e os arquivos acima descrevem o baseline histórico `d11f983…`, antes da reconciliação documental/CI da própria Parte 1.
 
-## 6. Histórico da branch auditada
+### 5.2 Reconciliação integrada
+
+O commit `ccaa0a55aaa78a08d8f4588e8ec3a5669f84b738` adicionou a reconciliação de evidências e o workflow Quality em 18 caminhos auditados, tornando a branch 10 commits à frente da base original. Esse commit foi publicado, revalidado pelo CI e integrado por merge commit em `a191a37d207e47d322297f7ce84c2dd211ca02d9`.
+
+## 6. Histórico de implementação e integração
 
 ```text
+ccaa0a5 docs(ci): reconcile FI-2B evidence and add quality workflow
 d11f983 docs(report): FB-0004 final reconciliation — HEAD a486be6, 8 commits
 a486be6 docs(report): finalize FB-0004 — HEAD 14316f6, 7 commits, 534 tests
 14316f6 docs(report): FB-0004 reconcile report with real state — HEAD cd757b1, 6 commits, 13 arestas, 534 tests
@@ -176,7 +190,7 @@ cd757b1 fix(domain): FB-0003 canonical TestRun invariants — PLANNED/EXECUTING/
 61d58ca feat(domain): implement FI-2B execution review and test run models
 ```
 
-Os hashes acima descrevem o baseline auditado. Nenhum hash de commit futuro desta reconciliação é antecipado neste documento.
+O merge commit `a191a37d207e47d322297f7ce84c2dd211ca02d9` pertence à master e incorpora a feature sem squash ou rebase. Os hashes antigos permanecem como cadeia histórica, não como estado atual.
 
 ## 7. Evidências reproduzidas
 
@@ -208,6 +222,15 @@ As saídas completas e sanitizadas estão em:
 - `evidence/fi2b-part1/2026-07-18/baseline/EVIDENCIAS_FI2B_PARTE1.md`;
 - `evidence/fi2b-part1/2026-07-18/baseline/evidence-manifest.json`;
 - `evidence/fi2b-part1/2026-07-18/baseline/logs/`.
+
+### 7.3 CI remoto
+
+| Ref | Execução | SHA auditado | Conclusão |
+|---|---:|---|---|
+| feature/PR | `29747690315` | `ccaa0a55aaa78a08d8f4588e8ec3a5669f84b738` | `success` |
+| master pós-merge | `29751012597` | `a191a37d207e47d322297f7ce84c2dd211ca02d9` | `success` |
+
+O `PytestCacheWarning` ambiental foi observado na reprodução local. Ele não foi ocultado e não invalida a conclusão `success` das execuções remotas.
 
 ## 8. Investigação do `PytestCacheWarning`
 
@@ -242,34 +265,26 @@ As tags existentes resolvem para:
 | FI-0 | `b3700c1` | `fi-0-approved` |
 | FI-1 | `0b15b5f` | `fi-1-approved` |
 | FI-2A | `be1236f` | `fi-2a-approved` |
+| FI-2B Parte 1 | `a191a37d207e47d322297f7ce84c2dd211ca02d9` | `fi-2b-part1-approved` |
 
-Não existe tag de aprovação da FI-2B Parte 1.
+## 10. Governança da integração
 
-## 10. Governança da reconciliação
+- A FB-0004 recebeu veredito histórico sobre `d11f983…`; esse veredito não foi reutilizado para o HEAD posterior.
+- O commit `ccaa0a55…`, a descrição atualizada da PR e o CI remoto foram novamente auditados antes da decisão soberana de merge.
+- O merge, o CI da master e a publicação da tag ocorreram em gates separados e autorizados.
+- Nenhuma mudança de domínio, testes, dependências, `pyproject.toml` ou `uv.lock` foi feita pela reconciliação documental/CI.
+- A branch da feature permanece preservada.
 
-- A FB-0004 recebeu veredito anterior sobre `d11f983`.
-- Esta reconciliação altera documentação, workflow e evidências; portanto, um futuro commit/push produzirá novo HEAD e invalidará o uso do veredito anterior para o novo estado.
-- A descrição da PR não foi alterada nesta WorkOrder.
-- O Obsidian não foi alterado nesta WorkOrder.
-- Nenhuma mudança foi realizada em domínio, testes, dependências, `pyproject.toml` ou `uv.lock`.
-- A `master` não foi alterada.
+## 11. Estado atual
 
-## 11. Estado permitido
+`FI-2B_PART1_CLOSED`
 
-Após a preparação do diff e a reprodução das validações sobre todas as mudanças locais, o estado máximo permitido é:
+Continuam fora do escopo desta Parte 1 e da atual WorkOrder documental:
 
-`READY_FOR_REVIEW`
-
-Continuam fora da autorização:
-
-- commit;
-- push;
-- alteração da descrição da PR;
-- merge;
-- tag;
-- release;
-- deployment;
-- FI-2B Parte 2.
+- implementação da FI-2B Parte 2;
+- GateDecision, Release e Incident;
+- persistência, release operacional ou deployment;
+- migração de código histórico.
 
 ## 12. Apêndice histórico e arquitetural preservado
 
@@ -366,6 +381,9 @@ Esse warning histórico de descoberta de classes é diferente do warning atual. 
 |---|---|
 | Imutabilidade convencional | Os modelos não usam congelamento estrutural; a disciplina depende das transições que retornam novas instâncias e da revalidação por Pydantic |
 | Crescimento dos arquivos de evidência | Logs e relatórios podem aumentar o repositório; requer política futura de retenção sem remover a rastreabilidade atual |
-| Ausência de CI remoto | O workflow foi preparado, mas não haverá execução remota até o primeiro push autorizado |
 | Integração com infraestrutura | Persistência, executor de ferramentas e integrações continuam fora desta parte e permanecem risco para fases posteriores |
 | Cache local do Pytest | A ACL da `.pytest_cache` continua produzindo `PytestCacheWarning`; qualquer correção de permissão permanece separada e dependente de autorização |
+
+#### Risco histórico resolvido após os pushes
+
+A ausência de CI remoto era um risco válido no baseline anterior ao primeiro push. Deixou de ser risco residual quando o workflow Quality concluiu com `success` na feature (execução `29747690315`, SHA `ccaa0a55…`) e na master pós-merge (execução `29751012597`, SHA `a191a37d…`). O registro é preservado como histórico e não descreve o estado atual.
