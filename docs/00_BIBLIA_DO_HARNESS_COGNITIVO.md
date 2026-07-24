@@ -503,23 +503,23 @@ A MEC consome a execução e também alimenta planejamento, revisão, roteamento
 
 ### 7.1 Fluxo histórico vigente (14 passos)
 
-O fluxo histórico do projeto, vigente e aprovado, possui 14 passos:
+O fluxo histórico do projeto, vigente e aprovado, possui 14 passos conforme documentado em [ARCHITECTURAL_MAP.md](../docs/architecture/ARCHITECTURAL_MAP.md):
 
 ```text
-1. intenção e conversa livre
-2. promoção CTP
-3. extração e governança de regras
-4. arquitetura de domínio
-5. padrões de engenharia
-6. deliberação técnica quando aplicável
-7. planejamento e dependências
-8. autorização por WorkOrder
-9. roteamento e preparação da cápsula
-10. execução controlada
-11. revisão funcional e de domínio
-12. verificação estrutural e de segurança
-13. testes e evidências
-14. GateDecision
+1. Conversa livre
+2. Promoção CTP
+3. Governança de Regras (GRN)
+4. Arquitetura de Domínio
+5. Padrões de Engenharia (ESQ)
+6. Planejamento
+7. Autorização (WorkOrder)
+8. Execução
+9. Revisão Funcional
+10. Revisão de Domínio
+11. Verificação de Qualidade (Engenheiro de Software)
+12. Testes e Evidências
+13. Verificação de Segurança (SG-0)
+14. Gate de Decisão
 ```
 
 Este mapa de 14 passos permanece como referência genealógica do projeto.
@@ -527,6 +527,11 @@ Este mapa de 14 passos permanece como referência genealógica do projeto.
 ### 7.2 Ciclo operacional consolidado candidato (17 passos)
 
 A sequência abaixo é denominada **ciclo operacional consolidado candidato**. Ela expande, detalha e cerca operacionalmente o fluxo histórico de 14 passos, acrescentando etapas de release, observação e recuperação que não estavam explícitas no mapa original:
+
+**Declarações constitucionais do ciclo candidato:**
+- Este ciclo candidato não é numericamente idêntico ao fluxo histórico de 14 passos.
+- Reorganiza, detalha, funde e acrescenta etapas em relação ao fluxo histórico.
+- É proposta candidata, não substitui o fluxo histórico e não altera automaticamente o roadmap.
 
 ```text
 1. intenção e conversa livre
@@ -549,6 +554,35 @@ A sequência abaixo é denominada **ciclo operacional consolidado candidato**. E
 ```
 
 O ciclo de 17 passos não substitui silenciosamente o fluxo histórico de 14 passos. Ele o complementa com etapas pós-GateDecision que tornam o ciclo completo observável e recuperável. A inclusão de detalhes não cria automaticamente novas fases de implementação. Ela esclarece comportamentos que serão alocados no roadmap.
+
+### 7.3 Tabela de mapeamento entre ciclo candidato e fluxo histórico
+
+A tabela abaixo mostra a correspondência entre as etapas do ciclo operacional consolidado candidato (17 passos) e os passos do fluxo histórico vigente (14 passos):
+
+| Ciclo Candidato (17) | Fluxo Histórico (14) | Observação |
+|----------------------|----------------------|------------|
+| 1. intenção e conversa livre | 1. Conversa livre | Correspondência direta |
+| 2. promoção CTP | 2. Promoção CTP | Correspondência direta |
+| 3. extração e governança de regras | 3. Governança de Regras (GRN) | Correspondência direta |
+| 4. arquitetura de domínio | 4. Arquitetura de Domínio | Correspondência direta |
+| 5. padrões de engenharia | 5. Padrões de Engenharia (ESQ) | Correspondência direta |
+| 6. deliberação técnica quando aplicável | — | Etapa adicional no candidato |
+| 7. planejamento e dependências | 6. Planejamento | Correspondência |
+| 8. autorização por WorkOrder | 7. Autorização (WorkOrder) | Correspondência |
+| 9. roteamento e preparação da cápsula | — | Etapa adicional no candidato |
+| 10. execução controlada | 8. Execução | Correspondência |
+| 11. revisão funcional e de domínio | 9. Revisão Funcional + 10. Revisão de Domínio | Fusão de dois passos históricos |
+| 12. verificação estrutural e de segurança | 11. Verificação de Qualidade + 13. Verificação de Segurança | Fusão de dois passos históricos (com reordenação) |
+| 13. testes e evidências | 12. Testes e Evidências | Correspondência (posição alterada no candidato) |
+| 14. GateDecision | 14. Gate de Decisão | Correspondência |
+| 15. release ou rework | — | Extensão pós-GateDecision |
+| 16. observação operacional | — | Extensão pós-GateDecision |
+| 17. incidente, reparo, aprendizado e evolução | — | Extensão pós-GateDecision |
+
+**Resumo das transformações:**
+- **Etapas adicionais no candidato:** 3 (deliberação técnica, roteamento/cápsula, e 3 extensões pós-Gate)
+- **Fusões no candidato:** 2 (revisão funcional+domínio, verificação estrutural+segurança)
+- **Reordenação:** testes e evidências movido para após verificação (passo 13 no candidato vs. passo 12 no histórico)
 
 ## 8. Papéis e autoridades
 
