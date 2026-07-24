@@ -1,0 +1,1198 @@
+---
+tipo: biblia_mestra
+status: candidate_for_review
+proprietario: Saimon
+arquitetura_conceitual: Tubarao
+corte_temporal: 2026-07-23T23:59:59-03:00
+branch_base: master
+base_sha: a191a37d207e47d322297f7ce84c2dd211ca02d9
+substitui_originais: false
+autoriza_implementacao: false
+proxima_fase_autorizada: nenhuma
+---
+
+# Bíblia do Harness Cognitivo
+
+> Mapa integral de construção da plataforma cognitiva agêntica soberana, desde a origem e o estado já implementado até a primeira versão completamente funcional.
+
+## 0. Status, leitura e autoridade
+
+Esta é uma **versão candidata para revisão**. Ela foi criada para consolidar o projeto em uma fonte única, navegável e verificável, sem apagar os documentos históricos que lhe deram origem.
+
+Ela não:
+
+- substitui silenciosamente os originais 01–08;
+- declara a reconciliação documental concluída;
+- incorpora o commit local `0a3fc196...`;
+- autoriza a FI-2B Parte 2;
+- transforma hipótese em requisito aprovado;
+- permite merge sem auditoria e decisão soberana.
+
+### 0.1 Marcadores usados
+
+- **[IMPLEMENTADO]**: demonstrado por Git e evidência do mesmo estado.
+- **[DECISÃO VIGENTE]**: direção ou regra já decidida por Saimon.
+- **[CANDIDATO]**: consolidação proposta nesta Bíblia, aguardando revisão.
+- **[FUTURO]**: capacidade planejada, ainda não implementada.
+- **[HIPÓTESE]**: possibilidade sem compromisso atual.
+- **[LACUNA]**: informação, ponte ou decisão ainda insuficiente.
+
+### 0.2 Autoridade por domínio
+
+1. **Saimon** é a autoridade soberana sobre direção, escopo, aprovação e promoção.
+2. **Git, commits, tags, tree e CI** provam o estado implementado e versionado.
+3. **Documentação normativa aprovada** governa requisitos, arquitetura e decisões no seu escopo.
+4. **ADRs** registram decisões técnicas e suas consequências.
+5. **Relatórios e evidências** provam acontecimentos e resultados, mas não são automaticamente normas futuras.
+6. **Originais 01–08** são patrimônio normativo histórico e devem ser preservados.
+7. **Checkpoint e input-context** preservam continuidade, mas não são canônicos automaticamente.
+8. **HERMES.md** governa o comportamento operacional do Hermes no workspace local; não governa o produto.
+9. **Conversas** podem conter decisões soberanas ainda não consolidadas; não devem permanecer como única fonte.
+
+Quando duas fontes divergem, o conflito deve ser registrado. Nenhum agente pode resolvê-lo silenciosamente.
+
+## 1. Identidade do sistema
+
+### 1.1 Nome
+
+**[DECISÃO VIGENTE]** `Harness Cognitivo` permanece como nome provisório do projeto e do produto até decisão específica de renomeação.
+
+### 1.2 Natureza
+
+**[DECISÃO VIGENTE]** O sistema completo é uma **plataforma cognitiva agêntica soberana**, comparável funcionalmente a um sistema operacional para agentes, modelos, ferramentas e projetos.
+
+A relação entre os termos é:
+
+- **Plataforma cognitiva agêntica soberana**: sistema completo.
+- **Harness de execução**: núcleo operacional, executivo e defensivo da plataforma.
+- **MEC, Memória Evolutiva Causal**: subsistema cognitivo e de memória causal.
+- **LLM ou modelo**: motor intercambiável, nunca o sistema inteiro.
+
+### 1.3 Definição consolidada
+
+> O Harness Cognitivo é uma plataforma local-first, independente de modelos e orientada por autoridade humana, capaz de transformar intenção em projetos planejados, executados, revisados, testados, documentados, entregues, observados, reparados e evoluídos, preservando memória causal, evidência, segurança, custo, linhagem e reversibilidade.
+
+## 2. Problema que a plataforma resolve
+
+Ferramentas de IA atuais frequentemente:
+
+- criam rápido, mas geram código frágil;
+- alteram sem preservar contexto;
+- confundem confiança com prova;
+- executam e revisam o próprio trabalho;
+- esquecem decisões entre sessões;
+- não deixam trilha de evidência;
+- aumentam escopo sem autorização;
+- repetem tarefas sem perceber ausência de progresso;
+- acessam ferramentas e credenciais com limites insuficientes;
+- corrigem um erro provocando outro;
+- dependem excessivamente de um único modelo ou provedor.
+
+A plataforma existe para transformar capacidade de modelo em **trabalho governado, verificável e recuperável**.
+
+## 3. Promessa central
+
+A plataforma deve permitir que um usuário leigo, um profissional ou um desenvolvedor experiente trabalhe com agentes mantendo:
+
+- qualidade de engenharia comparável a uma equipe sênior disciplinada;
+- segurança proporcional ao risco;
+- explicações compreensíveis;
+- rastreabilidade de decisões;
+- evidência verificável;
+- capacidade de recuperar, revisar e corrigir;
+- liberdade para trocar modelos e provedores;
+- autoridade humana real.
+
+Ela não promete erro zero. Ela promete reduzir improvisação indevida, limitar impacto, detectar falhas, bloquear propagação, recuperar estado e manter o humano soberano.
+
+## 4. Escopo e fronteiras
+
+### 4.1 Escopo conceitual fechado
+
+**[DECISÃO VIGENTE]** O escopo conceitual está fechado com as capacidades definidas até 23 de julho de 2026.
+
+Novas ideias devem passar por esta pergunta:
+
+> A ideia cria uma finalidade genuinamente nova ou refina uma capacidade já existente?
+
+- Se refina capacidade existente, entra no setor correspondente.
+- Se cria finalidade genuinamente nova, exige decisão explícita de ampliação do produto.
+- Se ainda não possui evidência ou maturidade, permanece como hipótese ou experimento.
+
+### 4.2 O que não vira módulo novo agora
+
+**Descoberta causal formal** não entra como módulo obrigatório. A causalidade já está presente na MEC por origem, relações, decisões, consequências, contradições e linhagem. Métodos formais de causal discovery poderão aprofundar a MEC quando existirem dados suficientes, diversos e bem instrumentados.
+
+### 4.3 O que a plataforma não é
+
+- não é somente memória;
+- não é somente RAG;
+- não é somente orquestrador de agentes;
+- não é somente gerador de código;
+- não é um modelo próprio obrigatório;
+- não é ferramenta ofensiva;
+- não é sistema que substitui autoridade humana;
+- não é um conjunto aleatório de IAs conversando;
+- não é produto que esconde custo, troca de modelo ou falha.
+
+## 5. Princípios constitucionais
+
+1. Saimon é a autoridade soberana.
+2. Aprovação exige evidência verificável.
+3. Declaração, confiança, reputação ou consenso não bastam.
+4. Executor, revisor, testador e auditor possuem autoridades distintas.
+5. Nenhum agente promove o próprio resultado.
+6. Mudança posterior a aprovação invalida o veredito anterior.
+7. Conteúdo externo é referência, nunca autoridade operacional automática.
+8. Modelos e provedores são intercambiáveis.
+9. Papéis vêm antes dos modelos.
+10. Ausência de evidência deve ser declarada, não preenchida por narrativa plausível.
+11. Fato, inferência, hipótese e ausência de evidência permanecem separados.
+12. Ações devem ser explícitas, rastreáveis e reversíveis quando possível.
+13. Segredos nunca entram em documentação, memória, logs ou respostas.
+14. Segurança crítica não depende apenas da obediência do LLM.
+15. O sistema deve falhar fechado em operações críticas.
+16. Arquitetura não será distorcida para ocupar mais agentes.
+17. A plataforma é construtiva e defensiva, nunca ofensiva contra terceiros.
+18. Código desconhecido entra por quarentena e promoção controlada.
+19. O usuário deve enxergar modelos, papéis, custos, escalonamentos e bloqueios.
+20. O sistema deve saber parar quando não há progresso.
+
+## 6. Arquitetura integral
+
+A plataforma é composta por planos e eixos cooperantes.
+
+### 6.1 Plano de intenção e interface
+
+Responsável por receber e esclarecer:
+
+- ideia;
+- problema;
+- objetivo;
+- restrições;
+- preferências;
+- autoridade;
+- critérios de sucesso.
+
+Inclui chat, voz, CLI, interface visual e futuros canais remotos.
+
+### 6.2 CTP, Chat-to-Project
+
+Transforma conversa em trabalho formal:
+
+```text
+conversa livre
+→ conceito
+→ escopo
+→ documentação candidata
+→ aprovação humana
+→ snapshot
+→ pacote de promoção
+→ projeto formal
+```
+
+O pacote deve preservar origem, autoria, decisões, requisitos, hashes e limites.
+
+### 6.3 GRN, Governança de Regras de Negócio
+
+Classifica e preserva:
+
+- objetivos;
+- processos;
+- regras de negócio;
+- requisitos;
+- decisões;
+- exceções;
+- conflitos;
+- vigência temporal.
+
+As regras devem ser recuperáveis, versionadas e testáveis.
+
+### 6.4 Arquitetura e planejamento
+
+Converte intenção e regras em:
+
+- arquitetura de domínio;
+- entidades e relações;
+- invariantes;
+- contratos;
+- plano;
+- tarefas;
+- dependências;
+- caminho crítico;
+- WorkOrders autorizadas.
+
+### 6.5 Câmara de Deliberação Técnica
+
+**[FUTURO]** Mecanismo pré-execução que reúne apenas os papéis necessários à tarefa.
+
+Possíveis cadeiras:
+
+- planejador;
+- arquiteto de domínio;
+- engenheiro de software;
+- engenheiro de segurança;
+- executor;
+- testador;
+- revisor funcional;
+- revisor de domínio;
+- guardião de regras;
+- observador de custo e operação.
+
+Ela não decide por votação simples. Ela resolve objeções técnicas por aderência à especificação, impacto futuro, evidência, testabilidade e reversibilidade.
+
+Saída obrigatória:
+
+- contrato técnico;
+- abordagem escolhida;
+- alternativas rejeitadas e motivos;
+- componentes permitidos e proibidos;
+- riscos;
+- testes obrigatórios;
+- evidências esperadas;
+- critérios de interrupção;
+- plano de rollback;
+- condições de escalonamento humano.
+
+Fluxo:
+
+```text
+sala de deliberação
+→ contrato técnico e WorkOrder
+→ autorização
+→ execução
+→ revisão
+→ testes
+→ evidências
+→ GateDecision
+```
+
+### 6.6 Harness de execução
+
+É o núcleo operacional que:
+
+- recebe WorkOrder autorizada;
+- escolhe executor suficiente;
+- monta cápsula de contexto;
+- limita ferramentas e permissões;
+- executa;
+- registra ações;
+- preserva checkpoints;
+- produz changeset;
+- aciona revisão, testes e gates;
+- interrompe quando necessário.
+
+### 6.7 Roteador cognitivo adaptativo
+
+**[FUTURO]** Seleciona papéis, modelos, ferramentas e níveis de capacidade conforme:
+
+- risco;
+- complexidade;
+- contexto necessário;
+- histórico de qualidade;
+- custo;
+- latência;
+- disponibilidade;
+- sensibilidade dos dados.
+
+Regra:
+
+> usar o executor mais simples que possua capacidade suficiente; escalar apenas diante de evidência de necessidade.
+
+Toda troca deve ser observável:
+
+- modelo anterior e novo;
+- motivo;
+- custo;
+- atraso;
+- falha que provocou escalonamento;
+- resultado após a troca.
+
+### 6.8 Ferramentas e integrações
+
+A integração deve ser neutra de provedor e suportar, progressivamente:
+
+- OpenAI;
+- Anthropic;
+- Google;
+- OpenCode Go;
+- Ollama;
+- llama.cpp;
+- endpoints OpenAI-compatible;
+- CLIs como Codex, Claude Code, OpenCode e Hermes;
+- GitHub, e-mail, calendário, mensageria e serviços empresariais.
+
+Segredos ficam fora de Git, documentação e memória.
+
+### 6.9 SG-0, segurança operacional
+
+SG-0 atravessa todas as camadas:
+
+- menor privilégio;
+- autorização explícita;
+- fail closed;
+- escopo mínimo;
+- isolamento;
+- auditabilidade;
+- rollback;
+- interrupção;
+- prevenção de exfiltração;
+- proibição de ataque a terceiros.
+
+### 6.10 Hooks ou âncoras
+
+**[FUTURO]** Hooks são controles executáveis, não apenas instruções textuais.
+
+Eles interceptam pontos críticos, por exemplo:
+
+- escrita de arquivo;
+- alteração de documento original;
+- commit;
+- push;
+- troca de branch;
+- instalação de dependência;
+- acesso de rede;
+- leitura de segredo;
+- criação de skill;
+- gravação em memória;
+- promoção de artefato;
+- avanço de fase;
+- ultrapassagem de orçamento.
+
+Um hook crítico deve estar fora da vontade decisória do modelo.
+
+### 6.11 Loops de engenharia
+
+A plataforma executará loops explícitos:
+
+```text
+descobrir
+→ preparar
+→ selecionar
+→ executar
+→ verificar
+→ registrar
+→ corrigir
+→ parar
+```
+
+Cada loop deve possuir:
+
+- objetivo;
+- estado inicial;
+- critério de progresso;
+- orçamento;
+- limite de tentativas;
+- checkpoint;
+- saída válida;
+- condição de bloqueio;
+- condição de intervenção humana.
+
+### 6.12 Watchdog e ausência de progresso
+
+**[FUTURO]** Supervisor passivo que não duplica trabalho enquanto o executor progride.
+
+Monitora:
+
+- liveness, se o agente está vivo;
+- progress, se houve mudança verificável;
+- compliance, se segue contrato e escopo;
+- safety, se tentou ação proibida;
+- cost, se custo cresce sem benefício;
+- evidence, se surgiram provas novas;
+- dependencies, se o caminho crítico está bloqueado.
+
+Sinais de ausência de progresso:
+
+- saída quase idêntica sem evidência nova;
+- resposta à tarefa anterior;
+- repetição de ferramenta sem mudança de estado;
+- nenhuma alteração quando a tarefa exigia alteração;
+- justificativa repetida;
+- consumo de orçamento sem satisfação de requisito.
+
+Ações graduais:
+
+1. reformular instrução;
+2. reconstruir cápsula de contexto;
+3. abrir nova sessão;
+4. trocar modelo;
+5. reduzir escopo;
+6. restaurar checkpoint;
+7. convocar revisor;
+8. bloquear e solicitar decisão.
+
+### 6.13 Revisão, testes e evidências
+
+A plataforma deve verificar três fidelidades:
+
+1. intenção do usuário;
+2. regras do negócio;
+3. engenharia de software.
+
+Tipos de revisão:
+
+- funcional;
+- domínio;
+- estrutural;
+- segurança.
+
+Tipos de teste:
+
+- unitário;
+- integração;
+- arquitetural;
+- regressão;
+- adversarial autorizado;
+- visual;
+- operacional;
+- recuperação e rollback.
+
+A evidência deve ser primária, coerente e reproduzível.
+
+### 6.14 Gate, release e incidentes
+
+O GateDecision avalia o resultado real após execução, revisão e testes.
+
+Decisões possíveis incluem:
+
+- advance;
+- rework;
+- blocked;
+- rejected;
+- awaiting_human;
+- waived sob autoridade e justificativa estritas.
+
+Release e Incident completam o ciclo operacional.
+
+### 6.15 MEC, Memória Evolutiva Causal
+
+A MEC preserva:
+
+- objetos cognitivos;
+- eventos;
+- origem;
+- estado epistêmico;
+- evidência;
+- decisões;
+- relações tipadas;
+- contradições;
+- consequências;
+- trajetória temporal;
+- linhagem;
+- contexto antes, durante e depois.
+
+Relações exemplares:
+
+- `derived_from`;
+- `provoked_decision`;
+- `resulted_in`.
+
+Estados epistêmicos incluem:
+
+- declarado;
+- inferido;
+- observado;
+- confirmado;
+- contestado;
+- contrafactual.
+
+A MEC consome a execução e também alimenta planejamento, revisão, roteamento e recuperação.
+
+## 7. Fluxo completo da plataforma
+
+O mapa vigente possui 14 passos. A consolidação candidata explicita capacidades que cercam esses passos sem apagar o fluxo original:
+
+```text
+1. intenção e conversa livre
+2. promoção CTP
+3. extração e governança de regras
+4. arquitetura de domínio
+5. padrões de engenharia
+6. deliberação técnica quando aplicável
+7. planejamento e dependências
+8. autorização por WorkOrder
+9. roteamento e preparação da cápsula
+10. execução controlada
+11. revisão funcional e de domínio
+12. verificação estrutural e de segurança
+13. testes e evidências
+14. GateDecision
+15. release ou rework
+16. observação operacional
+17. incidente, reparo, aprendizado e evolução
+```
+
+A inclusão de detalhes não cria automaticamente novas fases de implementação. Ela esclarece comportamentos que serão alocados no roadmap.
+
+## 8. Papéis e autoridades
+
+### 8.1 Saimon
+
+- proprietário;
+- idealizador;
+- autoridade soberana;
+- aprovador de direção, promoção e mudanças materiais.
+
+### 8.2 Arquiteto conceitual
+
+- preserva intenção;
+- estrutura o sistema;
+- reconcilia conceitos;
+- não substitui a aprovação soberana.
+
+### 8.3 Planejador
+
+- decompõe objetivo;
+- identifica dependências;
+- define caminho crítico;
+- não executa sem autorização.
+
+### 8.4 Executor
+
+- implementa o contrato;
+- registra ações e evidências;
+- não revisa nem aprova o próprio trabalho.
+
+### 8.5 Revisor
+
+- procura falhas;
+- confronta requisitos;
+- não promove resultado.
+
+### 8.6 Testador
+
+- produz prova objetiva;
+- não enfraquece teste para obter aprovação.
+
+### 8.7 Engenheiro de segurança
+
+- verifica limites, segredos, rede, permissões e abuso.
+
+### 8.8 Guardião de regras
+
+- verifica intenção, negócio, vigência e conflitos.
+
+### 8.9 Auditor final
+
+Fluxo obrigatório atual:
+
+```text
+Executor
+→ Mimo, revisão interna
+→ correções
+→ testes
+→ commit final
+→ push final
+→ GPT auditor final
+→ veredito
+```
+
+Mimo pode retornar apenas `INTERNAL_REVIEW_APPROVED`.
+Antes do auditor final, o máximo é `READY_FOR_FINAL_AUDIT`.
+Somente o auditor final retorna `APPROVED`, `REJECTED` ou `BLOCKED`.
+Somente `APPROVED` permite `COMPLETED`.
+
+## 9. Segurança e postura defensiva
+
+### 9.1 Missão
+
+> Nada não autorizado entra; nenhuma informação indevida sai; o agente não ultrapassa sua cápsula; a plataforma não ataca terceiros.
+
+### 9.2 Segurança proporcional
+
+Uma leitura comum não exige a mesma cerimônia de uma publicação, acesso a produção ou operação financeira.
+
+O nível de controle cresce conforme:
+
+- impacto;
+- irreversibilidade;
+- privilégio;
+- exposição de dados;
+- alcance de rede;
+- duração autônoma;
+- capacidade do modelo.
+
+### 9.3 Defesa em profundidade
+
+```text
+regra declarativa
+→ hook obrigatório
+→ permissão de ferramenta
+→ isolamento de processo
+→ política de rede
+→ sistema operacional ou VM
+→ credencial temporária mínima
+→ monitor externo
+→ interrupção automática
+```
+
+### 9.4 Ambiente vazio por padrão
+
+Ambientes agênticos não devem receber:
+
+- chaves permanentes;
+- acesso administrativo;
+- Obsidian canônico;
+- escrita no GitHub sem necessidade;
+- pastas pessoais;
+- rede livre;
+- socket do Docker;
+- segredos não relacionados à missão.
+
+### 9.5 Testes adversariais
+
+**[FUTURO]** Permitidos somente quando:
+
+- o ambiente pertence ao usuário ou há autorização;
+- o escopo está definido;
+- existe isolamento;
+- terceiros não são atingidos;
+- há registro e interrupção;
+- o objetivo é defensivo.
+
+## 10. Inteligência técnica externa e quarentena
+
+### 10.1 Inteligência técnica externa
+
+A plataforma poderá pesquisar:
+
+- GitHub;
+- documentação oficial;
+- issues;
+- commits;
+- releases;
+- testes;
+- papers e referências técnicas.
+
+Cada fonte externa recebe avaliação de:
+
+- credibilidade;
+- licença;
+- manutenção;
+- segurança;
+- compatibilidade;
+- evidência.
+
+### 10.2 Laboratório efêmero de quarentena
+
+Código externo desconhecido deve entrar em ambiente descartável e isolado.
+
+### 10.3 Promoção controlada
+
+Nenhum experimento promove a si próprio.
+
+Promoção exige:
+
+- origem;
+- versão ou commit;
+- licença;
+- diff ou patch;
+- dependências;
+- testes;
+- evidências;
+- revisão;
+- gate;
+- rollback.
+
+### 10.4 Registro evolutivo de confiança
+
+A MEC registra histórico de:
+
+- fonte;
+- versão;
+- risco;
+- resultado de testes;
+- motivo da quarentena;
+- decisões;
+- incidentes;
+- condição de reavaliação.
+
+Confiança é evolutiva, não permanente.
+
+## 11. Motor de Resposta e Recuperação Operacional
+
+**[FUTURO]** Aplicação empresarial conhecida informalmente como “domador de ticket”.
+
+Recebe um problema e:
+
+1. identifica sistema e componente afetado;
+2. classifica urgência e impacto;
+3. reproduz a falha;
+4. localiza causa provável;
+5. propõe solução;
+6. testa regressões;
+7. aplica ou prepara correção autorizada;
+8. verifica restauração;
+9. monitora;
+10. registra dívida, evidência e consequência.
+
+### 11.1 Reparação definitiva
+
+Corrige causa raiz, refatora quando necessário, testa e entrega solução completa.
+
+### 11.2 Contenção emergencial
+
+Quando a operação precisa voltar rapidamente, aplica correção mínima:
+
+- reversível;
+- isolada;
+- rastreável;
+- autorizada;
+- com prazo de validade;
+- com risco conhecido;
+- com ticket de correção definitiva.
+
+O remendo nunca é escondido nem promovido como solução final.
+
+## 12. Qualidade de engenharia
+
+A identidade do código deve ser:
+
+- legível;
+- modular;
+- coesa;
+- testável;
+- rastreável;
+- sustentável;
+- consistente;
+- simples sem ser simplista.
+
+Separação de camadas:
+
+- domínio puro;
+- contratos puros;
+- controle orquestra;
+- execução contém efeitos colaterais;
+- integração adapta provedores;
+- observabilidade registra;
+- operação recupera e mantém.
+
+Dívida técnica deve ser explícita e governada.
+
+## 13. Observabilidade e experiência do usuário
+
+O usuário deve conseguir visualizar:
+
+- tarefa atual;
+- agente e papel;
+- modelo e provedor;
+- motivo de troca;
+- custo e tempo;
+- progresso;
+- dependências;
+- bloqueios;
+- hooks aguardando autorização;
+- evidências;
+- último checkpoint;
+- risco e rollback.
+
+Futuros canais remotos, como Telegram ou WhatsApp, poderão notificar e solicitar autorizações, sem substituir controles críticos.
+
+## 14. Paralelismo multiagente
+
+Paralelismo é definido pela arquitetura e pelo grafo de dependências, não pela quantidade de agentes disponível.
+
+Regras:
+
+- tarefas independentes podem executar em paralelo;
+- caminho crítico recebe prioridade;
+- tarefas dependentes aguardam evidência da anterior;
+- agentes não editam o mesmo artefato sem coordenação;
+- quantidade de agentes não justifica distorcer arquitetura;
+- resultados convergem por contratos e gates.
+
+## 15. Requisitos identificáveis
+
+A Bíblia organiza requisitos nas famílias:
+
+- `HC-VIS`: visão e propósito;
+- `HC-ARC`: arquitetura;
+- `HC-COG`: cognição e MEC;
+- `HC-EXE`: execução e loops;
+- `HC-GOV`: governança e autoridade;
+- `HC-SEC`: segurança;
+- `HC-TST`: testes e validação;
+- `HC-EVD`: evidência;
+- `HC-OBS`: observabilidade;
+- `HC-OPS`: operação, release e incidentes;
+- `HC-DOC`: documentação e memória institucional;
+- `HC-PHS`: fases e roadmap.
+
+Cada requisito futuro deve possuir:
+
+- identificador;
+- texto normativo;
+- origem;
+- data da decisão;
+- estado;
+- fase relacionada;
+- evidência ou justificativa;
+- conflitos conhecidos;
+- documentos de implementação.
+
+## 16. Roadmap integral
+
+O roadmap existente FI-0 a FI-13 permanece a espinha dorsal. A descrição abaixo consolida propósito e fronteiras; não autoriza fases futuras.
+
+### FI-0, Fundação Inicial
+
+**Estado:** [IMPLEMENTADO] aprovado.
+
+Entregas:
+
+- repositório;
+- ambiente Python 3.12;
+- dependências e build;
+- testes baseline;
+- observabilidade inicial;
+- governança mínima de evidência.
+
+### FI-1, Protocolo Cognitivo
+
+**Estado:** [IMPLEMENTADO] aprovado.
+
+Entregas:
+
+- contratos cognitivos;
+- referências de evidência;
+- tipos e vocabulário controlado;
+- IDs e validações;
+- separação epistêmica inicial;
+- glossário e protocolo MEC.
+
+### FI-2A, Domínio e Contratos Puros
+
+**Estado:** [IMPLEMENTADO] aprovado.
+
+Entregas:
+
+- Project;
+- Requirement;
+- Plan;
+- Task;
+- WorkOrder;
+- estados, invariantes e políticas;
+- SG-0, ESQ, GRN e CTP formalizados.
+
+### FI-2B Parte 1, Execução Verificada
+
+**Estado:** [IMPLEMENTADO] aprovado.
+
+Entregas:
+
+- ExecutionRun;
+- Review;
+- TestRun;
+- evidências;
+- invariantes e testes adversariais;
+- CI de qualidade.
+
+### FI-2B Parte 2, Gate, Release e Incident
+
+**Estado:** [FUTURO] planejamento existente, implementação não autorizada.
+
+Entregas previstas:
+
+- GateDecision;
+- Release;
+- Incident;
+- políticas de contenção e recuperação;
+- vínculo formal com evidências.
+
+Antes da implementação, o plano deve ser confrontado com esta Bíblia, incluindo hooks, watchdog, sala de deliberação e resposta operacional.
+
+### FI-3, Persistência e Recuperação
+
+**Estado:** [FUTURO].
+
+Entregas candidatas:
+
+- armazenamento de domínio;
+- event store;
+- migrações;
+- backup e restore;
+- replay;
+- consistência;
+- separação entre Git e estado operacional;
+- fundação executável da MEC.
+
+### FI-4, Busca, Projeções e Orquestração
+
+**Estado:** [FUTURO].
+
+Entregas candidatas:
+
+- busca lexical inicial;
+- projeções;
+- consultas por linhagem;
+- orquestração de tarefas;
+- roteamento básico;
+- métricas de custo e execução.
+
+### FI-5, Linhagem e Cápsula de Contexto
+
+**Estado:** [FUTURO].
+
+Entregas candidatas:
+
+- lineage operacional e cognitiva;
+- cápsulas de contexto;
+- recuperação antes/durante/depois;
+- detecção de contradição;
+- promoção de conversa;
+- fronteira de autoridade das fontes.
+
+### FI-6, Fluxo Simulado Completo
+
+**Estado:** [FUTURO].
+
+Entregas candidatas:
+
+- ciclo ponta a ponta simulado;
+- CLI ou interface controlada;
+- primeiro teste humano simulado;
+- gates sem executor destrutivo;
+- checkpoints e rework.
+
+### FI-7, Primeiro Executor Real
+
+**Estado:** [FUTURO].
+
+Entregas candidatas:
+
+- executor de ferramentas;
+- adapters de modelo;
+- permissões mínimas;
+- hooks essenciais;
+- execução controlada;
+- rollback básico;
+- roteamento econômico inicial.
+
+### FI-8, Revisão Independente e Retrabalho
+
+**Estado:** [FUTURO].
+
+Entregas candidatas:
+
+- separação efetiva de autoridades;
+- revisores por papel;
+- ciclos de correção;
+- contrato de deliberação;
+- reauditoria após mudança.
+
+### FI-9, Laboratório de Testes e Evidências
+
+**Estado:** [FUTURO].
+
+Entregas candidatas:
+
+- isolamento;
+- testes técnicos;
+- evidências reproduzíveis;
+- testes adversariais autorizados;
+- promoção controlada;
+- retenção e integridade de artefatos.
+
+### FI-10, Laboratório Web e Validação Visual
+
+**Estado:** [FUTURO].
+
+Entregas candidatas:
+
+- navegação controlada;
+- screenshots e provas visuais;
+- modelo de visão;
+- diagnóstico de UI;
+- detecção de links, proporções e quebras;
+- isolamento de conteúdo externo.
+
+### FI-11, Papéis, Moderação e Promoção
+
+**Estado:** [FUTURO].
+
+Entregas candidatas:
+
+- papéis formalizados;
+- câmara de deliberação;
+- políticas de composição dinâmica;
+- moderador;
+- promoção entre ambientes;
+- registro evolutivo de confiança;
+- governança de skills.
+
+### FI-12, Release, Operação e Incidentes
+
+**Estado:** [FUTURO].
+
+Entregas candidatas:
+
+- implantação;
+- observação pós-entrega;
+- incidentes;
+- reparação definitiva;
+- contenção emergencial;
+- rollback;
+- domador de ticket em forma inicial;
+- notificação remota controlada.
+
+### FI-13, Evals e Evolução
+
+**Estado:** [FUTURO].
+
+Entregas candidatas:
+
+- evals contínuos;
+- qualidade histórica por modelo e papel;
+- roteamento adaptativo;
+- detector maduro de ausência de progresso;
+- custo e desempenho;
+- autodiagnóstico;
+- reparo supervisionado;
+- aprendizado causal baseado em dados quando houver evidência suficiente.
+
+## 17. Critério da primeira plataforma completamente funcional
+
+A primeira versão é considerada funcional quando demonstrar, em um projeto real e autorizado:
+
+1. intenção promovida para projeto formal;
+2. regras extraídas e governadas;
+3. arquitetura e plano rastreáveis;
+4. WorkOrders autorizadas;
+5. execução real em ambiente controlado;
+6. papéis e modelos escolhidos por capacidade e risco;
+7. hooks críticos ativos;
+8. checkpoint e rollback;
+9. detecção mínima de ausência de progresso;
+10. revisão independente;
+11. testes técnicos e, quando aplicável, visuais;
+12. evidências reproduzíveis;
+13. GateDecision funcional;
+14. release controlado;
+15. monitoramento pós-entrega;
+16. incidente e recuperação demonstrados;
+17. MEC persistindo origem, decisão, evidência e consequência;
+18. troca de modelo sem perda de autoridade ou contexto;
+19. segurança sem segredos em documentação ou logs;
+20. aprovação soberana final de Saimon.
+
+A quantidade de funcionalidades não define completude. O que define é o ciclo completo funcionar com segurança, evidência e recuperação.
+
+## 18. Estado atual no corte de 23 de julho de 2026
+
+### Implementado e aprovado
+
+- FI-0;
+- FI-1;
+- FI-2A;
+- FI-2B Parte 1;
+- HEAD `a191a37d207e47d322297f7ce84c2dd211ca02d9`;
+- 534 testes aprovados;
+- tags de aprovação correspondentes.
+
+### Não implementado
+
+- FI-2B Parte 2;
+- persistência;
+- event store;
+- MEC executável completa;
+- executor real da plataforma;
+- hooks de produto;
+- watchdog;
+- sala de deliberação;
+- quarentena operacional;
+- roteamento adaptativo completo;
+- release e incidentes funcionais;
+- integrações operacionais.
+
+### Reconciliação documental pendente
+
+- branch remota `docs/hc-documentary-reconciliation` em `19352a47...`;
+- correção local anterior `0a3fc196...`, não publicada;
+- auditoria documental final pendente.
+
+### Ordem vigente
+
+```text
+reconciliação documental
+→ fechamento e aprovação desta Bíblia
+→ integração documental
+→ espelhamento no Obsidian
+→ retomada autorizada da implementação
+```
+
+## 19. Governança de alteração desta Bíblia
+
+Toda alteração material deve:
+
+1. identificar origem;
+2. indicar se é fato, decisão, hipótese ou implementação;
+3. mapear requisitos e fases afetados;
+4. registrar conflitos;
+5. preservar texto anterior no Git;
+6. receber revisão independente;
+7. ser publicada em SHA identificável;
+8. receber auditoria final quando alterar estado canônico;
+9. depender de aprovação soberana de Saimon.
+
+Ideias novas não entram apenas porque são interessantes. Elas precisam de classificação, encaixe e consequência.
+
+## 20. Decisões fechadas
+
+- MEC é subsistema, não o Harness inteiro.
+- O sistema completo é uma plataforma cognitiva agêntica soberana.
+- O harness de execução é o núcleo operacional.
+- Modelos e provedores são intercambiáveis.
+- Segurança é transversal e proporcional.
+- A plataforma é defensiva e construtiva.
+- Hooks refinam setores existentes.
+- Watchdog refina execução e observabilidade.
+- Sala de deliberação reúne papéis necessários e não decide por maioria simples.
+- Papéis vêm antes dos modelos.
+- Descoberta causal formal não é módulo obrigatório atual.
+- Bíblia precede FI-2B Parte 2.
+- O commit local `0a3fc196...` não deve ser recriado ou alterado.
+- O executor não aprova o próprio trabalho.
+
+## 21. Pendências reais para revisão
+
+1. confronto textual desta Bíblia com os originais 01–08;
+2. recuperação e publicação correta do commit `0a3fc196...`;
+3. reconciliação entre esta branch e `docs/hc-documentary-reconciliation`;
+4. identificação de requisitos por família e numeração completa;
+5. detalhamento de subfases após aprovação da macroestrutura;
+6. catálogo mínimo de hooks da primeira versão;
+7. contrato do watchdog;
+8. critérios de composição da sala;
+9. política de evidência e retenção;
+10. arquitetura detalhada de integrações e segredos;
+11. critérios de produto público ou comercial, deliberadamente adiados.
+
+## 22. Fontes e rastreabilidade
+
+- [Histórico evidencial](history/00_HISTORICO_EVIDENCIAL_DO_PROJETO.md)
+- [Mapa arquitetural](architecture/ARCHITECTURAL_MAP.md)
+- [Plano FI-2B](architecture/FI2B_PLAN.md)
+- [MEC Protocol](MEC_PROTOCOL.md)
+- [Glossário](GLOSSARY.md)
+- [Constituição ESQ](architecture/ESQ_CONSTITUTION.md)
+- [Governança GRN](architecture/GRN_BUSINESS_RULES_GOVERNANCE.md)
+- [CTP](architecture/CTP_CHAT_TO_PROJECT.md)
+- [Política SG-0](operations/SG-0_AGENT_DESTRUCTIVE_ACTIONS_POLICY.md)
+- [Relatório FI-2B Parte 1](reports/RELATORIO_FI2B_PARTE1.md)
+- PR #1 e commits citados no histórico.
+
+## 23. Gate desta versão candidata
+
+Esta Bíblia só poderá ser tratada como canônica depois de:
+
+- revisão de conteúdo por Saimon;
+- confronto com originais 01–08;
+- reconciliação com documentos da branch histórica;
+- correção de links e estados;
+- revisão interna independente;
+- publicação de SHA final;
+- auditoria final independente;
+- veredito `APPROVED`;
+- decisão soberana expressa de Saimon;
+- merge e tag conforme governança.
