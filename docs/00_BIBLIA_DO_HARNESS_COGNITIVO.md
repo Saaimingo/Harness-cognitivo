@@ -501,7 +501,32 @@ A MEC consome a execução e também alimenta planejamento, revisão, roteamento
 
 ## 7. Fluxo completo da plataforma
 
-O mapa vigente possui 14 passos. A consolidação candidata explicita capacidades que cercam esses passos sem apagar o fluxo original:
+### 7.1 Fluxo histórico vigente (14 passos)
+
+O fluxo histórico do projeto, vigente e aprovado, possui 14 passos:
+
+```text
+1. intenção e conversa livre
+2. promoção CTP
+3. extração e governança de regras
+4. arquitetura de domínio
+5. padrões de engenharia
+6. deliberação técnica quando aplicável
+7. planejamento e dependências
+8. autorização por WorkOrder
+9. roteamento e preparação da cápsula
+10. execução controlada
+11. revisão funcional e de domínio
+12. verificação estrutural e de segurança
+13. testes e evidências
+14. GateDecision
+```
+
+Este mapa de 14 passos permanece como referência genealógica do projeto.
+
+### 7.2 Ciclo operacional consolidado candidato (17 passos)
+
+A sequência abaixo é denominada **ciclo operacional consolidado candidato**. Ela expande, detalha e cerca operacionalmente o fluxo histórico de 14 passos, acrescentando etapas de release, observação e recuperação que não estavam explícitas no mapa original:
 
 ```text
 1. intenção e conversa livre
@@ -523,7 +548,7 @@ O mapa vigente possui 14 passos. A consolidação candidata explicita capacidade
 17. incidente, reparo, aprendizado e evolução
 ```
 
-A inclusão de detalhes não cria automaticamente novas fases de implementação. Ela esclarece comportamentos que serão alocados no roadmap.
+O ciclo de 17 passos não substitui silenciosamente o fluxo histórico de 14 passos. Ele o complementa com etapas pós-GateDecision que tornam o ciclo completo observável e recuperável. A inclusão de detalhes não cria automaticamente novas fases de implementação. Ela esclarece comportamentos que serão alocados no roadmap.
 
 ## 8. Papéis e autoridades
 
@@ -573,7 +598,13 @@ A inclusão de detalhes não cria automaticamente novas fases de implementação
 
 - verifica intenção, negócio, vigência e conflitos.
 
-### 8.9 Auditor final
+### 8.9 Auditor Final Independente
+
+**Papel constitucional:** Auditor Final Independente.
+
+**Atribuição operacional atual:** No processo operacional atual do projeto, esse papel é ocupado pelo GPT da OpenAI.
+
+A independência arquitetural de modelos deve ser preservada: o papel é definido pela autoridade e função, não pelo modelo específico que o ocupa.
 
 Fluxo obrigatório atual:
 
@@ -584,14 +615,17 @@ Executor
 → testes
 → commit final
 → push final
-→ GPT auditor final
+→ Auditor Final Independente (GPT da OpenAI)
 → veredito
 ```
 
-Mimo pode retornar apenas `INTERNAL_REVIEW_APPROVED`.
-Antes do auditor final, o máximo é `READY_FOR_FINAL_AUDIT`.
-Somente o auditor final retorna `APPROVED`, `REJECTED` ou `BLOCKED`.
-Somente `APPROVED` permite `COMPLETED`.
+Separação de autoridade:
+
+- Mimo retorna apenas `INTERNAL_REVIEW_APPROVED`.
+- Antes da auditoria final, o estado máximo é `READY_FOR_FINAL_AUDIT`.
+- Somente o Auditor Final Independente autorizado retorna `APPROVED`, `REJECTED` ou `BLOCKED`.
+- Somente `APPROVED` permite `COMPLETED`.
+- Qualquer mudança posterior invalida o veredito anterior e exige nova auditoria.
 
 ## 9. Segurança e postura defensiva
 
@@ -888,17 +922,26 @@ Entregas:
 - invariantes e testes adversariais;
 - CI de qualidade.
 
-### FI-2B Parte 2, Gate, Release e Incident
+### FI-2B Parte 2, Gate, Release e Incident (domínio)
 
 **Estado:** [FUTURO] planejamento existente, implementação não autorizada.
 
 Entregas previstas:
 
-- GateDecision;
-- Release;
-- Incident;
-- políticas de contenção e recuperação;
+- modelos de domínio de GateDecision, Release e Incident;
+- estados, invariantes e transições;
+- políticas puras de contenção e recuperação;
 - vínculo formal com evidências.
+
+**O que FI-2B Parte 2 faz:**
+
+- implementa os modelos de domínio;
+- define estados;
+- define invariantes;
+- define transições;
+- define políticas puras;
+- abrange GateDecision, Release e Incident em nível de domínio;
+- não constitui ainda implantação ou operação empresarial real.
 
 Antes da implementação, o plano deve ser confrontado com esta Bíblia, incluindo hooks, watchdog, sala de deliberação e resposta operacional.
 
@@ -1021,37 +1064,58 @@ Entregas candidatas:
 - registro evolutivo de confiança;
 - governança de skills.
 
-### FI-12, Release, Operação e Incidentes
+### FI-12, Release, Operação e Incidentes (operação real)
 
 **Estado:** [FUTURO].
+
+**O que FI-12 faz:**
+
+- operacionaliza os modelos de domínio definidos em FI-2B Parte 2;
+- integra implantação real;
+- observabilidade pós-entrega;
+- rollback executável;
+- resposta a incidentes;
+- contenção emergencial;
+- reparação definitiva;
+- monitoramento contínuo;
+- notificações;
+- Motor de Resposta e Recuperação Operacional;
+- forma inicial do "domador de ticket".
 
 Entregas candidatas:
 
-- implantação;
-- observação pós-entrega;
-- incidentes;
-- reparação definitiva;
-- contenção emergencial;
-- rollback;
-- domador de ticket em forma inicial;
-- notificação remota controlada.
+- pipeline de implantação com rollback automatizado;
+- dashboards de observabilidade;
+- fluxos de contenção e reparo;
+- integração com notificações remotas;
+- domador de ticket em operação real.
 
-### FI-13, Evals e Evolução
+**Progressão de responsabilidade:** Existe progressão clara de domínio para operação real. FI-2B Parte 2 define os modelos e políticas puras; FI-12 operacionaliza esses modelos em ambiente de produção com monitoramento, resposta e reparo. Não há duplicação de finalidade.
 
-**Estado:** [FUTURO].
+### FI-13, Evals e Evolução (pós-V1)
+
+**Estado:** [FUTURO] pós-V1.
+
+**Classificação temporal:** FI-13 inicia a evolução contínua após a primeira plataforma completamente funcional (V1). Ela não bloqueia o reconhecimento da V1.
 
 Entregas candidatas:
 
 - evals contínuos;
 - qualidade histórica por modelo e papel;
-- roteamento adaptativo;
+- roteamento adaptativo maduro;
 - detector maduro de ausência de progresso;
 - custo e desempenho;
 - autodiagnóstico;
 - reparo supervisionado;
 - aprendizado causal baseado em dados quando houver evidência suficiente.
 
+**Relação com V1:** A aprovação e conclusão da FI-12 encerra a construção da primeira plataforma completamente funcional. FI-13 contém capacidades que podem evoluir indefinidamente após a V1, sem impedir que a primeira plataforma seja reconhecida como concluída.
+
 ## 17. Critério da primeira plataforma completamente funcional
+
+**Marco V1:** A aprovação e conclusão da FI-12 encerra a construção da primeira plataforma completamente funcional. O término da FI-12 representa o marco V1.
+
+**FI-13 e além:** FI-13 inaugura a evolução contínua pós-V1 e não impede o reconhecimento da primeira plataforma como concluída. Recursos da FI-13 podem continuar evoluindo indefinidamente depois da primeira plataforma funcional.
 
 A primeira versão é considerada funcional quando demonstrar, em um projeto real e autorizado:
 
