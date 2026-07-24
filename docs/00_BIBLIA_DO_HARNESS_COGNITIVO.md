@@ -580,7 +580,7 @@ A tabela abaixo mostra a correspondência entre as etapas do ciclo operacional c
 | 17. incidente, reparo, aprendizado e evolução | — | Extensão pós-GateDecision |
 
 **Resumo das transformações:**
-- **Etapas adicionais no candidato:** 3 (deliberação técnica, roteamento/cápsula, e 3 extensões pós-Gate)
+- **Etapas adicionais no candidato:** 5 (2 etapas adicionais internas — deliberação técnica e roteamento/cápsula — e 3 extensões pós-Gate)
 - **Fusões no candidato:** 2 (revisão funcional+domínio, verificação estrutural+segurança)
 - **Reordenação:** testes e evidências movido para após verificação (passo 13 no candidato vs. passo 12 no histórico)
 
