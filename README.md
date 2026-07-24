@@ -25,6 +25,7 @@ A PR #1 permanece Draft, sem merge e sem tag de aprovação da FI-2B Parte 1. A 
 - Logging estruturado e CLI inicial.
 - Documentação de SG-0, ESQ, GRN e CTP.
 - Suíte unitária com 534 testes coletados.
+- Especificações técnicas candidatas para produto, arquitetura, stack, dados, integrações, segurança, observabilidade, testes, operação, frontend e requisitos não funcionais.
 
 Ainda não existem GateDecision, Release, Incident, persistência, event store, executor real, RAG, grafo de conhecimento ou integrações operacionais.
 
@@ -68,6 +69,8 @@ Na reprodução de 2026-07-18 sobre o HEAD auditado:
 src/harness/             código-fonte
 tests/unit/              testes unitários
 docs/architecture/       arquitetura e planos
+docs/specifications/     especificações técnicas normativas candidatas
+docs/adr/                registros de decisões arquiteturais
 docs/operations/         governança operacional
 docs/reports/            relatórios e índice mestre
 evidence/                evidências sanitizadas
@@ -80,9 +83,14 @@ evidence/                evidências sanitizadas
 - Ações destrutivas exigem autorização explícita e rastreabilidade.
 - Alterações após uma auditoria invalidam o veredito anterior e exigem nova auditoria do novo HEAD.
 - Merge, tags e avanço de fase dependem de autorização explícita de Saimon.
+- Agentes devem ler a Especificação Técnica Mestra, a spec da área e os ADRs relacionados antes de planejar ou implementar.
+- Lacunas materiais de especificação devem bloquear a execução com `SPECIFICATION_GAP_REQUIRES_DECISION`.
 
 ## Navegação
 
+- [Especificações técnicas](docs/specifications/README.md)
+- [Especificação Técnica Mestra](docs/specifications/00_ESPECIFICACAO_TECNICA_MESTRA.md)
+- [ADRs](docs/adr/README.md)
 - [Índice mestre](docs/reports/INDICE_MESTRE.md)
 - [Plano da FI-2B](docs/architecture/FI2B_PLAN.md)
 - [Relatório da FI-2B Parte 1](docs/reports/RELATORIO_FI2B_PARTE1.md)
