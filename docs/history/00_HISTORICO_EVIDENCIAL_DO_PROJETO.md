@@ -472,7 +472,9 @@ Saimon reafirmou a divisão permanente de responsabilidades: Saimon governa, Tub
 - Declarativa e originais 01–08 recuperados, verificados por hash e confrontados;
 - branch histórica inspecionada no commit 19352a47...;
 - commit local 0a3fc196... indisponível e preservado como lacuna, sem reconstrução;
-- correção objetiva final, revisão interna e auditoria final ainda pendentes.
+- correção objetiva final e revisão interna concluídas no commit d92a3d9a13f4c3eb3bb7dd9361fe59e8e1566ca5;
+- a auditoria final independente desse SHA identificou apenas estados textuais autoexpirados, corrigidos na sequência;
+- integração e promoção permanecem dependentes de auditoria do novo SHA e decisão soberana.
 
 ### Estado conceitual
 
@@ -483,14 +485,13 @@ Saimon reafirmou a divisão permanente de responsabilidades: Saimon governa, Tub
 
 ## 5. Ordem de continuidade
 
-1. aplicar a correção objetiva final nesta Bíblia e neste Histórico;
-2. realizar revisão interna independente do diff final;
-3. publicar o SHA final da PR #2;
-4. realizar auditoria final independente;
-5. obter decisão soberana de integração;
-6. integrar a documentação aprovada;
-7. retomar a FI-2B Parte 2;
-8. espelhar posteriormente a documentação no Obsidian como projeção.
+A continuidade governada exige, nesta ordem:
+
+1. auditoria final independente do SHA resultante da sincronização de estado;
+2. decisão soberana expressa de Saimon;
+3. integração da documentação aprovada;
+4. retomada autorizada da FI-2B Parte 2;
+5. espelhamento posterior no Obsidian como projeção.
 
 ## 6. Regras permanentes derivadas da história
 

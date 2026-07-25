@@ -1210,16 +1210,14 @@ A quantidade de funcionalidades não define completude. O que define é o ciclo 
 - a Declarativa e os originais normativos 01–08 foram recuperados, identificados por hash e confrontados com esta Bíblia e com o Histórico;
 - o commit local 0a3fc1960e7afb3a60976c32c3c04f1d54c4ce3d não foi encontrado em nenhum clone ou ref acessível;
 - esse commit permanece uma lacuna histórica declarada e não deve ser reconstruído por memória, inferência ou tentativa de reprodução;
-- restam apenas a correção objetiva final, a revisão interna, a auditoria do SHA publicado e a decisão soberana de integração.
+- a correção objetiva final, a revisão interna e a publicação do estado reconciliado foram concluídas; o gate de integração exige auditoria final independente do SHA vigente e decisão soberana expressa.
 
 ### Ordem vigente
 
 ```text
-correção objetiva final da Bíblia e do Histórico
-→ revisão interna independente
-→ publicação do SHA final
-→ auditoria final independente
-→ decisão soberana e integração
+auditoria final independente do SHA vigente
+→ decisão soberana expressa
+→ integração documental
 → retomada autorizada da FI-2B Parte 2
 → espelhamento documental no Obsidian como projeção
 ```
@@ -1257,15 +1255,17 @@ Ideias novas não entram apenas porque são interessantes. Elas precisam de clas
 - O commit local 0a3fc1960e7afb3a60976c32c3c04f1d54c4ce3d está indisponível nas fontes acessíveis, permanece lacuna histórica declarada e não será reconstruído, simulado ou tratado como conteúdo conhecido.
 - O executor não aprova o próprio trabalho.
 
-## 21. Pendências antes do merge e backlog não bloqueante
+## 21. Gate de integração e backlog não bloqueante
 
-### 21.1 Pendências obrigatórias antes do merge
+### 21.1 Gate obrigatório para integração
 
-1. concluir este patch objetivo de estado e rastreabilidade;
-2. obter revisão interna independente sobre o diff final;
-3. publicar o SHA final da branch;
-4. realizar auditoria final independente sobre o SHA publicado;
-5. obter decisão soberana expressa para integração.
+A integração desta Bíblia exige evidência verificável de:
+
+1. confronto com a Declarativa, os originais 01–08 e as fontes históricas acessíveis;
+2. revisão interna independente do diff publicado;
+3. publicação em SHA identificável;
+4. auditoria final independente do SHA vigente;
+5. decisão soberana expressa de Saimon.
 
 ### 21.2 Backlog não bloqueante
 
