@@ -349,7 +349,11 @@ A correção foi revisada internamente, mas o push foi bloqueado pelo ambiente.
 - o commit não está na `master`;
 - não está no clone atual;
 - não deve ser recriado, alterado, amendado, rebaseado ou resetado;
-- a ação futura definida é push normal no ambiente original, seguido de auditoria documental final.
+- o ambiente original não está acessível e o commit não foi localizado em nenhum clone ou ref disponível;
+- o conteúdo desse commit não é considerado conhecido;
+- ele não será reconstruído por memória, inferência ou reprodução aproximada;
+- sua existência declarada permanece preservada como lacuna histórica;
+- a PR #2 substitui a dependência operacional de recuperar esse commit, sem fingir que ele foi incorporado.
 
 ### 3.15 22 de julho de 2026: Hermes como executor contextualizado
 
@@ -433,6 +437,22 @@ Saimon determinou que a consolidação não deve depender de agentes externos te
 
 **Razão:** reduzir trabalho circular, impedir interpretações livres e dar a qualquer agente futuro uma fonte organizada e versionada.
 
+### 3.19 24 de julho de 2026: recuperação de fontes e fechamento da reconciliação
+
+**Classe:** OWNER + DOC + evidência operacional local.
+
+A investigação recuperou a Declarativa do Harness Cognitivo e os oito originais normativos que não estavam versionados no repositório atual. Os nove arquivos foram identificados por tamanho e SHA-256, preservados em staging local e confrontados com a Bíblia, o Histórico, a implementação canônica e a branch histórica.
+
+A branch docs/hc-documentary-reconciliation foi inspecionada no commit 19352a47fd6fcc66edab85a155599b6c9f6b9aca. Seus documentos permanecem propostas e evidências históricas; não se tornaram canônicos automaticamente.
+
+O commit local 0a3fc1960e7afb3a60976c32c3c04f1d54c4ce3d permaneceu indisponível. A decisão vigente é preservar a lacuna e não reconstruir seu conteúdo.
+
+Durante a recuperação da Declarativa ocorreu uma ampliação de acesso fora do escopo inicialmente autorizado. O material foi colocado em quarentena, a evidência foi preservada e a regra operacional foi consolidada: descoberta pode indicar necessidade de expansão, mas autoridade nunca se expande silenciosamente.
+
+A análise automatizada posterior produziu observações úteis, porém seu relatório continha inconsistências quantitativas e bloqueadores não confirmados pelo texto primário. Por isso, o relatório é material auxiliar e não autoridade normativa.
+
+Saimon reafirmou a divisão permanente de responsabilidades: Saimon governa, Tubarão projeta e audita, e Hermes com seus agentes executa operações de terminal, testes e publicação sob contrato fechado.
+
 ## 4. Estado atual no corte
 
 ### Implementação canônica
@@ -448,10 +468,11 @@ Saimon determinou que a consolidação não deve depender de agentes externos te
 
 ### Documentação em reconciliação
 
-- branch remota conhecida: `docs/hc-documentary-reconciliation`;
-- commit remoto: `19352a47...`;
-- correção local anterior: `0a3fc196...`, ainda não publicada;
-- auditoria documental final pendente.
+- PR #2 aberta como Draft na branch docs/biblia-historico-evidencial;
+- Declarativa e originais 01–08 recuperados, verificados por hash e confrontados;
+- branch histórica inspecionada no commit 19352a47...;
+- commit local 0a3fc196... indisponível e preservado como lacuna, sem reconstrução;
+- correção objetiva final, revisão interna e auditoria final ainda pendentes.
 
 ### Estado conceitual
 
@@ -462,16 +483,14 @@ Saimon determinou que a consolidação não deve depender de agentes externos te
 
 ## 5. Ordem de continuidade
 
-1. revisar este histórico e a Bíblia candidata;
-2. publicar ambos em branch documental, sem merge automático;
-3. confrontar com fontes históricas 01–08 e com a reconciliação pendente;
-4. corrigir conflitos sem apagar evidência;
-5. realizar revisão independente;
-6. publicar SHA final de auditoria;
-7. obter decisão soberana de Saimon;
-8. integrar documentação aprovada;
-9. espelhar no Obsidian;
-10. somente então retomar a FI-2B Parte 2.
+1. aplicar a correção objetiva final nesta Bíblia e neste Histórico;
+2. realizar revisão interna independente do diff final;
+3. publicar o SHA final da PR #2;
+4. realizar auditoria final independente;
+5. obter decisão soberana de integração;
+6. integrar a documentação aprovada;
+7. retomar a FI-2B Parte 2;
+8. espelhar posteriormente a documentação no Obsidian como projeção.
 
 ## 6. Regras permanentes derivadas da história
 
@@ -486,6 +505,9 @@ Saimon determinou que a consolidação não deve depender de agentes externos te
 
 ## 7. Fontes principais
 
+- Declarativa do Harness Cognitivo, SHA-256 a3c4e62883b0240b756acc0f010a6d73f171571788d127a632232225a16fc825;
+- originais normativos 01–08, recuperados e verificados individualmente por SHA-256;
+- staging governado das nove fontes recuperadas;
 - commits e tags do repositório `Saaimingo/Harness-cognitivo`;
 - PR #1;
 - `docs/architecture/ARCHITECTURAL_MAP.md`;
@@ -502,8 +524,9 @@ Saimon determinou que a consolidação não deve depender de agentes externos te
 ## 8. Limites deste documento
 
 - Não substitui os originais 01–08.
-- Não declara o commit local `0a3fc196...` publicado.
+- Não declara o commit local `0a3fc196...` publicado, recuperado ou conhecido; ele permanece lacuna histórica.
 - Não declara a reconciliação documental aprovada.
 - Não autoriza FI-2B Parte 2.
 - Não prova conversas que ainda não foram versionadas.
 - Deve ser atualizado quando novas evidências primárias forem incorporadas.
+- O relatório automatizado de reconciliação é evidência auxiliar e não substitui fontes primárias nem decisão soberana.

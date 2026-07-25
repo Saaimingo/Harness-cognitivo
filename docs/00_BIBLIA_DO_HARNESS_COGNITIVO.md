@@ -40,14 +40,15 @@ Ela não:
 ### 0.2 Autoridade por domínio
 
 1. **Saimon** é a autoridade soberana sobre direção, escopo, aprovação e promoção.
-2. **Git, commits, tags, tree e CI** provam o estado implementado e versionado.
-3. **Documentação normativa aprovada** governa requisitos, arquitetura e decisões no seu escopo.
-4. **ADRs** registram decisões técnicas e suas consequências.
-5. **Relatórios e evidências** provam acontecimentos e resultados, mas não são automaticamente normas futuras.
-6. **Originais 01–08** são patrimônio normativo histórico e devem ser preservados.
-7. **Checkpoint e input-context** preservam continuidade, mas não são canônicos automaticamente.
-8. **HERMES.md** governa o comportamento operacional do Hermes no workspace local; não governa o produto.
-9. **Conversas** podem conter decisões soberanas ainda não consolidadas; não devem permanecer como única fonte.
+2. **Declarativa do Harness Cognitivo** preserva a visão fundadora, a intenção e a relação original entre humano, modelos e plataforma; ela orienta propósito, mas não prova implementação.
+3. **Git, commits, tags, tree e CI** provam o estado implementado e versionado.
+4. **Documentação normativa aprovada** governa requisitos, arquitetura e decisões no seu escopo.
+5. **ADRs** registram decisões técnicas e suas consequências.
+6. **Relatórios e evidências** provam acontecimentos e resultados, mas não são automaticamente normas futuras.
+7. **Originais 01–08** são patrimônio normativo histórico e devem ser preservados.
+8. **Checkpoint e input-context** preservam continuidade, mas não são canônicos automaticamente.
+9. **HERMES.md** governa o comportamento operacional do Hermes no workspace local; não governa o produto.
+10. **Conversas** podem conter decisões soberanas ainda não consolidadas; não devem permanecer como única fonte.
 
 Quando duas fontes divergem, o conflito deve ser registrado. Nenhum agente pode resolvê-lo silenciosamente.
 
@@ -1203,20 +1204,24 @@ A quantidade de funcionalidades não define completude. O que define é o ciclo 
 - release e incidentes funcionais;
 - integrações operacionais.
 
-### Reconciliação documental pendente
+### Fechamento documental em curso
 
-- branch remota `docs/hc-documentary-reconciliation` em `19352a47...`;
-- correção local anterior `0a3fc196...`, não publicada;
-- auditoria documental final pendente.
+- a branch histórica docs/hc-documentary-reconciliation foi inspecionada no commit 19352a47fd6fcc66edab85a155599b6c9f6b9aca e permanece fonte proposta e forense, não cânone automático;
+- a Declarativa e os originais normativos 01–08 foram recuperados, identificados por hash e confrontados com esta Bíblia e com o Histórico;
+- o commit local 0a3fc1960e7afb3a60976c32c3c04f1d54c4ce3d não foi encontrado em nenhum clone ou ref acessível;
+- esse commit permanece uma lacuna histórica declarada e não deve ser reconstruído por memória, inferência ou tentativa de reprodução;
+- restam apenas a correção objetiva final, a revisão interna, a auditoria do SHA publicado e a decisão soberana de integração.
 
 ### Ordem vigente
 
 ```text
-reconciliação documental
-→ fechamento e aprovação desta Bíblia
-→ integração documental
-→ espelhamento no Obsidian
-→ retomada autorizada da implementação
+correção objetiva final da Bíblia e do Histórico
+→ revisão interna independente
+→ publicação do SHA final
+→ auditoria final independente
+→ decisão soberana e integração
+→ retomada autorizada da FI-2B Parte 2
+→ espelhamento documental no Obsidian como projeção
 ```
 
 ## 19. Governança de alteração desta Bíblia
@@ -1249,25 +1254,39 @@ Ideias novas não entram apenas porque são interessantes. Elas precisam de clas
 - Papéis vêm antes dos modelos.
 - Descoberta causal formal não é módulo obrigatório atual.
 - Bíblia precede FI-2B Parte 2.
-- O commit local `0a3fc196...` não deve ser recriado ou alterado.
+- O commit local 0a3fc1960e7afb3a60976c32c3c04f1d54c4ce3d está indisponível nas fontes acessíveis, permanece lacuna histórica declarada e não será reconstruído, simulado ou tratado como conteúdo conhecido.
 - O executor não aprova o próprio trabalho.
 
-## 21. Pendências reais para revisão
+## 21. Pendências antes do merge e backlog não bloqueante
 
-1. confronto textual desta Bíblia com os originais 01–08;
-2. recuperação e publicação correta do commit `0a3fc196...`;
-3. reconciliação entre esta branch e `docs/hc-documentary-reconciliation`;
-4. identificação de requisitos por família e numeração completa;
-5. detalhamento de subfases após aprovação da macroestrutura;
-6. catálogo mínimo de hooks da primeira versão;
-7. contrato do watchdog;
-8. critérios de composição da sala;
-9. política de evidência e retenção;
-10. arquitetura detalhada de integrações e segredos;
-11. critérios de produto público ou comercial, deliberadamente adiados.
+### 21.1 Pendências obrigatórias antes do merge
+
+1. concluir este patch objetivo de estado e rastreabilidade;
+2. obter revisão interna independente sobre o diff final;
+3. publicar o SHA final da branch;
+4. realizar auditoria final independente sobre o SHA publicado;
+5. obter decisão soberana expressa para integração.
+
+### 21.2 Backlog não bloqueante
+
+Os itens abaixo pertencem às fases em que forem necessários e não bloqueiam o fechamento desta Bíblia nem, por si só, a FI-2B Parte 2:
+
+- numeração completa dos requisitos por família;
+- detalhamento de subfases futuras;
+- catálogo operacional de hooks;
+- contrato executável do watchdog;
+- critérios operacionais da Câmara de Deliberação;
+- política detalhada de retenção de evidências;
+- arquitetura operacional de integrações e segredos;
+- critérios de produto público ou comercial.
+
+Um item do backlog somente se torna bloqueador quando a fase autorizada depender materialmente dele.
 
 ## 22. Fontes e rastreabilidade
 
+- Declarativa do Harness Cognitivo, PDF recuperado e identificado pelo SHA-256 a3c4e62883b0240b756acc0f010a6d73f171571788d127a632232225a16fc825;
+- originais normativos 01–08, recuperados e verificados individualmente por SHA-256;
+- branch histórica docs/hc-documentary-reconciliation no commit 19352a47fd6fcc66edab85a155599b6c9f6b9aca, tratada como proposta e evidência histórica;
 - [Histórico evidencial](history/00_HISTORICO_EVIDENCIAL_DO_PROJETO.md)
 - [Mapa arquitetural](architecture/ARCHITECTURAL_MAP.md)
 - [Plano FI-2B](architecture/FI2B_PLAN.md)
@@ -1285,9 +1304,9 @@ Ideias novas não entram apenas porque são interessantes. Elas precisam de clas
 Esta Bíblia só poderá ser tratada como canônica depois de:
 
 - revisão de conteúdo por Saimon;
-- confronto com originais 01–08;
-- reconciliação com documentos da branch histórica;
-- correção de links e estados;
+- confronto concluído com a Declarativa e os originais 01–08;
+- reconciliação concluída com os documentos acessíveis da branch histórica;
+- correção final de links, estados e rastreabilidade;
 - revisão interna independente;
 - publicação de SHA final;
 - auditoria final independente;
