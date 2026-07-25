@@ -194,3 +194,63 @@ class TestRunStatus(StrEnum):
     PASSED = "passed"
     FAILED = "failed"
     ERROR = "error"
+
+
+# =============================================================================
+# FI-2B PARTE 2 ENUMS — GateDecision, Release, Incident
+# =============================================================================
+
+
+class GateDecisionState(StrEnum):
+    """Resultado formal da decisão de gate (FI-2B Parte 2).
+
+    Diferente de GateStatus (estado do processo) e GateDecisionType
+    (tipo do resultado); este enum representa o desfecho registrado
+    na entidade GateDecision.
+    """
+
+    APPROVED = "approved"
+    APPROVED_WITH_RESERVATIONS = "approved_with_reservations"
+    REWORK_REQUIRED = "rework_required"
+    BLOCKED = "blocked"
+    REJECTED = "rejected"
+
+
+class ReleaseState(StrEnum):
+    """Estados do ciclo de vida da Release (FI-2B Parte 2).
+
+    Conjunto mínimo; ReleaseStatus existente oferece granularidade
+    operacional adicional quando a fase correspondente for ativada.
+    """
+
+    CANDIDATE = "candidate"
+    AUTHORIZED = "authorized"
+    PROMOTED = "promoted"
+    FAILED = "failed"
+    REVERTED = "reverted"
+    CANCELLED = "cancelled"
+
+
+class IncidentState(StrEnum):
+    """Estados do ciclo de vida do Incident (FI-2B Parte 2).
+
+    Conjunto mínimo; IncidentStatus existente oferece granularidade
+    operacional adicional quando a fase correspondente for ativada.
+    """
+
+    DETECTED = "detected"
+    TRIAGED = "triaged"
+    CONTAINED = "contained"
+    INVESTIGATING = "investigating"
+    FIXING = "fixing"
+    RESOLVED = "resolved"
+    CLOSED = "closed"
+
+
+class IncidentSeverityLevel(StrEnum):
+    """Níveis de severidade de incidente (FI-2B Parte 2)."""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"

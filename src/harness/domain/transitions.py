@@ -12,7 +12,9 @@ from typing import TYPE_CHECKING
 from harness.domain.enums import (
     ExecutionRunStatus,
     GateStatus,
+    IncidentState,
     ProjectStatus,
+    ReleaseState,
     ReviewStatus,
     TaskStatus,
     TestRunStatus,
@@ -440,6 +442,98 @@ TESTRUN_TRANSITIONS: dict[TestRunStatus, frozenset[TestRunStatus]] = {
     TestRunStatus.ERROR: frozenset(),  # terminal
 }
 
+
+# =============================================================================
+# GATEDECISION — 5 estados (FI-2B Parte 2)
+# =============================================================================
+
+# GateDecision não é uma máquina de estados com transições.
+# GateDecision registra o resultado de uma decisão; o estado é o próprio
+# desfecho e não se altera após registro. O enum GateDecisionState fornece
+# os valores possíveis.
+
+# =============================================================================
+# RELEASE — 6 estados (FI-2B Parte 2)
+# =============================================================================
+
+RELEASE_INITIAL = ReleaseState.CANDIDATE
+RELEASE_TERMINAL: frozenset[ReleaseState] = frozenset(
+    {
+        ReleaseState.FAILED,
+        ReleaseState.REVERTED,
+        ReleaseState.CANCELLED,
+    }
+)
+
+RELEASE_TRANSITIONS: dict[ReleaseState, frozenset[ReleaseState]] = {
+    ReleaseState.CANDIDATE: frozenset(
+        {
+            ReleaseState.AUTHORIZED,
+            ReleaseState.CANCELLED,
+        }
+    ),
+    ReleaseState.AUTHORIZED: frozenset(
+        {
+            ReleaseState.PROMOTED,
+            ReleaseState.CANCELLED,
+        }
+    ),
+    ReleaseState.PROMOTED: frozenset(
+        {
+            ReleaseState.FAILED,
+            ReleaseState.REVERTED,
+        }
+    ),
+    ReleaseState.FAILED: frozenset(),  # terminal
+    ReleaseState.REVERTED: frozenset(),  # terminal
+    ReleaseState.CANCELLED: frozenset(),  # terminal
+}
+
+# =============================================================================
+# INCIDENT — 7 estados (FI-2B Parte 2)
+# =============================================================================
+
+INCIDENT_INITIAL = IncidentState.DETECTED
+INCIDENT_TERMINAL: frozenset[IncidentState] = frozenset(
+    {
+        IncidentState.CLOSED,
+    }
+)
+
+INCIDENT_TRANSITIONS: dict[IncidentState, frozenset[IncidentState]] = {
+    IncidentState.DETECTED: frozenset(
+        {
+            IncidentState.TRIAGED,
+        }
+    ),
+    IncidentState.TRIAGED: frozenset(
+        {
+            IncidentState.CONTAINED,
+            IncidentState.INVESTIGATING,
+        }
+    ),
+    IncidentState.CONTAINED: frozenset(
+        {
+            IncidentState.INVESTIGATING,
+        }
+    ),
+    IncidentState.INVESTIGATING: frozenset(
+        {
+            IncidentState.FIXING,
+        }
+    ),
+    IncidentState.FIXING: frozenset(
+        {
+            IncidentState.RESOLVED,
+        }
+    ),
+    IncidentState.RESOLVED: frozenset(
+        {
+            IncidentState.CLOSED,
+        }
+    ),
+    IncidentState.CLOSED: frozenset(),  # terminal
+}
 
 # =============================================================================
 # FUNÇÕES AUXILIARES

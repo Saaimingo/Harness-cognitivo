@@ -89,15 +89,18 @@ def test_domain_modules_importable():
         "harness.domain.execution_run",
         "harness.domain.review",
         "harness.domain.test_run",
+        "harness.domain.gate_decision",
+        "harness.domain.release",
+        "harness.domain.incident",
     ]
     for mod in modules:
         importlib.import_module(mod)
 
 
 def test_domain_files_count():
-    """Deve haver 14 arquivos de domínio (init + 13 módulos)."""
+    """Deve haver 17 arquivos de domínio (init + 16 módulos)."""
     py_files = list(DOMAIN_DIR.glob("*.py"))
-    assert len(py_files) == 14, f"Esperado 14 arquivos, encontrado {len(py_files)}"
+    assert len(py_files) == 17, f"Esperado 17 arquivos, encontrado {len(py_files)}"
 
 
 def test_pydantic_is_present():
